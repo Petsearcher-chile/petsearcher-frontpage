@@ -31,6 +31,7 @@ export default function Home() {
   const [photoError, setPhotoError] = useState("");
   const [uploadError, setUploadError] = useState("");
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
+  const [hasSelectedLocation, setHasSelectedLocation] = useState(false);
   const [uploadedThumbnailPreviews, setUploadedThumbnailPreviews] = useState<
     { id: string; url: string; name: string }[]
   >([]);
@@ -43,7 +44,18 @@ export default function Home() {
   const thumbnailUrlsRef = useRef<string[]>([]);
 
   useEffect(() => {
+    const handleLocationSelected = (event: Event) => {
+      const customEvent = event as CustomEvent<{ selected?: boolean }>;
+      setHasSelectedLocation(Boolean(customEvent.detail?.selected));
+    };
+
+    window.addEventListener("petsearcher:location-selected", handleLocationSelected);
+
     return () => {
+      window.removeEventListener(
+        "petsearcher:location-selected",
+        handleLocationSelected,
+      );
       if (uploadResetTimerRef.current !== null) {
         window.clearTimeout(uploadResetTimerRef.current);
       }
@@ -235,6 +247,7 @@ export default function Home() {
                 setPetLossId(null);
                 setLostPetDate("");
                 setLostPetName("");
+                setHasSelectedLocation(false);
                 setPhotoError("");
                 setUploadError("");
                 clearThumbnailPreviews();
@@ -345,6 +358,13 @@ export default function Home() {
                         type="button"
                         disabled={!isSaveEnabled}
                         className="ml-auto cursor-pointer rounded-xl border border-zinc-200 bg-white px-5 py-2 text-sm font-medium text-zinc-800 transition hover:border-zinc-300 hover:bg-zinc-50 disabled:cursor-not-allowed disabled:border-zinc-200 disabled:bg-zinc-100 disabled:text-zinc-400 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:border-zinc-700 dark:hover:bg-zinc-800 dark:disabled:border-zinc-800 dark:disabled:bg-zinc-800 dark:disabled:text-zinc-500"
+                        onClick={() => {
+                          if (!hasSelectedLocation) {
+                            setUploadError(
+                              "Debe seleccionar un lugar donde se perdió su mascota, arriba en el buscador, busque su dirección",
+                            );
+                          }
+                        }}
                       >
                         Guardar
                       </button>

@@ -12,6 +12,7 @@ import "mapbox-gl/dist/mapbox-gl.css";
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN ?? "";
 const GEOCODE_ENDPOINT = "https://api.mapbox.com/geocoding/v5/mapbox.places";
 const SELECT_ZOOM = 16;
+const LOCATION_EVENT_NAME = "petsearcher:location-selected";
 
 type LocationSuggestion = {
   id: string;
@@ -42,9 +43,18 @@ export default function MapView() {
 
   const hasToken = MAPBOX_TOKEN.length > 0;
 
+  const emitLocationSelected = useCallback((selected: boolean) => {
+    window.dispatchEvent(
+      new CustomEvent<{ selected: boolean }>(LOCATION_EVENT_NAME, {
+        detail: { selected },
+      }),
+    );
+  }, []);
+
   const handleQueryChange = useCallback((value: string) => {
     if (value !== selectedQueryRef.current) {
       selectedQueryRef.current = "";
+      emitLocationSelected(false);
     }
 
     setSearchQuery(value);
@@ -53,7 +63,7 @@ export default function MapView() {
     if (!value.trim()) {
       setResults([]);
     }
-  }, []);
+  }, [emitLocationSelected]);
 
   const fetchSuggestions = useCallback(
     async (query: string, signal: AbortSignal) => {
@@ -123,6 +133,7 @@ export default function MapView() {
     const latitude = result.center[1];
 
     setSelectedPoint({ longitude, latitude });
+    emitLocationSelected(true);
     const map = mapRef.current;
 
     if (map) {
@@ -131,7 +142,7 @@ export default function MapView() {
         zoom: SELECT_ZOOM,
       });
     }
-  }, []);
+  }, [emitLocationSelected]);
 
   const searchAndSelect = useCallback(
     async (query: string) => {
