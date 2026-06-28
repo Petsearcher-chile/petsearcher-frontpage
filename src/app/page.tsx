@@ -2,7 +2,13 @@
 
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { ChangeEvent, useState } from "react";
+import {
+  ChangeEvent,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
 const MapView = dynamic(() => import("@/components/MapView"), {
   ssr: false,
@@ -17,6 +23,79 @@ export default function Home() {
   const [isPanelOpen, setIsPanelOpen] = useState(true);
   const [showLostPetForm, setShowLostPetForm] = useState(false);
   const [photoError, setPhotoError] = useState("");
+  const [uploadError, setUploadError] = useState("");
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
+  const photoInputRef = useRef<HTMLInputElement>(null);
+  const uploadResetTimerRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (uploadResetTimerRef.current !== null) {
+        window.clearTimeout(uploadResetTimerRef.current);
+      }
+    };
+  }, []);
+
+  const resetUploadProgress = useCallback(() => {
+    if (uploadResetTimerRef.current !== null) {
+      window.clearTimeout(uploadResetTimerRef.current);
+      uploadResetTimerRef.current = null;
+    }
+
+    setUploadProgress(null);
+  }, []);
+
+  const uploadPhotos = useCallback(
+    (files: File[]) => {
+      if (files.length === 0) {
+        return;
+      }
+
+      resetUploadProgress();
+      setPhotoError("");
+      setUploadError("");
+      setUploadProgress(0);
+
+      const formData = new FormData();
+      files.forEach((file) => {
+        formData.append("photos", file);
+      });
+
+      const request = new XMLHttpRequest();
+      request.open("POST", "/api/lost-pet-photos");
+      request.responseType = "json";
+
+      request.upload.onprogress = (event) => {
+        if (!event.lengthComputable) {
+          return;
+        }
+
+        setUploadProgress(Math.round((event.loaded / event.total) * 100));
+      };
+
+      request.onload = () => {
+        if (request.status < 200 || request.status >= 300) {
+          setUploadError("No se pudieron subir las fotos.");
+          setUploadProgress(null);
+          return;
+        }
+
+        setUploadProgress(100);
+        uploadResetTimerRef.current = window.setTimeout(() => {
+          setUploadProgress(null);
+          uploadResetTimerRef.current = null;
+        }, 700);
+      };
+
+      request.onerror = () => {
+        setUploadError("No se pudieron subir las fotos.");
+        setUploadProgress(null);
+      };
+
+      request.send(formData);
+    },
+    [resetUploadProgress],
+  );
 
   const handlePhotoChange = (event: ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = event.target.files;
@@ -32,7 +111,8 @@ export default function Home() {
       return;
     }
 
-    setPhotoError("");
+    event.target.value = "";
+    uploadPhotos(Array.from(selectedFiles));
   };
 
   return (
@@ -44,6 +124,15 @@ export default function Home() {
           isPanelOpen ? "h-[calc(20vh+25px)]" : "h-14"
         }`}
       >
+        {uploadProgress !== null ? (
+          <div className="absolute inset-x-0 top-0 h-1 bg-zinc-200 dark:bg-zinc-800">
+            <div
+              className="h-full bg-blue-600 transition-[width] duration-150 ease-out"
+              style={{ width: `${uploadProgress}%` }}
+            />
+          </div>
+        ) : null}
+
         <div className="flex h-14 items-center justify-between px-4">
           <div className="flex items-center gap-2 text-sm font-medium text-zinc-700 dark:text-zinc-200">
             <Link
@@ -117,16 +206,26 @@ export default function Home() {
                     >
                       Fotos (max 10)
                     </label>
+                    <button
+                      type="button"
+                      className="flex-none rounded-xl border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-zinc-800 transition hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:border-zinc-700 dark:hover:bg-zinc-800"
+                      onClick={() => photoInputRef.current?.click()}
+                    >
+                      subir
+                    </button>
                     <input
+                      ref={photoInputRef}
                       id="lost-pet-photos"
                       type="file"
                       accept="image/*"
                       multiple
                       onChange={handlePhotoChange}
-                      className="w-[150px] max-w-[150px] flex-none overflow-hidden rounded-xl border border-zinc-200 bg-white px-2 py-2 text-zinc-900 outline-none transition file:mr-2 file:rounded-lg file:border-0 file:bg-zinc-900 file:px-2 file:py-1 file:text-xs file:font-medium file:text-white hover:border-zinc-300 focus:border-zinc-400 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:file:bg-zinc-100 dark:file:text-zinc-900 dark:focus:border-zinc-600"
+                      className="sr-only"
                     />
                     {photoError ? (
                       <p className="text-sm text-red-600">{photoError}</p>
+                    ) : uploadError ? (
+                      <p className="text-sm text-red-600">{uploadError}</p>
                     ) : null}
                   </div>
                 </div>
