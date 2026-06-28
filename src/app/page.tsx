@@ -32,6 +32,9 @@ type SelectedAddressDetail = {
   houseNumber: string | null;
 };
 
+const LOCATION_EVENT_NAME = "petsearcher:location-selected";
+const AUTOSELECT_REQUEST_EVENT_NAME = "petsearcher:location-autoselect-request";
+
 export default function Home() {
   const { isLoaded, isSignedIn } = useAuth();
   const { openSignIn } = useClerk();
@@ -45,7 +48,7 @@ export default function Home() {
   const [saveSuccessMessage, setSaveSuccessMessage] = useState("");
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const [isSaving, setIsSaving] = useState(false);
-  const [hasSelectedLocation, setHasSelectedLocation] = useState(false);
+  const [, setHasSelectedLocation] = useState(false);
   const [selectedAddressDetail, setSelectedAddressDetail] =
     useState<SelectedAddressDetail | null>(null);
   const [uploadedThumbnailPreviews, setUploadedThumbnailPreviews] = useState<
@@ -93,18 +96,49 @@ export default function Home() {
       setSelectedAddressDetail(null);
     };
 
-    window.addEventListener("petsearcher:location-selected", handleLocationSelected);
+    window.addEventListener(LOCATION_EVENT_NAME, handleLocationSelected);
 
     return () => {
-      window.removeEventListener(
-        "petsearcher:location-selected",
-        handleLocationSelected,
-      );
+      window.removeEventListener(LOCATION_EVENT_NAME, handleLocationSelected);
       if (uploadResetTimerRef.current !== null) {
         window.clearTimeout(uploadResetTimerRef.current);
       }
       thumbnailUrlsRef.current.forEach((url) => URL.revokeObjectURL(url));
     };
+  }, []);
+
+  const requestAddressAutoselection = useCallback(() => {
+    return new Promise<SelectedAddressDetail | null>((resolve) => {
+      let settled = false;
+      const handleLocationSelected = (event: Event) => {
+        if (settled) {
+          return;
+        }
+
+        const customEvent = event as CustomEvent<{
+          selected?: boolean;
+          address?: SelectedAddressDetail;
+        }>;
+        const receivedAddress = customEvent.detail?.address ?? lastSelectedAddressRef.current;
+        settled = true;
+        window.clearTimeout(timeoutId);
+        resolve(customEvent.detail?.selected ? (receivedAddress ?? null) : null);
+      };
+      const timeoutId = window.setTimeout(() => {
+        if (settled) {
+          return;
+        }
+
+        settled = true;
+        window.removeEventListener(LOCATION_EVENT_NAME, handleLocationSelected);
+        resolve(lastSelectedAddressRef.current);
+      }, 1800);
+
+      window.addEventListener(LOCATION_EVENT_NAME, handleLocationSelected, {
+        once: true,
+      });
+      window.dispatchEvent(new CustomEvent(AUTOSELECT_REQUEST_EVENT_NAME));
+    });
   }, []);
 
   const resetUploadProgress = useCallback(() => {
@@ -266,75 +300,75 @@ export default function Home() {
     isLostPetNameValid;
 
   const handleSaveClick = useCallback(() => {
-    if (!hasSelectedLocation) {
-      setUploadError(
-        "Debe seleccionar un lugar donde se perdió su mascota, arriba en el buscador, busque su dirección",
-      );
-      return;
-    }
+    void (async () => {
+      let addressToSave = selectedAddressDetail ?? lastSelectedAddressRef.current;
 
-    const addressToSave = selectedAddressDetail ?? lastSelectedAddressRef.current;
-    if (!addressToSave) {
-      setUploadError(
-        "Debe seleccionar un lugar donde se perdió su mascota, arriba en el buscador, busque su dirección",
-      );
-      return;
-    }
+      if (!addressToSave) {
+        addressToSave = await requestAddressAutoselection();
+      }
 
-    if (petLossId === null) {
-      setUploadError("Debes subir al menos una foto antes de guardar.");
-      return;
-    }
+      if (!addressToSave) {
+        setUploadError(
+          "Debe seleccionar un lugar donde se perdió su mascota, arriba en el buscador, busque su dirección",
+        );
+        return;
+      }
 
-    setIsSaving(true);
-    void fetch("/api/lost-pet-save", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        petLossId,
-        lostPetDate,
-        lostPetName,
-        mapboxAddress: addressToSave,
-      }),
-    })
-      .then(async (response) => {
-        if (response.ok) {
-          setUploadError("");
-          setPhotoError("");
-          setShowLostPetForm(false);
-          setIsPanelOpen(false);
-          setPetLossId(null);
-          setLostPetDate("");
-          setLostPetName("");
-          setHasSelectedLocation(false);
-          setSelectedAddressDetail(null);
-          lastSelectedAddressRef.current = null;
-          clearThumbnailPreviews();
-          setSaveSuccessMessage(
-            "Lamentamos mucho el extravío de su mascota. En caso de que alguien la encuentre, será contactado por el correo que utilizó para identificarse.",
-          );
-          return;
-        }
+      if (petLossId === null) {
+        setUploadError("Debes subir al menos una foto antes de guardar.");
+        return;
+      }
 
-        const payload = (await response.json()) as { message?: string; detail?: string };
-        const errorMessage =
-          payload.message && payload.detail
-            ? `${payload.message} ${payload.detail}`
-            : payload.message ?? "No se pudo guardar la pérdida.";
-        setUploadError(errorMessage);
+      setIsSaving(true);
+      void fetch("/api/lost-pet-save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          petLossId,
+          lostPetDate,
+          lostPetName,
+          mapboxAddress: addressToSave,
+        }),
       })
-      .catch(() => {
-        setUploadError("No se pudo guardar la pérdida.");
-      })
-      .finally(() => {
-        setIsSaving(false);
-      });
+        .then(async (response) => {
+          if (response.ok) {
+            setUploadError("");
+            setPhotoError("");
+            setShowLostPetForm(false);
+            setIsPanelOpen(false);
+            setPetLossId(null);
+            setLostPetDate("");
+            setLostPetName("");
+            setHasSelectedLocation(false);
+            setSelectedAddressDetail(null);
+            lastSelectedAddressRef.current = null;
+            clearThumbnailPreviews();
+            setSaveSuccessMessage(
+              "Lamentamos mucho el extravío de su mascota. En caso de que alguien la encuentre, será contactado por el correo que utilizó para identificarse.",
+            );
+            return;
+          }
+
+          const payload = (await response.json()) as { message?: string; detail?: string };
+          const errorMessage =
+            payload.message && payload.detail
+              ? `${payload.message} ${payload.detail}`
+              : payload.message ?? "No se pudo guardar la pérdida.";
+          setUploadError(errorMessage);
+        })
+        .catch(() => {
+          setUploadError("No se pudo guardar la pérdida.");
+        })
+        .finally(() => {
+          setIsSaving(false);
+        });
+    })();
   }, [
     clearThumbnailPreviews,
-    hasSelectedLocation,
     lostPetDate,
     lostPetName,
     petLossId,
+    requestAddressAutoselection,
     selectedAddressDetail,
   ]);
 

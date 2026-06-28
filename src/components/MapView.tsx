@@ -13,6 +13,7 @@ const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN ?? "";
 const GEOCODE_ENDPOINT = "https://api.mapbox.com/geocoding/v5/mapbox.places";
 const SELECT_ZOOM = 16;
 const LOCATION_EVENT_NAME = "petsearcher:location-selected";
+const AUTOSELECT_REQUEST_EVENT_NAME = "petsearcher:location-autoselect-request";
 
 type LocationSuggestion = {
   id: string;
@@ -223,9 +224,10 @@ export default function MapView() {
     const map = mapRef.current;
 
     if (map) {
+      const currentZoom = map.getZoom();
       map.jumpTo({
         center: [longitude, latitude],
-        zoom: SELECT_ZOOM,
+        zoom: currentZoom > SELECT_ZOOM ? currentZoom : SELECT_ZOOM,
       });
     }
   }, [emitLocationSelected, mapSelectedAddress]);
@@ -257,6 +259,34 @@ export default function MapView() {
     },
     [hasToken, handleSelectResult],
   );
+
+  useEffect(() => {
+    const handleAutoselectRequest = () => {
+      const query = searchQuery.trim();
+
+      if (!query) {
+        emitLocationSelected(false);
+        return;
+      }
+
+      if (results[0]) {
+        handleSelectResult(results[0]);
+        return;
+      }
+
+      void searchAndSelect(query).catch(() => {
+        setResults([]);
+        setSearchError("No se pudo buscar la ubicación.");
+        emitLocationSelected(false);
+      });
+    };
+
+    window.addEventListener(AUTOSELECT_REQUEST_EVENT_NAME, handleAutoselectRequest);
+
+    return () => {
+      window.removeEventListener(AUTOSELECT_REQUEST_EVENT_NAME, handleAutoselectRequest);
+    };
+  }, [emitLocationSelected, handleSelectResult, results, searchAndSelect, searchQuery]);
 
   useEffect(() => {
     if (!hasToken) {
