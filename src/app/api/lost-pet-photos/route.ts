@@ -8,6 +8,7 @@ const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const BUCKET_NAME = "fotos_perdidos";
 const ORIGINALS_FOLDER = "originales";
 const THUMBNAILS_FOLDER = "miniatura";
+const LOST_PET_NAME_PATTERN = /^(?!.*[ _\-°ñÑ]{2})[a-zA-Z0-9°_\-ñÑ ]+$/;
 
 export const runtime = "nodejs";
 
@@ -61,6 +62,15 @@ export async function POST(request: Request) {
       typeof rawLostPetName === "string" && rawLostPetName.trim().length > 0
         ? rawLostPetName.trim().slice(0, 30)
         : null;
+    if (lostPetName !== null && !LOST_PET_NAME_PATTERN.test(lostPetName)) {
+      return Response.json(
+        {
+          message:
+            "Nombre inválido. No puede tener dos espacios ni caracteres especiales juntos.",
+        },
+        { status: 400 },
+      );
+    }
     const uploadedFiles = formData.getAll("photos").filter(
       (entry): entry is File => entry instanceof File,
     );

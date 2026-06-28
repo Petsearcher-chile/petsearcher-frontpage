@@ -193,6 +193,14 @@ export default function Home() {
     setShowLostPetForm(true);
   }, [isLoaded, isSignedIn, openSignIn]);
 
+  const lostPetNamePattern = /^(?!.*[ _\-°ñÑ]{2})[a-zA-Z0-9°_\-ñÑ ]+$/;
+  const isLostPetNameValid =
+    lostPetName.trim().length > 0 && lostPetNamePattern.test(lostPetName);
+  const isSaveEnabled =
+    uploadedThumbnailPreviews.length > 0 &&
+    lostPetDate.trim().length > 0 &&
+    isLostPetNameValid;
+
   return (
     <main className="relative h-screen w-screen overflow-hidden">
       <MapView />
@@ -266,10 +274,11 @@ export default function Home() {
         {isPanelOpen ? (
           <div className="h-[calc(100%-3.5rem)] overflow-auto px-4 pb-4">
             {showLostPetForm ? (
-              <form className="flex w-full flex-nowrap items-start gap-6">
-                <div className="w-[360px] flex-none">
-                  <div className="flex flex-col gap-4">
-                  <div className="flex items-center gap-3">
+              <form className="flex w-full flex-col gap-4">
+                <div className="flex w-full flex-nowrap items-start gap-6">
+                  <div className="w-[360px] flex-none">
+                    <div className="flex flex-col gap-4">
+                      <div className="flex items-center gap-3">
                     <label
                       htmlFor="lost-pet-date"
                       className="shrink-0 text-sm font-medium text-zinc-700 dark:text-zinc-200"
@@ -285,65 +294,74 @@ export default function Home() {
                     />
                   </div>
 
-                  <div className="flex items-center gap-3">
-                    <label
-                      htmlFor="lost-pet-name"
-                      className="shrink-0 text-sm font-medium text-zinc-700 dark:text-zinc-200"
-                    >
-                      Nombre al que responde
-                    </label>
-                    <input
-                      id="lost-pet-name"
-                      type="text"
-                      value={lostPetName}
-                      onChange={(event) => setLostPetName(event.target.value)}
-                      className="w-[150px] max-w-[150px] flex-none rounded-xl border border-zinc-200 bg-white px-2 py-2 text-zinc-900 outline-none transition focus:border-zinc-400 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:focus:border-zinc-600"
-                    />
-                  </div>
-                </div>
-                </div>
-
-                <div className="flex min-w-0 flex-col gap-2">
-                  <div className="flex items-center gap-3">
-                    <label
-                      htmlFor="lost-pet-photos"
-                      className="shrink-0 text-sm font-medium text-zinc-700 dark:text-zinc-200"
-                    >
-                      Fotos (max 10)
-                    </label>
-                    <button
-                      type="button"
-                      className="flex-none rounded-xl border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-zinc-800 transition hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:border-zinc-700 dark:hover:bg-zinc-800"
-                      onClick={() => photoInputRef.current?.click()}
-                    >
-                      subir
-                    </button>
-                    <input
-                      ref={photoInputRef}
-                      id="lost-pet-photos"
-                      type="file"
-                      accept="image/*"
-                      multiple
-                      onChange={handlePhotoChange}
-                      className="sr-only"
-                    />
+                      <div className="flex items-center gap-3">
+                        <label
+                          htmlFor="lost-pet-name"
+                          className="shrink-0 text-sm font-medium text-zinc-700 dark:text-zinc-200"
+                        >
+                          Nombre al que responde
+                        </label>
+                        <input
+                          id="lost-pet-name"
+                          type="text"
+                          value={lostPetName}
+                          onChange={(event) => setLostPetName(event.target.value)}
+                          className="w-[150px] max-w-[150px] flex-none rounded-xl border border-zinc-200 bg-white px-2 py-2 text-zinc-900 outline-none transition focus:border-zinc-400 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:focus:border-zinc-600"
+                        />
+                      </div>
+                    </div>
                   </div>
 
-                  <div className="flex min-w-0 items-center gap-2 overflow-x-auto rounded-lg px-1 py-1">
-                    {uploadedThumbnailPreviews.map((preview) => (
-                      <img
-                        key={preview.id}
-                        src={preview.url}
-                        alt={preview.name}
-                        className="h-16 w-16 flex-none rounded-md border border-zinc-200 object-cover dark:border-zinc-700"
+                  <div className="flex min-w-0 flex-col gap-2">
+                    <div className="flex items-center gap-3">
+                      <label
+                        htmlFor="lost-pet-photos"
+                        className="shrink-0 text-sm font-medium text-zinc-700 dark:text-zinc-200"
+                      >
+                        Fotos (max 10)
+                      </label>
+                      <button
+                        type="button"
+                        className="flex-none cursor-pointer rounded-xl border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-zinc-800 transition hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:border-zinc-700 dark:hover:bg-zinc-800"
+                        onClick={() => photoInputRef.current?.click()}
+                      >
+                        subir
+                      </button>
+                      <input
+                        ref={photoInputRef}
+                        id="lost-pet-photos"
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        onChange={handlePhotoChange}
+                        className="sr-only"
                       />
-                    ))}
-                  </div>
+                      <button
+                        type="button"
+                        disabled={!isSaveEnabled}
+                        className="ml-auto cursor-pointer rounded-xl border border-zinc-200 bg-white px-5 py-2 text-sm font-medium text-zinc-800 transition hover:border-zinc-300 hover:bg-zinc-50 disabled:cursor-not-allowed disabled:border-zinc-200 disabled:bg-zinc-100 disabled:text-zinc-400 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:border-zinc-700 dark:hover:bg-zinc-800 dark:disabled:border-zinc-800 dark:disabled:bg-zinc-800 dark:disabled:text-zinc-500"
+                      >
+                        Guardar
+                      </button>
+                    </div>
 
-                  {photoError ? (
-                    <p className="text-sm text-red-600">{photoError}</p>
-                  ) : null}
+                    <div className="flex min-w-0 items-center gap-2 overflow-x-auto rounded-lg px-1 py-1">
+                      {uploadedThumbnailPreviews.map((preview) => (
+                        <img
+                          key={preview.id}
+                          src={preview.url}
+                          alt={preview.name}
+                          className="h-16 w-16 flex-none rounded-md border border-zinc-200 object-cover dark:border-zinc-700"
+                        />
+                      ))}
+                    </div>
+
+                    {photoError ? (
+                      <p className="text-sm text-red-600">{photoError}</p>
+                    ) : null}
+                  </div>
                 </div>
+
               </form>
             ) : (
               <div className="grid h-full gap-3 md:grid-cols-3">
