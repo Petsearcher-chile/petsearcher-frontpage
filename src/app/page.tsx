@@ -63,6 +63,11 @@ export default function Home() {
     url: string;
     name: string;
   } | null>(null);
+  const [hoveredLostPetPhoto, setHoveredLostPetPhoto] = useState<{
+    url: string;
+    name: string;
+    isLoading: boolean;
+  } | null>(null);
   const photoInputRef = useRef<HTMLInputElement>(null);
   const uploadResetTimerRef = useRef<number | null>(null);
   const thumbnailUrlsRef = useRef<string[]>([]);
@@ -294,6 +299,7 @@ export default function Home() {
 
     setSaveSuccessMessage("");
     setSelectedLostPet(null);
+    setHoveredLostPetPhoto(null);
     setShowLostPetForm(true);
   }, [isLoaded, isSignedIn, openSignIn]);
 
@@ -343,6 +349,7 @@ export default function Home() {
             setShowLostPetForm(false);
             setIsPanelOpen(false);
             setSelectedLostPet(null);
+            setHoveredLostPetPhoto(null);
             setPetLossId(null);
             setLostPetDate("");
             setLostPetName("");
@@ -381,6 +388,7 @@ export default function Home() {
 
   const handleMarkerSelect = useCallback((marker: SelectedLostPetMarker) => {
     setSelectedLostPet(marker);
+    setHoveredLostPetPhoto(null);
     setIsPanelOpen(false);
   }, []);
 
@@ -392,7 +400,7 @@ export default function Home() {
       />
 
       {selectedLostPet ? (
-        <aside className="absolute left-4 top-4 bottom-4 z-30 flex w-[min(90vw,500px)] md:w-[min(20vw,500px)] flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-white/95 shadow-[0_8px_24px_rgba(0,0,0,0.12)] dark:border-zinc-800 dark:bg-zinc-950/95">
+        <aside className="absolute left-4 top-4 bottom-16 z-30 flex w-[min(90vw,500px)] md:w-[min(20vw,500px)] flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-white/95 shadow-[0_8px_24px_rgba(0,0,0,0.12)] dark:border-zinc-800 dark:bg-zinc-950/95">
           <div className="flex items-start justify-between gap-3 border-b border-zinc-200 px-4 py-3 dark:border-zinc-800">
             <div className="min-w-0">
               <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
@@ -405,7 +413,10 @@ export default function Home() {
             <button
               type="button"
               className="rounded-md border border-zinc-200 px-2 py-1 text-xs font-medium text-zinc-700 transition hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-800"
-              onClick={() => setSelectedLostPet(null)}
+              onClick={() => {
+                setSelectedLostPet(null);
+                setHoveredLostPetPhoto(null);
+              }}
             >
               Cerrar
             </button>
@@ -418,10 +429,18 @@ export default function Home() {
                   className="overflow-hidden rounded-xl border border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900"
                 >
                   <img
-                    src={photo.originalUrl ?? photo.thumbnailUrl}
+                    src={photo.thumbnailUrl}
                     alt={`${selectedLostPet.petName ?? "Mascota perdida"} foto ${index + 1}`}
                     className="h-36 w-full object-cover"
                     loading="lazy"
+                    onMouseEnter={() =>
+                      setHoveredLostPetPhoto({
+                        url: photo.originalUrl ?? photo.thumbnailUrl,
+                        name: `${selectedLostPet.petName ?? "Mascota perdida"} foto ${index + 1}`,
+                        isLoading: true,
+                      })
+                    }
+                    onMouseLeave={() => setHoveredLostPetPhoto(null)}
                   />
                 </div>
               ))}
@@ -459,6 +478,7 @@ export default function Home() {
                 setHasSelectedLocation(false);
                 setSelectedAddressDetail(null);
                 setSelectedLostPet(null);
+                setHoveredLostPetPhoto(null);
                 lastSelectedAddressRef.current = null;
                 setPhotoError("");
                 setUploadError("");
@@ -641,6 +661,31 @@ export default function Home() {
               alt={hoveredPreview.name}
               className="h-[22rem] w-[22rem] rounded-md object-contain"
             />
+          </div>
+        </div>
+      ) : hoveredLostPetPhoto ? (
+        <div className="pointer-events-none fixed inset-0 z-50 flex items-center justify-center">
+          <div className="rounded-lg border border-zinc-300 bg-white p-2 shadow-xl dark:border-zinc-700 dark:bg-zinc-900">
+            <div className="relative flex min-h-[16rem] min-w-[16rem] items-center justify-center">
+              {hoveredLostPetPhoto.isLoading ? (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="h-10 w-10 animate-spin rounded-full border-4 border-zinc-300 border-t-blue-600 dark:border-zinc-700 dark:border-t-blue-400" />
+                </div>
+              ) : null}
+              <img
+                src={hoveredLostPetPhoto.url}
+                alt={hoveredLostPetPhoto.name}
+                className={`max-h-[80vh] max-w-[80vw] rounded-md object-contain transition-opacity ${
+                  hoveredLostPetPhoto.isLoading ? "opacity-0" : "opacity-100"
+                }`}
+                onLoad={() =>
+                  setHoveredLostPetPhoto((current) =>
+                    current ? { ...current, isLoading: false } : current,
+                  )
+                }
+                onError={() => setHoveredLostPetPhoto(null)}
+              />
+            </div>
           </div>
         </div>
       ) : null}
