@@ -1,3 +1,4 @@
+import { auth, clerkClient } from "@clerk/nextjs/server";
 import { createClient } from "@supabase/supabase-js";
 import sharp from "sharp";
 
@@ -9,6 +10,15 @@ const ORIGINALS_FOLDER = "originales";
 const THUMBNAILS_FOLDER = "miniatura";
 
 export const runtime = "nodejs";
+
+type UploadedImage = {
+  name: string;
+  mimeType: string;
+  sizeBytes: number;
+  thumbnailSizeBytes: number;
+  originalPath: string;
+  thumbnailPath: string;
+};
 
 const isValidHttpUrl = (value: string) => {
   try {
@@ -36,6 +46,16 @@ export async function POST(request: Request) {
     }
 
     const formData = await request.formData();
+    const rawLostPetDate = formData.get("lostPetDate");
+    const rawLostPetName = formData.get("lostPetName");
+    const lostPetDate =
+      typeof rawLostPetDate === "string" && rawLostPetDate.trim().length > 0
+        ? `${rawLostPetDate.trim()}T00:00:00`
+        : null;
+    const lostPetName =
+      typeof rawLostPetName === "string" && rawLostPetName.trim().length > 0
+        ? rawLostPetName.trim().slice(0, 30)
+        : null;
     const uploadedFiles = formData.getAll("photos").filter(
       (entry): entry is File => entry instanceof File,
     );
@@ -73,7 +93,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const files = await Promise.all(
+    const uploadedImages = await Promise.all(
       uploadedFiles.map(async (file) => {
         const bytes = new Uint8Array(await file.arrayBuffer());
         const extension =
@@ -119,17 +139,18 @@ export async function POST(request: Request) {
         }
 
         return {
-          ok: true,
+          ok: true as const,
           name: file.name,
+          mimeType: file.type,
+          sizeBytes: file.size,
+          thumbnailSizeBytes: thumbnailBuffer.byteLength,
           originalPath,
           thumbnailPath,
-          size: file.size,
-          type: file.type,
         };
       }),
     );
 
-    const failedFiles = files.filter((file) => !file.ok);
+    const failedFiles = uploadedImages.filter((file) => !file.ok);
     if (failedFiles.length > 0) {
       return Response.json(
         {
@@ -141,10 +162,174 @@ export async function POST(request: Request) {
       );
     }
 
+    const successfulUploads = uploadedImages.filter(
+      (file): file is UploadedImage & { ok: true } => file.ok,
+    );
+    const uploadedPaths = successfulUploads.flatMap((file) => [
+      file.originalPath,
+      file.thumbnailPath,
+    ]);
+
+    const { userId: clerkUserId } = await auth();
+    if (!clerkUserId) {
+      await supabase.storage.from(BUCKET_NAME).remove(uploadedPaths);
+      return Response.json(
+        { message: "Debes iniciar sesión para subir fotos." },
+        { status: 401 },
+      );
+    }
+
+    const clerk = await clerkClient();
+    const clerkUser = await clerk.users.getUser(clerkUserId);
+    const primaryEmail = clerkUser.emailAddresses.find(
+      (email) => email.id === clerkUser.primaryEmailAddressId,
+    )?.emailAddress;
+    if (!primaryEmail) {
+      await supabase.storage.from(BUCKET_NAME).remove(uploadedPaths);
+      return Response.json(
+        { message: "No se pudo obtener el email del usuario logeado." },
+        { status: 500 },
+      );
+    }
+
+    const { data: existingUser, error: existingUserError } = await supabase
+      .from("user")
+      .select("id")
+      .eq("email", primaryEmail)
+      .maybeSingle();
+    if (existingUserError) {
+      await supabase.storage.from(BUCKET_NAME).remove(uploadedPaths);
+      return Response.json(
+        { message: "No se pudo consultar el usuario.", detail: existingUserError.message },
+        { status: 500 },
+      );
+    }
+
+    let appUserId = existingUser?.id as string | undefined;
+    if (!appUserId) {
+      const generatedUserId = crypto.randomUUID();
+      const { data: createdUser, error: createUserError } = await supabase
+        .from("user")
+        .insert({
+          id: generatedUserId,
+          name: clerkUser.firstName ?? null,
+          last_name: clerkUser.lastName ?? null,
+          email: primaryEmail,
+        })
+        .select("id")
+        .single();
+      if (createUserError) {
+        await supabase.storage.from(BUCKET_NAME).remove(uploadedPaths);
+        return Response.json(
+          { message: "No se pudo crear el usuario.", detail: createUserError.message },
+          { status: 500 },
+        );
+      }
+      appUserId = createdUser.id as string;
+    }
+
+    const { data: createdPetLoss, error: createPetLossError } = await supabase
+      .from("pet_perdida")
+      .insert({
+        date_creacion: new Date().toISOString(),
+        nombre_mascota: lostPetName,
+        date_perdida: lostPetDate,
+      })
+      .select("id")
+      .single();
+    if (createPetLossError) {
+      await supabase.storage.from(BUCKET_NAME).remove(uploadedPaths);
+      return Response.json(
+        { message: "No se pudo crear la pérdida.", detail: createPetLossError.message },
+        { status: 500 },
+      );
+    }
+
+    const petLossId = createdPetLoss.id as number;
+
+    const rowsForFiles = successfulUploads.flatMap((file) => [
+      {
+        name: file.name,
+        storage_key: file.originalPath,
+        bucket_name: BUCKET_NAME,
+        mime_type: file.mimeType,
+        size_bytes: file.sizeBytes,
+        url: null,
+        status: "active",
+        id_user: appUserId,
+      },
+      {
+        name: `${file.name} (miniatura)`,
+        storage_key: file.thumbnailPath,
+        bucket_name: BUCKET_NAME,
+        mime_type: "image/jpeg",
+        size_bytes: file.thumbnailSizeBytes,
+        url: null,
+        status: "active",
+        id_user: appUserId,
+      },
+    ]);
+
+    const { data: createdFileRows, error: createFilesError } = await supabase
+      .from("files")
+      .insert(rowsForFiles)
+      .select("id, storage_key");
+    if (createFilesError || !createdFileRows) {
+      await supabase.storage.from(BUCKET_NAME).remove(uploadedPaths);
+      await supabase.from("pet_perdida").delete().eq("id", petLossId);
+      return Response.json(
+        {
+          message: "No se pudo registrar la metadata de archivos.",
+          detail: createFilesError?.message ?? "Insert vacío en files.",
+        },
+        { status: 500 },
+      );
+    }
+
+    const fileIdByStorageKey = new Map<string, string>();
+    createdFileRows.forEach((row) => {
+      fileIdByStorageKey.set(row.storage_key as string, row.id as string);
+    });
+
+    const petPhotoRows = successfulUploads.map((file) => {
+      const originalFileId = fileIdByStorageKey.get(file.originalPath);
+      const thumbnailFileId = fileIdByStorageKey.get(file.thumbnailPath);
+
+      if (!originalFileId || !thumbnailFileId) {
+        throw new Error("No se pudieron resolver los IDs de archivos creados.");
+      }
+
+      return {
+        id_perdida: petLossId,
+        id_file: originalFileId,
+        id_file_miniatura: thumbnailFileId,
+      };
+    });
+
+    const { error: createPetPhotosError } = await supabase
+      .from("pet_perdida_fotos")
+      .insert(petPhotoRows);
+    if (createPetPhotosError) {
+      await supabase.storage.from(BUCKET_NAME).remove(uploadedPaths);
+      await supabase.from("files").delete().in(
+        "storage_key",
+        uploadedPaths,
+      );
+      await supabase.from("pet_perdida").delete().eq("id", petLossId);
+      return Response.json(
+        {
+          message: "No se pudo vincular la pérdida con sus fotos.",
+          detail: createPetPhotosError.message,
+        },
+        { status: 500 },
+      );
+    }
+
     return Response.json({
       ok: true,
       count: uploadedFiles.length,
-      files,
+      petLossId,
+      files: successfulUploads,
     });
   } catch (error: unknown) {
     return Response.json(

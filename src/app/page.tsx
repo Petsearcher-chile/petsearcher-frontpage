@@ -25,6 +25,8 @@ export default function Home() {
   const { openSignIn } = useClerk();
   const [isPanelOpen, setIsPanelOpen] = useState(true);
   const [showLostPetForm, setShowLostPetForm] = useState(false);
+  const [lostPetDate, setLostPetDate] = useState("");
+  const [lostPetName, setLostPetName] = useState("");
   const [photoError, setPhotoError] = useState("");
   const [uploadError, setUploadError] = useState("");
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
@@ -60,6 +62,8 @@ export default function Home() {
       setUploadProgress(0);
 
       const formData = new FormData();
+      formData.append("lostPetDate", lostPetDate);
+      formData.append("lostPetName", lostPetName);
       files.forEach((file) => {
         formData.append("photos", file);
       });
@@ -108,7 +112,7 @@ export default function Home() {
 
       request.send(formData);
     },
-    [resetUploadProgress],
+    [lostPetDate, lostPetName, resetUploadProgress],
   );
 
   const handlePhotoChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -177,6 +181,8 @@ export default function Home() {
               className="text-blue-600 underline transition hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
               onClick={() => {
                 setShowLostPetForm(false);
+                setLostPetDate("");
+                setLostPetName("");
                 setPhotoError("");
               }}
             >
@@ -231,6 +237,8 @@ export default function Home() {
                     <input
                       id="lost-pet-date"
                       type="date"
+                      value={lostPetDate}
+                      onChange={(event) => setLostPetDate(event.target.value)}
                       className="w-[150px] max-w-[150px] flex-none rounded-xl border border-zinc-200 bg-white px-2 py-2 text-zinc-900 outline-none transition focus:border-zinc-400 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:focus:border-zinc-600"
                     />
                   </div>
@@ -274,6 +282,8 @@ export default function Home() {
                   <input
                     id="lost-pet-name"
                     type="text"
+                    value={lostPetName}
+                    onChange={(event) => setLostPetName(event.target.value)}
                     className="w-[150px] max-w-[150px] flex-none rounded-xl border border-zinc-200 bg-white px-2 py-2 text-zinc-900 outline-none transition focus:border-zinc-400 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:focus:border-zinc-600"
                   />
                 </div>
