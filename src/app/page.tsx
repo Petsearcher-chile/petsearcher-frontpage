@@ -58,6 +58,7 @@ export default function Home() {
   const photoInputRef = useRef<HTMLInputElement>(null);
   const uploadResetTimerRef = useRef<number | null>(null);
   const thumbnailUrlsRef = useRef<string[]>([]);
+  const lastSelectedAddressRef = useRef<SelectedAddressDetail | null>(null);
 
   useEffect(() => {
     const handleLocationSelected = (event: Event) => {
@@ -66,8 +67,30 @@ export default function Home() {
         address?: SelectedAddressDetail;
       }>;
       const selected = Boolean(customEvent.detail?.selected);
-      setHasSelectedLocation(selected);
-      setSelectedAddressDetail(selected ? (customEvent.detail?.address ?? null) : null);
+
+      if (!selected) {
+        lastSelectedAddressRef.current = null;
+        setHasSelectedLocation(false);
+        setSelectedAddressDetail(null);
+        return;
+      }
+
+      const receivedAddress = customEvent.detail?.address;
+      if (receivedAddress) {
+        lastSelectedAddressRef.current = receivedAddress;
+        setHasSelectedLocation(true);
+        setSelectedAddressDetail(receivedAddress);
+        return;
+      }
+
+      if (lastSelectedAddressRef.current) {
+        setHasSelectedLocation(true);
+        setSelectedAddressDetail(lastSelectedAddressRef.current);
+        return;
+      }
+
+      setHasSelectedLocation(false);
+      setSelectedAddressDetail(null);
     };
 
     window.addEventListener("petsearcher:location-selected", handleLocationSelected);
@@ -250,7 +273,8 @@ export default function Home() {
       return;
     }
 
-    if (!selectedAddressDetail) {
+    const addressToSave = selectedAddressDetail ?? lastSelectedAddressRef.current;
+    if (!addressToSave) {
       setUploadError(
         "Debe seleccionar un lugar donde se perdió su mascota, arriba en el buscador, busque su dirección",
       );
@@ -270,7 +294,7 @@ export default function Home() {
         petLossId,
         lostPetDate,
         lostPetName,
-        mapboxAddress: selectedAddressDetail,
+        mapboxAddress: addressToSave,
       }),
     })
       .then(async (response) => {
@@ -284,6 +308,7 @@ export default function Home() {
           setLostPetName("");
           setHasSelectedLocation(false);
           setSelectedAddressDetail(null);
+          lastSelectedAddressRef.current = null;
           clearThumbnailPreviews();
           setSaveSuccessMessage(
             "Lamentamos mucho el extravío de su mascota. En caso de que alguien la encuentre, será contactado por el correo que utilizó para identificarse.",
@@ -345,6 +370,7 @@ export default function Home() {
                 setLostPetName("");
                 setHasSelectedLocation(false);
                 setSelectedAddressDetail(null);
+                lastSelectedAddressRef.current = null;
                 setPhotoError("");
                 setUploadError("");
                 setSaveSuccessMessage("");
