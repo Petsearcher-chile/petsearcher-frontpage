@@ -310,11 +310,11 @@ export default function Home() {
       </section>
 
       {uploadError ? (
-        <div className="fixed bottom-4 right-4 z-50 w-[min(92vw,28rem)] rounded-xl border border-red-700 bg-red-600 p-4 text-white shadow-xl">
+        <div className="fixed bottom-4 right-4 z-50 w-[min(92vw,28rem)] rounded-xl border border-red-300 bg-red-100 p-4 text-red-900 shadow-xl">
           <p className="text-sm font-medium">{uploadError}</p>
           <button
             type="button"
-            className="mt-3 rounded-md bg-red-800 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-red-900"
+            className="mt-3 rounded-md bg-red-200 px-3 py-1.5 text-sm font-medium text-red-900 transition hover:bg-red-300"
             onClick={() => setUploadError("")}
           >
             Cerrar
