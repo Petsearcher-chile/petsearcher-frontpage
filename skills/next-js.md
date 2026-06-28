@@ -363,7 +363,7 @@ Cuando entregue una solución, preferir este orden:
 ## Caraterísticas del proyecto
 
 - El proyecto utiliza Next.js con App Router.
-- El script de la bd está en /sql/20260131142331_base_table_creation.sql y es postgresql
+- El script de la bd está en /sql/model.sql y es postgresql
 - Se recomienda usar Server Components para componentes que no requieren interacción del usuario.
 - Se debe tipar correctamente todo el código.
 - Se debe manejar correctamente los estados de loading, error y vacío.
