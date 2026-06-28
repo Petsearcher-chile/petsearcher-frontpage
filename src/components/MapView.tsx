@@ -1,7 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import Map, { NavigationControl, GeolocateControl } from "react-map-gl/mapbox";
+import Map, {
+  Marker,
+  NavigationControl,
+  GeolocateControl,
+} from "react-map-gl/mapbox";
 import type { MapRef } from "react-map-gl/mapbox";
 import "mapbox-gl/dist/mapbox-gl.css";
 
@@ -25,6 +29,10 @@ export default function MapView() {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchError, setSearchError] = useState<string | null>(null);
   const [results, setResults] = useState<LocationSuggestion[]>([]);
+  const [selectedPoint, setSelectedPoint] = useState<{
+    longitude: number;
+    latitude: number;
+  } | null>(null);
 
   const handleLoad = useCallback(() => {
     mapRef.current?.resize();
@@ -98,12 +106,47 @@ export default function MapView() {
   const handleSelectResult = useCallback((result: LocationSuggestion) => {
     setSearchQuery(result.place_name);
     setResults([]);
-    mapRef.current?.flyTo({
-      center: result.center,
-      zoom: 14,
-      essential: true,
-    });
+    const longitude = result.center[0];
+    const latitude = result.center[1];
+
+    setSelectedPoint({ longitude, latitude });
+    const map = mapRef.current;
+
+    if (map) {
+      map.jumpTo({
+        center: [longitude, latitude],
+        zoom: map.getZoom(),
+      });
+    }
   }, []);
+
+  const searchAndSelect = useCallback(
+    async (query: string) => {
+      if (!hasToken) {
+        setSearchError("Falta configurar NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN.");
+        return;
+      }
+
+      const response = await fetch(
+        `${GEOCODE_ENDPOINT}/${encodeURIComponent(query)}.json?access_token=${MAPBOX_TOKEN}&autocomplete=true&limit=1&language=es`,
+      );
+
+      if (!response.ok) {
+        throw new Error("No se pudo buscar la ubicación.");
+      }
+
+      const data: { features?: LocationSuggestion[] } = await response.json();
+      const [result] = data.features ?? [];
+
+      if (!result) {
+        setSearchError("No se encontraron resultados.");
+        return;
+      }
+
+      handleSelectResult(result);
+    },
+    [hasToken, handleSelectResult],
+  );
 
   return (
     <div className="relative h-full w-full overflow-hidden">
@@ -111,9 +154,21 @@ export default function MapView() {
         className="absolute left-1/2 top-4 z-10 w-[min(92vw,42rem)] -translate-x-1/2 rounded-2xl border border-white/30 bg-white/70 p-3 shadow-lg backdrop-blur-xl dark:border-white/10 dark:bg-zinc-950/60"
         onSubmit={(event) => {
           event.preventDefault();
+          const query = searchQuery.trim();
+
+          if (!query) {
+            return;
+          }
+
           if (results[0]) {
             handleSelectResult(results[0]);
+            return;
           }
+
+          void searchAndSelect(query).catch(() => {
+            setResults([]);
+            setSearchError("No se pudo buscar la ubicación.");
+          });
         }}
       >
         <label htmlFor="location-search" className="sr-only">
@@ -163,6 +218,26 @@ export default function MapView() {
         onLoad={handleLoad}
         reuseMaps
       >
+        {selectedPoint ? (
+          <Marker
+            longitude={selectedPoint.longitude}
+            latitude={selectedPoint.latitude}
+            anchor="bottom"
+          >
+            <svg
+              aria-hidden="true"
+              viewBox="0 0 48 64"
+              className="h-16 w-12 drop-shadow-lg"
+            >
+              <path
+                d="M24 2C12.4 2 3 11.4 3 23c0 15.4 21 39 21 39s21-23.6 21-39C45 11.4 35.6 2 24 2Z"
+                fill="#ef4444"
+              />
+              <circle cx="24" cy="23" r="10" fill="#ffffff" />
+              <circle cx="24" cy="23" r="5.5" fill="#ef4444" />
+            </svg>
+          </Marker>
+        ) : null}
         <NavigationControl position="top-right" />
         <GeolocateControl position="top-right" trackUserLocation />
       </Map>
