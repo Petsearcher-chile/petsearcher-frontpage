@@ -11,6 +11,7 @@ import "mapbox-gl/dist/mapbox-gl.css";
 
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN ?? "";
 const GEOCODE_ENDPOINT = "https://api.mapbox.com/geocoding/v5/mapbox.places";
+const SELECT_ZOOM = 13.5;
 
 type LocationSuggestion = {
   id: string;
@@ -115,7 +116,7 @@ export default function MapView() {
     if (map) {
       map.jumpTo({
         center: [longitude, latitude],
-        zoom: map.getZoom(),
+        zoom: SELECT_ZOOM,
       });
     }
   }, []);
@@ -195,7 +196,10 @@ export default function MapView() {
               <li key={result.id}>
                 <button
                   type="button"
-                  onClick={() => handleSelectResult(result)}
+                  onMouseDown={(event) => {
+                    event.preventDefault();
+                    handleSelectResult(result);
+                  }}
                   className="w-full rounded-xl border border-zinc-200 bg-white/80 px-4 py-3 text-left text-sm text-zinc-800 transition hover:border-zinc-300 hover:bg-white dark:border-zinc-700 dark:bg-zinc-900/80 dark:text-zinc-100 dark:hover:border-zinc-500 dark:hover:bg-zinc-900"
                 >
                   {result.place_name}
