@@ -1,5 +1,6 @@
 "use client";
 
+import { useAuth, useClerk } from "@clerk/nextjs";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import {
@@ -20,6 +21,8 @@ const MapView = dynamic(() => import("@/components/MapView"), {
 });
 
 export default function Home() {
+  const { isLoaded, isSignedIn } = useAuth();
+  const { openSignIn } = useClerk();
   const [isPanelOpen, setIsPanelOpen] = useState(true);
   const [showLostPetForm, setShowLostPetForm] = useState(false);
   const [photoError, setPhotoError] = useState("");
@@ -114,6 +117,19 @@ export default function Home() {
     event.target.value = "";
     uploadPhotos(Array.from(selectedFiles));
   };
+
+  const handleLostPetClick = useCallback(() => {
+    if (!isLoaded) {
+      return;
+    }
+
+    if (!isSignedIn) {
+      void openSignIn();
+      return;
+    }
+
+    setShowLostPetForm(true);
+  }, [isLoaded, isSignedIn, openSignIn]);
 
   return (
     <main className="relative h-screen w-screen overflow-hidden">
@@ -249,7 +265,7 @@ export default function Home() {
                 {[
                   {
                     label: "Perdí una mascota",
-                    onClick: () => setShowLostPetForm(true),
+                    onClick: handleLostPetClick,
                   },
                   {
                     label: "Encontré una mascota",
