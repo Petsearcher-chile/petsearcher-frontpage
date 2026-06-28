@@ -46,8 +46,13 @@ export async function POST(request: Request) {
     }
 
     const formData = await request.formData();
+    const rawPetLossId = formData.get("petLossId");
     const rawLostPetDate = formData.get("lostPetDate");
     const rawLostPetName = formData.get("lostPetName");
+    const petLossIdFromRequest =
+      typeof rawPetLossId === "string" && /^[0-9]+$/.test(rawPetLossId.trim())
+        ? Number(rawPetLossId.trim())
+        : null;
     const lostPetDate =
       typeof rawLostPetDate === "string" && rawLostPetDate.trim().length > 0
         ? `${rawLostPetDate.trim()}T00:00:00`
@@ -228,24 +233,75 @@ export async function POST(request: Request) {
       appUserId = createdUser.id as string;
     }
 
-    const { data: createdPetLoss, error: createPetLossError } = await supabase
-      .from("pet_perdida")
-      .insert({
-        date_creacion: new Date().toISOString(),
-        nombre_mascota: lostPetName,
-        date_perdida: lostPetDate,
-      })
-      .select("id")
-      .single();
-    if (createPetLossError) {
-      await supabase.storage.from(BUCKET_NAME).remove(uploadedPaths);
-      return Response.json(
-        { message: "No se pudo crear la pérdida.", detail: createPetLossError.message },
-        { status: 500 },
-      );
-    }
+    let petLossId: number;
+    let wasPetLossCreated = false;
 
-    const petLossId = createdPetLoss.id as number;
+    if (petLossIdFromRequest !== null) {
+      const updatePayload: { nombre_mascota?: string | null; date_perdida?: string | null } = {};
+      if (lostPetName !== null) {
+        updatePayload.nombre_mascota = lostPetName;
+      }
+      if (lostPetDate !== null) {
+        updatePayload.date_perdida = lostPetDate;
+      }
+
+      if (Object.keys(updatePayload).length > 0) {
+        const { data: updatedPetLoss, error: updatePetLossError } = await supabase
+          .from("pet_perdida")
+          .update(updatePayload)
+          .eq("id", petLossIdFromRequest)
+          .select("id")
+          .single();
+        if (updatePetLossError || !updatedPetLoss) {
+          await supabase.storage.from(BUCKET_NAME).remove(uploadedPaths);
+          return Response.json(
+            {
+              message: "No se pudo actualizar la pérdida.",
+              detail: updatePetLossError?.message ?? "Registro no encontrado.",
+            },
+            { status: 500 },
+          );
+        }
+        petLossId = Number(updatedPetLoss.id);
+      } else {
+        const { data: existingPetLoss, error: existingPetLossError } = await supabase
+          .from("pet_perdida")
+          .select("id")
+          .eq("id", petLossIdFromRequest)
+          .single();
+        if (existingPetLossError || !existingPetLoss) {
+          await supabase.storage.from(BUCKET_NAME).remove(uploadedPaths);
+          return Response.json(
+            {
+              message: "No se encontró la pérdida para asociar fotos.",
+              detail: existingPetLossError?.message ?? "Registro no encontrado.",
+            },
+            { status: 500 },
+          );
+        }
+        petLossId = Number(existingPetLoss.id);
+      }
+    } else {
+      const { data: createdPetLoss, error: createPetLossError } = await supabase
+        .from("pet_perdida")
+        .insert({
+          date_creacion: new Date().toISOString(),
+          nombre_mascota: lostPetName,
+          date_perdida: lostPetDate,
+        })
+        .select("id")
+        .single();
+      if (createPetLossError) {
+        await supabase.storage.from(BUCKET_NAME).remove(uploadedPaths);
+        return Response.json(
+          { message: "No se pudo crear la pérdida.", detail: createPetLossError.message },
+          { status: 500 },
+        );
+      }
+
+      petLossId = Number(createdPetLoss.id);
+      wasPetLossCreated = true;
+    }
 
     const rowsForFiles = successfulUploads.flatMap((file) => [
       {
@@ -276,7 +332,9 @@ export async function POST(request: Request) {
       .select("id, storage_key");
     if (createFilesError || !createdFileRows) {
       await supabase.storage.from(BUCKET_NAME).remove(uploadedPaths);
-      await supabase.from("pet_perdida").delete().eq("id", petLossId);
+      if (wasPetLossCreated) {
+        await supabase.from("pet_perdida").delete().eq("id", petLossId);
+      }
       return Response.json(
         {
           message: "No se pudo registrar la metadata de archivos.",
@@ -315,7 +373,9 @@ export async function POST(request: Request) {
         "storage_key",
         uploadedPaths,
       );
-      await supabase.from("pet_perdida").delete().eq("id", petLossId);
+      if (wasPetLossCreated) {
+        await supabase.from("pet_perdida").delete().eq("id", petLossId);
+      }
       return Response.json(
         {
           message: "No se pudo vincular la pérdida con sus fotos.",

@@ -25,19 +25,25 @@ export default function Home() {
   const { openSignIn } = useClerk();
   const [isPanelOpen, setIsPanelOpen] = useState(true);
   const [showLostPetForm, setShowLostPetForm] = useState(false);
+  const [petLossId, setPetLossId] = useState<number | null>(null);
   const [lostPetDate, setLostPetDate] = useState("");
   const [lostPetName, setLostPetName] = useState("");
   const [photoError, setPhotoError] = useState("");
   const [uploadError, setUploadError] = useState("");
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
+  const [uploadedThumbnailPreviews, setUploadedThumbnailPreviews] = useState<
+    { id: string; url: string; name: string }[]
+  >([]);
   const photoInputRef = useRef<HTMLInputElement>(null);
   const uploadResetTimerRef = useRef<number | null>(null);
+  const thumbnailUrlsRef = useRef<string[]>([]);
 
   useEffect(() => {
     return () => {
       if (uploadResetTimerRef.current !== null) {
         window.clearTimeout(uploadResetTimerRef.current);
       }
+      thumbnailUrlsRef.current.forEach((url) => URL.revokeObjectURL(url));
     };
   }, []);
 
@@ -48,6 +54,12 @@ export default function Home() {
     }
 
     setUploadProgress(null);
+  }, []);
+
+  const clearThumbnailPreviews = useCallback(() => {
+    thumbnailUrlsRef.current.forEach((url) => URL.revokeObjectURL(url));
+    thumbnailUrlsRef.current = [];
+    setUploadedThumbnailPreviews([]);
   }, []);
 
   const uploadPhotos = useCallback(
@@ -62,11 +74,19 @@ export default function Home() {
       setUploadProgress(0);
 
       const formData = new FormData();
+      if (petLossId !== null) {
+        formData.append("petLossId", String(petLossId));
+      }
       formData.append("lostPetDate", lostPetDate);
       formData.append("lostPetName", lostPetName);
       files.forEach((file) => {
         formData.append("photos", file);
       });
+      const pendingPreviews = files.map((file) => ({
+        id: crypto.randomUUID(),
+        url: URL.createObjectURL(file),
+        name: file.name,
+      }));
 
       const request = new XMLHttpRequest();
       request.open("POST", "/api/lost-pet-photos");
@@ -94,9 +114,24 @@ export default function Home() {
                 : "No se pudieron subir las fotos."
               : "No se pudieron subir las fotos.";
           setUploadError(responseMessage);
+          pendingPreviews.forEach((preview) => URL.revokeObjectURL(preview.url));
           setUploadProgress(null);
           return;
         }
+
+        const responsePetLossId =
+          request.response &&
+          typeof request.response === "object" &&
+          "petLossId" in request.response &&
+          typeof request.response.petLossId === "number"
+            ? request.response.petLossId
+            : null;
+        if (responsePetLossId !== null) {
+          setPetLossId(responsePetLossId);
+        }
+
+        thumbnailUrlsRef.current.push(...pendingPreviews.map((preview) => preview.url));
+        setUploadedThumbnailPreviews((current) => [...current, ...pendingPreviews]);
 
         setUploadProgress(100);
         uploadResetTimerRef.current = window.setTimeout(() => {
@@ -107,12 +142,13 @@ export default function Home() {
 
       request.onerror = () => {
         setUploadError("No se pudieron subir las fotos.");
+        pendingPreviews.forEach((preview) => URL.revokeObjectURL(preview.url));
         setUploadProgress(null);
       };
 
       request.send(formData);
     },
-    [lostPetDate, lostPetName, resetUploadProgress],
+    [lostPetDate, lostPetName, petLossId, resetUploadProgress],
   );
 
   const handlePhotoChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -123,8 +159,9 @@ export default function Home() {
       return;
     }
 
-    if (selectedFiles.length > 10) {
-      setPhotoError("Puedes seleccionar hasta 10 fotos.");
+    if (selectedFiles.length + uploadedThumbnailPreviews.length > 10) {
+      setPhotoError("");
+      setUploadError("Puedes seleccionar hasta 10 fotos.");
       event.target.value = "";
       return;
     }
@@ -132,7 +169,8 @@ export default function Home() {
     const files = Array.from(selectedFiles);
     const hasNonImage = files.some((file) => !file.type.startsWith("image/"));
     if (hasNonImage) {
-      setPhotoError("Solo se permiten archivos de imagen.");
+      setPhotoError("");
+      setUploadError("Solo se permiten archivos de imagen.");
       event.target.value = "";
       return;
     }
@@ -181,9 +219,12 @@ export default function Home() {
               className="text-blue-600 underline transition hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
               onClick={() => {
                 setShowLostPetForm(false);
+                setPetLossId(null);
                 setLostPetDate("");
                 setLostPetName("");
                 setPhotoError("");
+                setUploadError("");
+                clearThumbnailPreviews();
               }}
             >
               inicio
@@ -225,9 +266,9 @@ export default function Home() {
         {isPanelOpen ? (
           <div className="h-[calc(100%-3.5rem)] overflow-auto px-4 pb-4">
             {showLostPetForm ? (
-              <form className="flex max-w-xl flex-col items-start gap-4">
-                <div className="flex w-full flex-nowrap items-start gap-4">
-                  <div className="flex items-center gap-3">
+              <form className="flex w-full flex-col items-start gap-4">
+                <div className="flex w-full items-center gap-4">
+                  <div className="flex flex-none items-center gap-3">
                     <label
                       htmlFor="lost-pet-date"
                       className="shrink-0 text-sm font-medium text-zinc-700 dark:text-zinc-200"
@@ -243,7 +284,7 @@ export default function Home() {
                     />
                   </div>
 
-                  <div className="flex items-center gap-3">
+                  <div className="flex min-w-0 flex-1 items-center gap-3">
                     <label
                       htmlFor="lost-pet-photos"
                       className="shrink-0 text-sm font-medium text-zinc-700 dark:text-zinc-200"
@@ -257,6 +298,22 @@ export default function Home() {
                     >
                       subir
                     </button>
+                    <div
+                      className={`flex min-w-0 flex-1 items-center gap-2 overflow-x-auto rounded-lg px-2 py-1 ${
+                        uploadedThumbnailPreviews.length > 0
+                          ? "border border-transparent"
+                          : ""
+                      }`}
+                    >
+                      {uploadedThumbnailPreviews.map((preview) => (
+                        <img
+                          key={preview.id}
+                          src={preview.url}
+                          alt={preview.name}
+                          className="h-16 w-16 flex-none rounded-md border border-zinc-200 object-cover dark:border-zinc-700"
+                        />
+                      ))}
+                    </div>
                     <input
                       ref={photoInputRef}
                       id="lost-pet-photos"
@@ -266,11 +323,11 @@ export default function Home() {
                       onChange={handlePhotoChange}
                       className="sr-only"
                     />
-                    {photoError ? (
-                      <p className="text-sm text-red-600">{photoError}</p>
-                    ) : null}
                   </div>
                 </div>
+                {photoError ? (
+                  <p className="text-sm text-red-600">{photoError}</p>
+                ) : null}
 
                 <div className="flex w-full items-center gap-3">
                   <label
