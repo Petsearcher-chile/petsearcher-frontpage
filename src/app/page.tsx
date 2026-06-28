@@ -49,7 +49,7 @@ export default function Home() {
             <Link
               href="/"
               scroll={false}
-              className="text-zinc-700 transition hover:text-zinc-900 dark:text-zinc-200 dark:hover:text-white"
+              className="text-blue-600 underline transition hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
               onClick={() => {
                 setShowLostPetForm(false);
                 setPhotoError("");
