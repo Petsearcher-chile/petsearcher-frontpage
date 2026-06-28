@@ -338,6 +338,7 @@ export default function Home() {
               scroll={false}
               className="text-blue-600 underline transition hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
               onClick={() => {
+                setIsPanelOpen(true);
                 setShowLostPetForm(false);
                 setPetLossId(null);
                 setLostPetDate("");
