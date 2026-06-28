@@ -10,7 +10,8 @@ CREATE TABLE "pet_perdida" (
                                "date_creacion" timestamp,
                                "nombre_mascota" varchar(30),
                                "date_perdida" timestamp,
-                               "estado" estado_mascota NOT NULL DEFAULT 'en_proceso'
+                               "estado" estado_mascota NOT NULL DEFAULT 'en_proceso',
+                               "id_address" uuid NOT NULL
 );
 
 CREATE TABLE "pet_perdida_fotos" (
@@ -41,6 +42,21 @@ CREATE TABLE "user" (
                         "email" varchar(300) NOT NULL
 );
 
+CREATE TABLE "mapbox_addresses" (
+                                    "id" uuid PRIMARY KEY DEFAULT (uuid_generate_v4()),
+                                    "full_address" text NOT NULL,
+                                    "longitude" decimal NOT NULL,
+                                    "latitude" decimal NOT NULL,
+                                    "country" varchar,
+                                    "region" varchar,
+                                    "city" varchar,
+                                    "postcode" varchar,
+                                    "street" varchar,
+                                    "house_number" varchar,
+                                    "created_at" timestamp NOT NULL DEFAULT (now()),
+                                    "updated_at" timestamp NOT NULL DEFAULT (now())
+);
+
 CREATE INDEX ON "pet_perdida" ("nombre_mascota");
 
 CREATE INDEX ON "pet_perdida" ("estado");
@@ -50,6 +66,8 @@ CREATE INDEX ON "pet_perdida_fotos" ("id_perdida");
 CREATE INDEX ON "pet_perdida_fotos" ("id_file");
 
 CREATE INDEX ON "pet_perdida_fotos" ("id_file_miniatura");
+
+CREATE INDEX "idx_coordenadas" ON "mapbox_addresses" ("longitude", "latitude");
 
 COMMENT ON TABLE "files" IS 'Tabla para registrar metadatos de archivos en el Cloud Bucket';
 
@@ -69,6 +87,22 @@ COMMENT ON COLUMN "files"."status" IS 'active, deleted, processing';
 
 COMMENT ON COLUMN "files"."id_user" IS 'Relación con el usuario que subió el archivo (opcional)';
 
+COMMENT ON COLUMN "mapbox_addresses"."full_address" IS 'Corresponde al "place_name" de Mapbox';
+
+COMMENT ON COLUMN "mapbox_addresses"."longitude" IS 'Coordenada X (lng)';
+
+COMMENT ON COLUMN "mapbox_addresses"."latitude" IS 'Coordenada Y (lat)';
+
+COMMENT ON COLUMN "mapbox_addresses"."country" IS 'Ej: Chile';
+
+COMMENT ON COLUMN "mapbox_addresses"."region" IS 'Estado o Región. Ej: Región de Coquimbo';
+
+COMMENT ON COLUMN "mapbox_addresses"."city" IS 'Ciudad o Comuna. Ej: La Serena';
+
+COMMENT ON COLUMN "mapbox_addresses"."street" IS 'Nombre de la calle';
+
+COMMENT ON COLUMN "mapbox_addresses"."house_number" IS 'Numeración';
+
 ALTER TABLE "pet_perdida_fotos" ADD CONSTRAINT "perdida_perdida_fotos" FOREIGN KEY ("id_perdida") REFERENCES "pet_perdida" ("id") DEFERRABLE INITIALLY IMMEDIATE;
 
 ALTER TABLE "pet_perdida_fotos" ADD CONSTRAINT "perdida_perdida_files" FOREIGN KEY ("id_file") REFERENCES "files" ("id") DEFERRABLE INITIALLY IMMEDIATE;
@@ -76,3 +110,5 @@ ALTER TABLE "pet_perdida_fotos" ADD CONSTRAINT "perdida_perdida_files" FOREIGN K
 ALTER TABLE "pet_perdida_fotos" ADD CONSTRAINT "perdida_perdida_file_miniatura" FOREIGN KEY ("id_file_miniatura") REFERENCES "files" ("id") DEFERRABLE INITIALLY IMMEDIATE;
 
 ALTER TABLE "files" ADD CONSTRAINT "user_files" FOREIGN KEY ("id_user") REFERENCES "user" ("id") DEFERRABLE INITIALLY IMMEDIATE;
+
+ALTER TABLE "pet_perdida" ADD CONSTRAINT "mapbox_addresses_pet_perdida" FOREIGN KEY ("id_address") REFERENCES "mapbox_addresses" ("id") DEFERRABLE INITIALLY IMMEDIATE;
