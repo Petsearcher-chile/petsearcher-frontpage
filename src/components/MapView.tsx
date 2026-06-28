@@ -11,7 +11,7 @@ import "mapbox-gl/dist/mapbox-gl.css";
 
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN ?? "";
 const GEOCODE_ENDPOINT = "https://api.mapbox.com/geocoding/v5/mapbox.places";
-const SELECT_ZOOM = 13.5;
+const SELECT_ZOOM = 16;
 
 type LocationSuggestion = {
   id: string;
@@ -27,6 +27,7 @@ const DEFAULT_CENTER = {
 
 export default function MapView() {
   const mapRef = useRef<MapRef>(null);
+  const selectedQueryRef = useRef("");
   const [searchQuery, setSearchQuery] = useState("");
   const [searchError, setSearchError] = useState<string | null>(null);
   const [results, setResults] = useState<LocationSuggestion[]>([]);
@@ -42,6 +43,10 @@ export default function MapView() {
   const hasToken = MAPBOX_TOKEN.length > 0;
 
   const handleQueryChange = useCallback((value: string) => {
+    if (value !== selectedQueryRef.current) {
+      selectedQueryRef.current = "";
+    }
+
     setSearchQuery(value);
     setSearchError(null);
 
@@ -77,6 +82,11 @@ export default function MapView() {
     const query = searchQuery.trim();
 
     if (!query) {
+      selectedQueryRef.current = "";
+      return;
+    }
+
+    if (query === selectedQueryRef.current) {
       return;
     }
 
@@ -105,8 +115,10 @@ export default function MapView() {
   }, [fetchSuggestions, searchQuery]);
 
   const handleSelectResult = useCallback((result: LocationSuggestion) => {
+    selectedQueryRef.current = result.place_name;
     setSearchQuery(result.place_name);
     setResults([]);
+    setSearchError(null);
     const longitude = result.center[0];
     const latitude = result.center[1];
 
@@ -196,8 +208,9 @@ export default function MapView() {
               <li key={result.id}>
                 <button
                   type="button"
-                  onMouseDown={(event) => {
+                  onPointerDown={(event) => {
                     event.preventDefault();
+                    event.stopPropagation();
                     handleSelectResult(result);
                   }}
                   className="w-full rounded-xl border border-zinc-200 bg-white/80 px-4 py-3 text-left text-sm text-zinc-800 transition hover:border-zinc-300 hover:bg-white dark:border-zinc-700 dark:bg-zinc-900/80 dark:text-zinc-100 dark:hover:border-zinc-500 dark:hover:bg-zinc-900"
