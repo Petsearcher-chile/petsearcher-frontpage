@@ -21,14 +21,16 @@ CREATE TABLE "files" (
                          "size_bytes" bigint NOT NULL,
                          "url" text,
                          "status" varchar(20) DEFAULT 'active',
-                         "id_user" uuid,
+                         "id_user" uuid NOT NULL,
                          "created_at" timestamp DEFAULT (now()),
                          "updated_at" timestamp DEFAULT (now())
 );
 
 CREATE TABLE "user" (
                         "id" uuid PRIMARY KEY NOT NULL,
-                        "name" varchar
+                        "name" varchar(100),
+                        "last_name" varchar(100),
+                        "email" varchar(300) NOT NULL
 );
 
 CREATE INDEX ON "pet_perdida" ("nombre_mascota");
