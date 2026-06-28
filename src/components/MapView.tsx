@@ -18,6 +18,21 @@ type LocationSuggestion = {
   id: string;
   place_name: string;
   center: [number, number];
+  text?: string;
+  address?: string;
+  context?: { id: string; text: string }[];
+};
+
+type SelectedAddressDetail = {
+  fullAddress: string;
+  longitude: number;
+  latitude: number;
+  country: string | null;
+  region: string | null;
+  city: string | null;
+  postcode: string | null;
+  street: string | null;
+  houseNumber: string | null;
 };
 
 // Santiago, Chile
@@ -43,18 +58,50 @@ export default function MapView() {
 
   const hasToken = MAPBOX_TOKEN.length > 0;
 
-  const emitLocationSelected = useCallback((selected: boolean) => {
+  const getContextValue = useCallback(
+    (context: LocationSuggestion["context"], prefix: string) =>
+      context?.find((entry) => entry.id.startsWith(`${prefix}.`))?.text ?? null,
+    [],
+  );
+
+  const mapSelectedAddress = useCallback(
+    (result: LocationSuggestion): SelectedAddressDetail => ({
+      fullAddress: result.place_name,
+      longitude: result.center[0],
+      latitude: result.center[1],
+      country: getContextValue(result.context, "country"),
+      region: getContextValue(result.context, "region"),
+      city:
+        getContextValue(result.context, "place") ??
+        getContextValue(result.context, "locality") ??
+        getContextValue(result.context, "district"),
+      postcode: getContextValue(result.context, "postcode"),
+      street: result.text ?? null,
+      houseNumber: result.address ?? null,
+    }),
+    [getContextValue],
+  );
+
+  const emitLocationSelected = useCallback((selected: boolean, address?: SelectedAddressDetail) => {
     window.dispatchEvent(
-      new CustomEvent<{ selected: boolean }>(LOCATION_EVENT_NAME, {
-        detail: { selected },
-      }),
+      new CustomEvent<{ selected: boolean; address?: SelectedAddressDetail }>(
+        LOCATION_EVENT_NAME,
+        {
+          detail: { selected, address },
+        },
+      ),
     );
   }, []);
+
+  const clearSelection = useCallback(() => {
+    emitLocationSelected(false);
+    setSelectedPoint(null);
+  }, [emitLocationSelected]);
 
   const handleQueryChange = useCallback((value: string) => {
     if (value !== selectedQueryRef.current) {
       selectedQueryRef.current = "";
-      emitLocationSelected(false);
+      clearSelection();
     }
 
     setSearchQuery(value);
@@ -62,8 +109,9 @@ export default function MapView() {
 
     if (!value.trim()) {
       setResults([]);
+      clearSelection();
     }
-  }, [emitLocationSelected]);
+  }, [clearSelection]);
 
   const fetchSuggestions = useCallback(
     async (query: string, signal: AbortSignal) => {
@@ -73,7 +121,7 @@ export default function MapView() {
       }
 
       const response = await fetch(
-        `${GEOCODE_ENDPOINT}/${encodeURIComponent(query)}.json?access_token=${MAPBOX_TOKEN}&autocomplete=true&limit=5&language=es`,
+        `${GEOCODE_ENDPOINT}/${encodeURIComponent(query)}.json?access_token=${MAPBOX_TOKEN}&autocomplete=true&limit=5&language=es&types=address,place,locality,region,postcode`,
         { signal },
       );
 
@@ -133,7 +181,7 @@ export default function MapView() {
     const latitude = result.center[1];
 
     setSelectedPoint({ longitude, latitude });
-    emitLocationSelected(true);
+    emitLocationSelected(true, mapSelectedAddress(result));
     const map = mapRef.current;
 
     if (map) {
@@ -142,7 +190,7 @@ export default function MapView() {
         zoom: SELECT_ZOOM,
       });
     }
-  }, [emitLocationSelected]);
+  }, [emitLocationSelected, mapSelectedAddress]);
 
   const searchAndSelect = useCallback(
     async (query: string) => {
@@ -152,7 +200,7 @@ export default function MapView() {
       }
 
       const response = await fetch(
-        `${GEOCODE_ENDPOINT}/${encodeURIComponent(query)}.json?access_token=${MAPBOX_TOKEN}&autocomplete=true&limit=1&language=es`,
+        `${GEOCODE_ENDPOINT}/${encodeURIComponent(query)}.json?access_token=${MAPBOX_TOKEN}&autocomplete=true&limit=1&language=es&types=address,place,locality,region,postcode`,
       );
 
       if (!response.ok) {

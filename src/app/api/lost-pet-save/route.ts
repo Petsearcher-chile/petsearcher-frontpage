@@ -6,6 +6,18 @@ const SUPABASE_URL =
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const LOST_PET_NAME_PATTERN = /^(?!.*[ _\-°ñÑ]{2})[a-zA-Z0-9°_\-ñÑ ]+$/;
 
+type SelectedAddressDetail = {
+  fullAddress: string;
+  longitude: number;
+  latitude: number;
+  country: string | null;
+  region: string | null;
+  city: string | null;
+  postcode: string | null;
+  street: string | null;
+  houseNumber: string | null;
+};
+
 const isValidHttpUrl = (value: string) => {
   try {
     const url = new URL(value);
@@ -13,6 +25,42 @@ const isValidHttpUrl = (value: string) => {
   } catch {
     return false;
   }
+};
+
+const asNullableText = (value: unknown) =>
+  typeof value === "string" && value.trim().length > 0 ? value.trim() : null;
+
+const parseSelectedAddress = (value: unknown): SelectedAddressDetail | null => {
+  if (!value || typeof value !== "object") {
+    return null;
+  }
+
+  const input = value as Record<string, unknown>;
+  const fullAddress = asNullableText(input.fullAddress);
+  const longitude =
+    typeof input.longitude === "number" && Number.isFinite(input.longitude)
+      ? input.longitude
+      : null;
+  const latitude =
+    typeof input.latitude === "number" && Number.isFinite(input.latitude)
+      ? input.latitude
+      : null;
+
+  if (fullAddress === null || longitude === null || latitude === null) {
+    return null;
+  }
+
+  return {
+    fullAddress,
+    longitude,
+    latitude,
+    country: asNullableText(input.country),
+    region: asNullableText(input.region),
+    city: asNullableText(input.city),
+    postcode: asNullableText(input.postcode),
+    street: asNullableText(input.street),
+    houseNumber: asNullableText(input.houseNumber),
+  };
 };
 
 export async function POST(request: Request) {
@@ -42,6 +90,7 @@ export async function POST(request: Request) {
     petLossId?: unknown;
     lostPetDate?: unknown;
     lostPetName?: unknown;
+    mapboxAddress?: unknown;
   };
   const petLossId =
     typeof body.petLossId === "number" && Number.isInteger(body.petLossId)
@@ -55,6 +104,7 @@ export async function POST(request: Request) {
     typeof body.lostPetName === "string" && body.lostPetName.trim().length > 0
       ? body.lostPetName.trim().slice(0, 30)
       : null;
+  const mapboxAddress = parseSelectedAddress(body.mapboxAddress);
 
   if (petLossId === null) {
     return Response.json(
@@ -81,6 +131,39 @@ export async function POST(request: Request) {
   }
 
   const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+
+  if (!mapboxAddress) {
+    return Response.json(
+      {
+        message:
+          "Debe seleccionar un lugar donde se perdió su mascota, arriba en el buscador, busque su dirección",
+      },
+      { status: 400 },
+    );
+  }
+
+  const { error: addressError } = await supabase.from("mapbox_addresses").insert({
+    full_address: mapboxAddress.fullAddress,
+    longitude: mapboxAddress.longitude,
+    latitude: mapboxAddress.latitude,
+    country: mapboxAddress.country,
+    region: mapboxAddress.region,
+    city: mapboxAddress.city,
+    postcode: mapboxAddress.postcode,
+    street: mapboxAddress.street,
+    house_number: mapboxAddress.houseNumber,
+  });
+
+  if (addressError) {
+    return Response.json(
+      {
+        message: "No se pudo guardar la dirección seleccionada.",
+        detail: addressError.message,
+      },
+      { status: 500 },
+    );
+  }
+
   const { data, error } = await supabase
     .from("pet_perdida")
     .update({
