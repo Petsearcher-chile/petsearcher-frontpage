@@ -23,13 +23,14 @@ const MapView = dynamic(() => import("@/components/MapView"), {
 export default function Home() {
   const { isLoaded, isSignedIn } = useAuth();
   const { openSignIn } = useClerk();
-  const [isPanelOpen, setIsPanelOpen] = useState(true);
+  const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [showLostPetForm, setShowLostPetForm] = useState(false);
   const [petLossId, setPetLossId] = useState<number | null>(null);
   const [lostPetDate, setLostPetDate] = useState("");
   const [lostPetName, setLostPetName] = useState("");
   const [photoError, setPhotoError] = useState("");
   const [uploadError, setUploadError] = useState("");
+  const [saveSuccessMessage, setSaveSuccessMessage] = useState("");
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [hasSelectedLocation, setHasSelectedLocation] = useState(false);
@@ -89,6 +90,7 @@ export default function Home() {
       resetUploadProgress();
       setPhotoError("");
       setUploadError("");
+      setSaveSuccessMessage("");
       setUploadProgress(0);
 
       const formData = new FormData();
@@ -194,6 +196,7 @@ export default function Home() {
     }
 
     setPhotoError("");
+    setSaveSuccessMessage("");
     event.target.value = "";
     uploadPhotos(files);
   };
@@ -208,6 +211,7 @@ export default function Home() {
       return;
     }
 
+    setSaveSuccessMessage("");
     setShowLostPetForm(true);
   }, [isLoaded, isSignedIn, openSignIn]);
 
@@ -245,6 +249,17 @@ export default function Home() {
       .then(async (response) => {
         if (response.ok) {
           setUploadError("");
+          setPhotoError("");
+          setShowLostPetForm(false);
+          setIsPanelOpen(false);
+          setPetLossId(null);
+          setLostPetDate("");
+          setLostPetName("");
+          setHasSelectedLocation(false);
+          clearThumbnailPreviews();
+          setSaveSuccessMessage(
+            "Lamentamos mucho el extravío de su mascota. En caso de que alguien la encuentre, será contactado por el correo que utilizó para identificarse.",
+          );
           return;
         }
 
@@ -261,7 +276,13 @@ export default function Home() {
       .finally(() => {
         setIsSaving(false);
       });
-  }, [hasSelectedLocation, petLossId, lostPetDate, lostPetName]);
+  }, [
+    clearThumbnailPreviews,
+    hasSelectedLocation,
+    lostPetDate,
+    lostPetName,
+    petLossId,
+  ]);
 
   return (
     <main className="relative h-screen w-screen overflow-hidden">
@@ -295,6 +316,7 @@ export default function Home() {
                 setHasSelectedLocation(false);
                 setPhotoError("");
                 setUploadError("");
+                setSaveSuccessMessage("");
                 clearThumbnailPreviews();
               }}
             >
@@ -484,6 +506,19 @@ export default function Home() {
             type="button"
             className="mt-3 rounded-md bg-red-200 px-3 py-1.5 text-sm font-medium text-red-900 transition hover:bg-red-300"
             onClick={() => setUploadError("")}
+          >
+            Cerrar
+          </button>
+        </div>
+      ) : null}
+
+      {saveSuccessMessage ? (
+        <div className="fixed bottom-4 right-4 z-50 w-[min(92vw,28rem)] rounded-xl border border-emerald-300 bg-emerald-100 p-4 text-emerald-900 shadow-xl">
+          <p className="text-sm font-medium">{saveSuccessMessage}</p>
+          <button
+            type="button"
+            className="mt-3 rounded-md bg-emerald-200 px-3 py-1.5 text-sm font-medium text-emerald-900 transition hover:bg-emerald-300"
+            onClick={() => setSaveSuccessMessage("")}
           >
             Cerrar
           </button>
