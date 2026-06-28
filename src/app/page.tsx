@@ -34,6 +34,10 @@ export default function Home() {
   const [uploadedThumbnailPreviews, setUploadedThumbnailPreviews] = useState<
     { id: string; url: string; name: string }[]
   >([]);
+  const [hoveredPreview, setHoveredPreview] = useState<{
+    url: string;
+    name: string;
+  } | null>(null);
   const photoInputRef = useRef<HTMLInputElement>(null);
   const uploadResetTimerRef = useRef<number | null>(null);
   const thumbnailUrlsRef = useRef<string[]>([]);
@@ -60,6 +64,7 @@ export default function Home() {
     thumbnailUrlsRef.current.forEach((url) => URL.revokeObjectURL(url));
     thumbnailUrlsRef.current = [];
     setUploadedThumbnailPreviews([]);
+    setHoveredPreview(null);
   }, []);
 
   const uploadPhotos = useCallback(
@@ -351,7 +356,14 @@ export default function Home() {
                           key={preview.id}
                           src={preview.url}
                           alt={preview.name}
-                          className="h-16 w-16 flex-none rounded-md border border-zinc-200 object-cover dark:border-zinc-700"
+                          className="h-16 w-16 cursor-pointer flex-none rounded-md border border-zinc-200 object-cover dark:border-zinc-700"
+                          onMouseEnter={() =>
+                            setHoveredPreview({
+                              url: preview.url,
+                              name: preview.name,
+                            })
+                          }
+                          onMouseLeave={() => setHoveredPreview(null)}
                         />
                       ))}
                     </div>
@@ -393,6 +405,18 @@ export default function Home() {
           </div>
         ) : null}
       </section>
+
+      {hoveredPreview ? (
+        <div className="pointer-events-none fixed inset-0 z-50 flex items-center justify-center">
+          <div className="rounded-lg border border-zinc-300 bg-white p-2 shadow-xl dark:border-zinc-700 dark:bg-zinc-900">
+            <img
+              src={hoveredPreview.url}
+              alt={hoveredPreview.name}
+              className="h-[22rem] w-[22rem] rounded-md object-contain"
+            />
+          </div>
+        </div>
+      ) : null}
 
       {uploadError ? (
         <div className="fixed bottom-4 right-4 z-50 w-[min(92vw,28rem)] rounded-xl border border-red-300 bg-red-100 p-4 text-red-900 shadow-xl">
