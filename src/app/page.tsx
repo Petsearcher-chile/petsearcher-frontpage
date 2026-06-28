@@ -10,6 +10,7 @@ import {
   useRef,
   useState,
 } from "react";
+import type { RegisteredPetMarker } from "@/components/MapView";
 
 const MapView = dynamic(() => import("@/components/MapView"), {
   ssr: false,
@@ -32,6 +33,8 @@ type SelectedAddressDetail = {
   houseNumber: string | null;
 };
 
+type SelectedLostPetMarker = RegisteredPetMarker;
+
 const LOCATION_EVENT_NAME = "petsearcher:location-selected";
 const AUTOSELECT_REQUEST_EVENT_NAME = "petsearcher:location-autoselect-request";
 
@@ -51,6 +54,8 @@ export default function Home() {
   const [, setHasSelectedLocation] = useState(false);
   const [selectedAddressDetail, setSelectedAddressDetail] =
     useState<SelectedAddressDetail | null>(null);
+  const [selectedLostPet, setSelectedLostPet] =
+    useState<SelectedLostPetMarker | null>(null);
   const [uploadedThumbnailPreviews, setUploadedThumbnailPreviews] = useState<
     { id: string; url: string; name: string }[]
   >([]);
@@ -288,6 +293,7 @@ export default function Home() {
     }
 
     setSaveSuccessMessage("");
+    setSelectedLostPet(null);
     setShowLostPetForm(true);
   }, [isLoaded, isSignedIn, openSignIn]);
 
@@ -336,6 +342,7 @@ export default function Home() {
             setPhotoError("");
             setShowLostPetForm(false);
             setIsPanelOpen(false);
+            setSelectedLostPet(null);
             setPetLossId(null);
             setLostPetDate("");
             setLostPetName("");
@@ -372,9 +379,56 @@ export default function Home() {
     selectedAddressDetail,
   ]);
 
+  const handleMarkerSelect = useCallback((marker: SelectedLostPetMarker) => {
+    setSelectedLostPet(marker);
+    setIsPanelOpen(false);
+  }, []);
+
   return (
     <main className="relative h-screen w-screen overflow-hidden">
-      <MapView />
+      <MapView
+        onMarkerSelect={handleMarkerSelect}
+        selectedMarkerId={selectedLostPet?.petLossId ?? null}
+      />
+
+      {selectedLostPet ? (
+        <aside className="absolute left-4 top-4 bottom-4 z-30 flex w-[min(90vw,500px)] md:w-[min(20vw,500px)] flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-white/95 shadow-[0_8px_24px_rgba(0,0,0,0.12)] dark:border-zinc-800 dark:bg-zinc-950/95">
+          <div className="flex items-start justify-between gap-3 border-b border-zinc-200 px-4 py-3 dark:border-zinc-800">
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+                {selectedLostPet.petName ?? "Mascota perdida"}
+              </p>
+              <p className="mt-1 text-xs text-zinc-600 dark:text-zinc-400">
+                {selectedLostPet.fullAddress}
+              </p>
+            </div>
+            <button
+              type="button"
+              className="rounded-md border border-zinc-200 px-2 py-1 text-xs font-medium text-zinc-700 transition hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-800"
+              onClick={() => setSelectedLostPet(null)}
+            >
+              Cerrar
+            </button>
+          </div>
+          <div className="flex-1 overflow-auto p-4">
+            <div className="grid grid-cols-2 gap-3">
+              {selectedLostPet.photos.map((photo, index) => (
+                <div
+                  key={`${selectedLostPet.petLossId}-${index}`}
+                  className="overflow-hidden rounded-xl border border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900"
+                >
+                  <img
+                    src={photo.originalUrl ?? photo.thumbnailUrl}
+                    alt={`${selectedLostPet.petName ?? "Mascota perdida"} foto ${index + 1}`}
+                    className="h-36 w-full object-cover"
+                    loading="lazy"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        </aside>
+      ) : null}
 
       <section
         className={`absolute inset-x-0 bottom-0 z-20 border-t border-zinc-200 bg-white/90 shadow-[0_-8px_24px_rgba(0,0,0,0.08)] transition-[height] duration-300 ease-out dark:border-zinc-800 dark:bg-zinc-950/90 ${
@@ -404,6 +458,7 @@ export default function Home() {
                 setLostPetName("");
                 setHasSelectedLocation(false);
                 setSelectedAddressDetail(null);
+                setSelectedLostPet(null);
                 lastSelectedAddressRef.current = null;
                 setPhotoError("");
                 setUploadError("");

@@ -36,13 +36,14 @@ type SelectedAddressDetail = {
   houseNumber: string | null;
 };
 
-type RegisteredPetMarker = {
+export type RegisteredPetMarker = {
   petLossId: number;
   longitude: number;
   latitude: number;
   fullAddress: string;
   petName: string | null;
   thumbnailUrl: string | null;
+  photos: { originalUrl: string | null; thumbnailUrl: string }[];
 };
 
 // Santiago, Chile
@@ -51,7 +52,12 @@ const DEFAULT_CENTER = {
   latitude: -33.4489,
 };
 
-export default function MapView() {
+type MapViewProps = {
+  onMarkerSelect?: (marker: RegisteredPetMarker) => void;
+  selectedMarkerId?: number | null;
+};
+
+export default function MapView({ onMarkerSelect, selectedMarkerId }: MapViewProps) {
   const mapRef = useRef<MapRef>(null);
   const selectedQueryRef = useRef("");
   const [searchQuery, setSearchQuery] = useState("");
@@ -384,9 +390,20 @@ export default function MapView() {
             latitude={marker.latitude}
             anchor="bottom"
           >
-            <div className="pointer-events-none flex flex-col items-center">
+            <button
+              type="button"
+              aria-label={`Ver fotos de ${marker.petName ?? "mascota perdida"}`}
+              className="pointer-events-auto flex flex-col items-center bg-transparent p-0"
+              onClick={() => onMarkerSelect?.(marker)}
+            >
               {marker.thumbnailUrl ? (
-                <div className="mb-1 h-12 w-12 overflow-hidden rounded-md border-2 border-white bg-white shadow-lg">
+                <div
+                  className={`mb-1 overflow-hidden rounded-md border-2 bg-white shadow-lg ${
+                    selectedMarkerId === marker.petLossId
+                      ? "h-14 w-14 border-blue-500 ring-2 ring-blue-300"
+                      : "h-12 w-12 border-white"
+                  }`}
+                >
                   <img
                     src={marker.thumbnailUrl}
                     alt={marker.petName ?? "Mascota perdida"}
@@ -406,7 +423,7 @@ export default function MapView() {
                 <circle cx="24" cy="23" r="10" fill="#ffffff" />
                 <circle cx="24" cy="23" r="5.5" fill="#ef4444" />
               </svg>
-            </div>
+            </button>
           </Marker>
         ))}
         {selectedPoint ? (

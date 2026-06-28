@@ -127,23 +127,24 @@ export async function GET(request: Request) {
   }
 
   const photoRows = (petPhotos ?? []) as PetPhotoRow[];
-  const firstFilesByPet = new Map<number, { originalId: string; miniId: string }>();
+  const filesByPet = new Map<number, { originalId: string; miniId: string }[]>();
   for (const row of photoRows) {
-    if (!row.id_file || !row.id_file_miniatura || firstFilesByPet.has(row.id_perdida)) {
+    if (!row.id_file || !row.id_file_miniatura) {
       continue;
     }
-    firstFilesByPet.set(row.id_perdida, {
+    const current = filesByPet.get(row.id_perdida) ?? [];
+    current.push({
       originalId: row.id_file,
       miniId: row.id_file_miniatura,
     });
+    filesByPet.set(row.id_perdida, current);
   }
 
   const fileIds = Array.from(
     new Set(
-      Array.from(firstFilesByPet.values()).flatMap((fileIdsByPet) => [
-        fileIdsByPet.originalId,
-        fileIdsByPet.miniId,
-      ]),
+      Array.from(filesByPet.values()).flatMap((fileIdsByPet) =>
+        fileIdsByPet.flatMap((entry) => [entry.originalId, entry.miniId]),
+      ),
     ),
   );
   let fileById = new Map<string, FileRow>();
@@ -205,19 +206,41 @@ export async function GET(request: Request) {
           return null;
         }
 
-        const filesByPet = firstFilesByPet.get(pet.id);
-        if (!filesByPet) {
+        const petFiles = filesByPet.get(pet.id);
+        if (!petFiles || petFiles.length === 0) {
           return null;
         }
 
-        const originalFile = fileById.get(filesByPet.originalId);
-        const miniFile = fileById.get(filesByPet.miniId);
-        if (!originalFile || !miniFile) {
-          return null;
-        }
+        const photos = (
+          await Promise.all(
+            petFiles.map(async (fileIdsByPet) => {
+              const originalFile = fileById.get(fileIdsByPet.originalId);
+              const miniFile = fileById.get(fileIdsByPet.miniId);
+              if (!originalFile || !miniFile) {
+                return null;
+              }
 
-        const thumbnailUrl = await resolveFileUrl(filesByPet.miniId);
-        if (!thumbnailUrl) {
+              const [originalUrl, thumbnailUrl] = await Promise.all([
+                resolveFileUrl(fileIdsByPet.originalId),
+                resolveFileUrl(fileIdsByPet.miniId),
+              ]);
+
+              if (!thumbnailUrl) {
+                return null;
+              }
+
+              return {
+                originalUrl,
+                thumbnailUrl,
+              };
+            }),
+          )
+        ).filter(
+          (photo): photo is { originalUrl: string | null; thumbnailUrl: string } =>
+            Boolean(photo),
+        );
+
+        if (photos.length === 0) {
           return null;
         }
 
@@ -227,7 +250,8 @@ export async function GET(request: Request) {
           latitude: address.latitude,
           fullAddress: address.full_address,
           petName: pet.nombre_mascota,
-          thumbnailUrl,
+          thumbnailUrl: photos[0].thumbnailUrl,
+          photos,
         };
       }),
   );
