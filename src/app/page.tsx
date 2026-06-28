@@ -31,6 +31,7 @@ export default function Home() {
   const [photoError, setPhotoError] = useState("");
   const [uploadError, setUploadError] = useState("");
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
   const [hasSelectedLocation, setHasSelectedLocation] = useState(false);
   const [uploadedThumbnailPreviews, setUploadedThumbnailPreviews] = useState<
     { id: string; url: string; name: string }[]
@@ -218,6 +219,50 @@ export default function Home() {
     lostPetDate.trim().length > 0 &&
     isLostPetNameValid;
 
+  const handleSaveClick = useCallback(() => {
+    if (!hasSelectedLocation) {
+      setUploadError(
+        "Debe seleccionar un lugar donde se perdió su mascota, arriba en el buscador, busque su dirección",
+      );
+      return;
+    }
+
+    if (petLossId === null) {
+      setUploadError("Debes subir al menos una foto antes de guardar.");
+      return;
+    }
+
+    setIsSaving(true);
+    void fetch("/api/lost-pet-save", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        petLossId,
+        lostPetDate,
+        lostPetName,
+      }),
+    })
+      .then(async (response) => {
+        if (response.ok) {
+          setUploadError("");
+          return;
+        }
+
+        const payload = (await response.json()) as { message?: string; detail?: string };
+        const errorMessage =
+          payload.message && payload.detail
+            ? `${payload.message} ${payload.detail}`
+            : payload.message ?? "No se pudo guardar la pérdida.";
+        setUploadError(errorMessage);
+      })
+      .catch(() => {
+        setUploadError("No se pudo guardar la pérdida.");
+      })
+      .finally(() => {
+        setIsSaving(false);
+      });
+  }, [hasSelectedLocation, petLossId, lostPetDate, lostPetName]);
+
   return (
     <main className="relative h-screen w-screen overflow-hidden">
       <MapView />
@@ -356,17 +401,11 @@ export default function Home() {
                       />
                       <button
                         type="button"
-                        disabled={!isSaveEnabled}
+                        disabled={!isSaveEnabled || isSaving}
                         className="ml-auto cursor-pointer rounded-xl border border-zinc-200 bg-white px-5 py-2 text-sm font-medium text-zinc-800 transition hover:border-zinc-300 hover:bg-zinc-50 disabled:cursor-not-allowed disabled:border-zinc-200 disabled:bg-zinc-100 disabled:text-zinc-400 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:border-zinc-700 dark:hover:bg-zinc-800 dark:disabled:border-zinc-800 dark:disabled:bg-zinc-800 dark:disabled:text-zinc-500"
-                        onClick={() => {
-                          if (!hasSelectedLocation) {
-                            setUploadError(
-                              "Debe seleccionar un lugar donde se perdió su mascota, arriba en el buscador, busque su dirección",
-                            );
-                          }
-                        }}
+                        onClick={handleSaveClick}
                       >
-                        Guardar
+                        {isSaving ? "Guardando..." : "Guardar"}
                       </button>
                     </div>
 

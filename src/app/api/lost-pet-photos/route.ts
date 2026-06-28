@@ -247,7 +247,13 @@ export async function POST(request: Request) {
     let wasPetLossCreated = false;
 
     if (petLossIdFromRequest !== null) {
-      const updatePayload: { nombre_mascota?: string | null; date_perdida?: string | null } = {};
+      const updatePayload: {
+        nombre_mascota?: string | null;
+        date_perdida?: string | null;
+        estado: "en_proceso";
+      } = {
+        estado: "en_proceso",
+      };
       if (lostPetName !== null) {
         updatePayload.nombre_mascota = lostPetName;
       }
@@ -298,6 +304,7 @@ export async function POST(request: Request) {
           date_creacion: new Date().toISOString(),
           nombre_mascota: lostPetName,
           date_perdida: lostPetDate,
+          estado: "en_proceso",
         })
         .select("id")
         .single();
