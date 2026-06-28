@@ -266,9 +266,10 @@ export default function Home() {
         {isPanelOpen ? (
           <div className="h-[calc(100%-3.5rem)] overflow-auto px-4 pb-4">
             {showLostPetForm ? (
-              <form className="flex w-full flex-col items-start gap-4">
-                <div className="flex w-full items-center gap-4">
-                  <div className="flex flex-none items-center gap-3">
+              <form className="flex w-full flex-nowrap items-start gap-6">
+                <div className="w-[360px] flex-none">
+                  <div className="flex flex-col gap-4">
+                  <div className="flex items-center gap-3">
                     <label
                       htmlFor="lost-pet-date"
                       className="shrink-0 text-sm font-medium text-zinc-700 dark:text-zinc-200"
@@ -284,7 +285,26 @@ export default function Home() {
                     />
                   </div>
 
-                  <div className="flex min-w-0 flex-1 items-center gap-3">
+                  <div className="flex items-center gap-3">
+                    <label
+                      htmlFor="lost-pet-name"
+                      className="shrink-0 text-sm font-medium text-zinc-700 dark:text-zinc-200"
+                    >
+                      Nombre al que responde
+                    </label>
+                    <input
+                      id="lost-pet-name"
+                      type="text"
+                      value={lostPetName}
+                      onChange={(event) => setLostPetName(event.target.value)}
+                      className="w-[150px] max-w-[150px] flex-none rounded-xl border border-zinc-200 bg-white px-2 py-2 text-zinc-900 outline-none transition focus:border-zinc-400 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:focus:border-zinc-600"
+                    />
+                  </div>
+                </div>
+                </div>
+
+                <div className="flex min-w-0 flex-col gap-2">
+                  <div className="flex items-center gap-3">
                     <label
                       htmlFor="lost-pet-photos"
                       className="shrink-0 text-sm font-medium text-zinc-700 dark:text-zinc-200"
@@ -298,22 +318,6 @@ export default function Home() {
                     >
                       subir
                     </button>
-                    <div
-                      className={`flex min-w-0 flex-1 items-center gap-2 overflow-x-auto rounded-lg px-2 py-1 ${
-                        uploadedThumbnailPreviews.length > 0
-                          ? "border border-transparent"
-                          : ""
-                      }`}
-                    >
-                      {uploadedThumbnailPreviews.map((preview) => (
-                        <img
-                          key={preview.id}
-                          src={preview.url}
-                          alt={preview.name}
-                          className="h-16 w-16 flex-none rounded-md border border-zinc-200 object-cover dark:border-zinc-700"
-                        />
-                      ))}
-                    </div>
                     <input
                       ref={photoInputRef}
                       id="lost-pet-photos"
@@ -324,25 +328,21 @@ export default function Home() {
                       className="sr-only"
                     />
                   </div>
-                </div>
-                {photoError ? (
-                  <p className="text-sm text-red-600">{photoError}</p>
-                ) : null}
 
-                <div className="flex w-full items-center gap-3">
-                  <label
-                    htmlFor="lost-pet-name"
-                    className="shrink-0 text-sm font-medium text-zinc-700 dark:text-zinc-200"
-                  >
-                    Nombre al que responde
-                  </label>
-                  <input
-                    id="lost-pet-name"
-                    type="text"
-                    value={lostPetName}
-                    onChange={(event) => setLostPetName(event.target.value)}
-                    className="w-[150px] max-w-[150px] flex-none rounded-xl border border-zinc-200 bg-white px-2 py-2 text-zinc-900 outline-none transition focus:border-zinc-400 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:focus:border-zinc-600"
-                  />
+                  <div className="flex min-w-0 items-center gap-2 overflow-x-auto rounded-lg px-1 py-1">
+                    {uploadedThumbnailPreviews.map((preview) => (
+                      <img
+                        key={preview.id}
+                        src={preview.url}
+                        alt={preview.name}
+                        className="h-16 w-16 flex-none rounded-md border border-zinc-200 object-cover dark:border-zinc-700"
+                      />
+                    ))}
+                  </div>
+
+                  {photoError ? (
+                    <p className="text-sm text-red-600">{photoError}</p>
+                  ) : null}
                 </div>
               </form>
             ) : (
