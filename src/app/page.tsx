@@ -78,7 +78,18 @@ export default function Home() {
 
       request.onload = () => {
         if (request.status < 200 || request.status >= 300) {
-          setUploadError("No se pudieron subir las fotos.");
+          const responseMessage =
+            request.response &&
+            typeof request.response === "object" &&
+            "message" in request.response
+              ? typeof request.response.message === "string"
+                ? request.response.detail &&
+                  typeof request.response.detail === "string"
+                  ? `${request.response.message} ${request.response.detail}`
+                  : request.response.message
+                : "No se pudieron subir las fotos."
+              : "No se pudieron subir las fotos.";
+          setUploadError(responseMessage);
           setUploadProgress(null);
           return;
         }
@@ -114,8 +125,17 @@ export default function Home() {
       return;
     }
 
+    const files = Array.from(selectedFiles);
+    const hasNonImage = files.some((file) => !file.type.startsWith("image/"));
+    if (hasNonImage) {
+      setPhotoError("Solo se permiten archivos de imagen.");
+      event.target.value = "";
+      return;
+    }
+
+    setPhotoError("");
     event.target.value = "";
-    uploadPhotos(Array.from(selectedFiles));
+    uploadPhotos(files);
   };
 
   const handleLostPetClick = useCallback(() => {
@@ -240,8 +260,6 @@ export default function Home() {
                     />
                     {photoError ? (
                       <p className="text-sm text-red-600">{photoError}</p>
-                    ) : uploadError ? (
-                      <p className="text-sm text-red-600">{uploadError}</p>
                     ) : null}
                   </div>
                 </div>
@@ -290,6 +308,19 @@ export default function Home() {
           </div>
         ) : null}
       </section>
+
+      {uploadError ? (
+        <div className="fixed bottom-4 right-4 z-50 w-[min(92vw,28rem)] rounded-xl border border-red-700 bg-red-600 p-4 text-white shadow-xl">
+          <p className="text-sm font-medium">{uploadError}</p>
+          <button
+            type="button"
+            className="mt-3 rounded-md bg-red-800 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-red-900"
+            onClick={() => setUploadError("")}
+          >
+            Cerrar
+          </button>
+        </div>
+      ) : null}
     </main>
   );
 }
