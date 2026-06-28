@@ -35,6 +35,15 @@ type SelectedAddressDetail = {
   houseNumber: string | null;
 };
 
+type RegisteredPetMarker = {
+  petLossId: number;
+  longitude: number;
+  latitude: number;
+  fullAddress: string;
+  petName: string | null;
+  thumbnailUrl: string | null;
+};
+
 // Santiago, Chile
 const DEFAULT_CENTER = {
   longitude: -70.6483,
@@ -51,12 +60,41 @@ export default function MapView() {
     longitude: number;
     latitude: number;
   } | null>(null);
+  const [registeredMarkers, setRegisteredMarkers] = useState<RegisteredPetMarker[]>([]);
+
+  const hasToken = MAPBOX_TOKEN.length > 0;
+
+  const fetchRegisteredMarkers = useCallback(async () => {
+    const map = mapRef.current;
+    const bounds = map?.getBounds();
+    if (!bounds) {
+      return;
+    }
+
+    const params = new URLSearchParams({
+      minLongitude: String(bounds.getWest()),
+      maxLongitude: String(bounds.getEast()),
+      minLatitude: String(bounds.getSouth()),
+      maxLatitude: String(bounds.getNorth()),
+    });
+
+    const response = await fetch(`/api/lost-pets-map?${params.toString()}`, {
+      cache: "no-store",
+    });
+    if (!response.ok) {
+      throw new Error("No se pudieron cargar marcadores.");
+    }
+
+    const data = (await response.json()) as { markers?: RegisteredPetMarker[] };
+    setRegisteredMarkers(Array.isArray(data.markers) ? data.markers : []);
+  }, []);
 
   const handleLoad = useCallback(() => {
     mapRef.current?.resize();
-  }, []);
-
-  const hasToken = MAPBOX_TOKEN.length > 0;
+    void fetchRegisteredMarkers().catch(() => {
+      setRegisteredMarkers([]);
+    });
+  }, [fetchRegisteredMarkers]);
 
   const getContextValue = useCallback(
     (context: LocationSuggestion["context"], prefix: string) =>
@@ -220,6 +258,16 @@ export default function MapView() {
     [hasToken, handleSelectResult],
   );
 
+  useEffect(() => {
+    if (!hasToken) {
+      return;
+    }
+
+    void fetchRegisteredMarkers().catch(() => {
+      setRegisteredMarkers([]);
+    });
+  }, [fetchRegisteredMarkers, hasToken]);
+
   return (
     <div className="relative h-full w-full overflow-hidden">
       <form
@@ -292,8 +340,45 @@ export default function MapView() {
         mapStyle="mapbox://styles/mapbox/streets-v12"
         style={{ width: "100%", height: "100%" }}
         onLoad={handleLoad}
+        onMoveEnd={() => {
+          void fetchRegisteredMarkers().catch(() => {
+            setRegisteredMarkers([]);
+          });
+        }}
         reuseMaps
       >
+        {registeredMarkers.map((marker) => (
+          <Marker
+            key={`${marker.petLossId}-${marker.longitude}-${marker.latitude}`}
+            longitude={marker.longitude}
+            latitude={marker.latitude}
+            anchor="bottom"
+          >
+            <div className="pointer-events-none flex flex-col items-center">
+              {marker.thumbnailUrl ? (
+                <div className="mb-1 h-12 w-12 overflow-hidden rounded-md border-2 border-white bg-white shadow-lg">
+                  <img
+                    src={marker.thumbnailUrl}
+                    alt={marker.petName ?? "Mascota perdida"}
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+              ) : null}
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 48 64"
+                className="h-14 w-10 drop-shadow-lg"
+              >
+                <path
+                  d="M24 2C12.4 2 3 11.4 3 23c0 15.4 21 39 21 39s21-23.6 21-39C45 11.4 35.6 2 24 2Z"
+                  fill="#ef4444"
+                />
+                <circle cx="24" cy="23" r="10" fill="#ffffff" />
+                <circle cx="24" cy="23" r="5.5" fill="#ef4444" />
+              </svg>
+            </div>
+          </Marker>
+        ))}
         {selectedPoint ? (
           <Marker
             longitude={selectedPoint.longitude}

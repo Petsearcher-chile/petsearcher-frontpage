@@ -142,23 +142,27 @@ export async function POST(request: Request) {
     );
   }
 
-  const { error: addressError } = await supabase.from("mapbox_addresses").insert({
-    full_address: mapboxAddress.fullAddress,
-    longitude: mapboxAddress.longitude,
-    latitude: mapboxAddress.latitude,
-    country: mapboxAddress.country,
-    region: mapboxAddress.region,
-    city: mapboxAddress.city,
-    postcode: mapboxAddress.postcode,
-    street: mapboxAddress.street,
-    house_number: mapboxAddress.houseNumber,
-  });
+  const { data: createdAddress, error: addressError } = await supabase
+    .from("mapbox_addresses")
+    .insert({
+      full_address: mapboxAddress.fullAddress,
+      longitude: mapboxAddress.longitude,
+      latitude: mapboxAddress.latitude,
+      country: mapboxAddress.country,
+      region: mapboxAddress.region,
+      city: mapboxAddress.city,
+      postcode: mapboxAddress.postcode,
+      street: mapboxAddress.street,
+      house_number: mapboxAddress.houseNumber,
+    })
+    .select("id")
+    .single();
 
-  if (addressError) {
+  if (addressError || !createdAddress) {
     return Response.json(
       {
         message: "No se pudo guardar la dirección seleccionada.",
-        detail: addressError.message,
+        detail: addressError?.message ?? "No se creó el registro de dirección.",
       },
       { status: 500 },
     );
@@ -170,6 +174,7 @@ export async function POST(request: Request) {
       estado: "registrada",
       date_perdida: lostPetDate,
       nombre_mascota: lostPetName,
+      id_address: createdAddress.id,
     })
     .eq("id", petLossId)
     .select("id")
