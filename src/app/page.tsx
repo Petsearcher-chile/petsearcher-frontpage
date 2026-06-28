@@ -494,7 +494,7 @@ export default function Home() {
                         htmlFor="lost-pet-photos"
                         className="shrink-0 text-sm font-medium text-zinc-700 dark:text-zinc-200"
                       >
-                        Fotos (max 10)
+                        Fotos (max 10, max 5mg)
                       </label>
                       <button
                         type="button"
