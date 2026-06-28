@@ -1,9 +1,14 @@
 import { createClient } from "@supabase/supabase-js";
+import sharp from "sharp";
 
 const SUPABASE_URL =
   process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const BUCKET_NAME = "fotos_perdidos";
+const ORIGINALS_FOLDER = "originales";
+const THUMBNAILS_FOLDER = "miniatura";
+
+export const runtime = "nodejs";
 
 const isValidHttpUrl = (value: string) => {
   try {
@@ -74,26 +79,50 @@ export async function POST(request: Request) {
         const extension =
           file.name.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") ??
           "jpg";
-        const filePath = `${Date.now()}-${crypto.randomUUID()}.${extension}`;
-        const { error } = await supabase.storage
+        const baseName = `${Date.now()}-${crypto.randomUUID()}`;
+        const originalPath = `${ORIGINALS_FOLDER}/${baseName}.${extension}`;
+        const { error: originalError } = await supabase.storage
           .from(BUCKET_NAME)
-          .upload(filePath, bytes, {
+          .upload(originalPath, bytes, {
             contentType: file.type,
             upsert: false,
           });
 
-        if (error) {
+        if (originalError) {
           return {
             ok: false,
             name: file.name,
-            message: error.message,
+            message: originalError.message,
+          };
+        }
+
+        const thumbnailBuffer = await sharp(bytes)
+          .rotate()
+          .resize(200, 200, { fit: "inside", withoutEnlargement: true })
+          .jpeg({ quality: 80 })
+          .toBuffer();
+        const thumbnailPath = `${THUMBNAILS_FOLDER}/${baseName}.jpg`;
+        const { error: thumbnailError } = await supabase.storage
+          .from(BUCKET_NAME)
+          .upload(thumbnailPath, thumbnailBuffer, {
+            contentType: "image/jpeg",
+            upsert: false,
+          });
+
+        if (thumbnailError) {
+          await supabase.storage.from(BUCKET_NAME).remove([originalPath]);
+          return {
+            ok: false,
+            name: file.name,
+            message: thumbnailError.message,
           };
         }
 
         return {
           ok: true,
           name: file.name,
-          path: filePath,
+          originalPath,
+          thumbnailPath,
           size: file.size,
           type: file.type,
         };
