@@ -85,6 +85,7 @@
   },
   "Api": {
     "bucket_no_encontrado": "バケットが見つかりません。",
+    "faltan_variables_de_entorno_de_aws": "AWS の環境変数が不足しています。",
     "debe_seleccionar_un_lugar_donde_encontro_la_mascota_arriba_en_el_buscador_busque_su_direccion": "検索エンジンの上部でペットを見つけた場所を選択し、住所を検索する必要があります",
     "debe_seleccionar_un_lugar_donde_se_perdio_su_mascota_arriba_en_el_buscador_busque_su_direccion": "検索エンジンの上部でペットが迷子になった場所を選択し、住所を検索する必要があります",
     "debes_ingresar_fecha_para_guardar": "保存する日付を入力する必要があります。",
@@ -96,6 +97,7 @@
     "faltan_variables_de_entorno_de_supabase": "Supabase 環境変数が見つかりません。",
     "insert_vacio_en_files": "ファイルに空を挿入します。",
     "la_url_de_supabase_no_es_valida": "Supabase URL が無効です。",
+    "la_imagen_no_parece_mostrar_una_mascota": "画像にはペットが写っていないようです。",
     "no_se_creo_el_registro_de_direccion": "住所レコードは作成されませんでした。",
     "no_se_encontro_la_perdida_para_asociar_fotos": "写真に関連する損失は見つかりませんでした。",
     "no_se_enviaron_fotos": "写真は送信されませんでした。",

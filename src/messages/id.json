@@ -85,6 +85,7 @@
   },
   "Api": {
     "bucket_no_encontrado": "Ember tidak ditemukan.",
+    "faltan_variables_de_entorno_de_aws": "Variabel lingkungan AWS tidak ada.",
     "debe_seleccionar_un_lugar_donde_encontro_la_mascota_arriba_en_el_buscador_busque_su_direccion": "Anda harus memilih tempat di mana Anda menemukan hewan peliharaan, di bagian atas mesin pencari, cari alamatnya",
     "debe_seleccionar_un_lugar_donde_se_perdio_su_mascota_arriba_en_el_buscador_busque_su_direccion": "Anda harus memilih tempat di mana hewan peliharaan Anda hilang, di bagian atas mesin pencari, cari alamatnya",
     "debes_ingresar_fecha_para_guardar": "Anda harus memasukkan tanggal untuk menyimpan.",
@@ -96,6 +97,7 @@
     "faltan_variables_de_entorno_de_supabase": "Variabel lingkungan Supabase tidak ada.",
     "insert_vacio_en_files": "Sisipkan yang kosong ke dalam file.",
     "la_url_de_supabase_no_es_valida": "URL Supabase tidak valid.",
+    "la_imagen_no_parece_mostrar_una_mascota": "Gambar ini sepertinya tidak menampilkan hewan peliharaan.",
     "no_se_creo_el_registro_de_direccion": "Catatan alamat belum dibuat.",
     "no_se_encontro_la_perdida_para_asociar_fotos": "Tidak ditemukan kehilangan pada foto terkait.",
     "no_se_enviaron_fotos": "Tidak ada foto yang dikirim.",

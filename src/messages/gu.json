@@ -85,6 +85,7 @@
   },
   "Api": {
     "bucket_no_encontrado": "ડોલ મળી નથી.",
+    "faltan_variables_de_entorno_de_aws": "AWS પર્યાવરણ ચલ ગુમ છે.",
     "debe_seleccionar_un_lugar_donde_encontro_la_mascota_arriba_en_el_buscador_busque_su_direccion": "તમારે તે સ્થાન પસંદ કરવું આવશ્યક છે જ્યાં તમને પાલતુ મળ્યું હોય, શોધ એંજીનની ટોચ પર, તેનું સરનામું શોધવું",
     "debe_seleccionar_un_lugar_donde_se_perdio_su_mascota_arriba_en_el_buscador_busque_su_direccion": "તમારે તે સ્થાન પસંદ કરવું આવશ્યક છે જ્યાં તમારું પાલતુ ખોવાઈ ગયું હોય, શોધ એન્જિનની ટોચ પર, તેનું સરનામું શોધવું",
     "debes_ingresar_fecha_para_guardar": "તમારે તારીખ સાચવવી આવશ્યક છે.",
@@ -96,6 +97,7 @@
     "faltan_variables_de_entorno_de_supabase": "સુપાબેઝ પર્યાવરણ ચલો ખૂટે છે.",
     "insert_vacio_en_files": "ફાઇલોમાં ખાલી દાખલ કરો.",
     "la_url_de_supabase_no_es_valida": "Supabase URL અમાન્ય છે.",
+    "la_imagen_no_parece_mostrar_una_mascota": "છબીમાં પાલતુ પ્રાણી દેખાતું નથી.",
     "no_se_creo_el_registro_de_direccion": "સરનામાનો રેકોર્ડ બનાવવામાં આવ્યો ન હતો.",
     "no_se_encontro_la_perdida_para_asociar_fotos": "ફોટાને સાંકળવા માટે નુકસાન મળ્યું નથી.",
     "no_se_enviaron_fotos": "કોઈ ફોટા મોકલ્યા નથી.",

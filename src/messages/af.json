@@ -85,6 +85,7 @@
   },
   "Api": {
     "bucket_no_encontrado": "Emmer nie gevind nie.",
+    "faltan_variables_de_entorno_de_aws": "AWS-omgewingsveranderlikes ontbreek.",
     "debe_seleccionar_un_lugar_donde_encontro_la_mascota_arriba_en_el_buscador_busque_su_direccion": "Jy moet 'n plek kies waar jy die troeteldier gevind het, boaan die soekenjin, soek vir sy adres",
     "debe_seleccionar_un_lugar_donde_se_perdio_su_mascota_arriba_en_el_buscador_busque_su_direccion": "Jy moet 'n plek kies waar jou troeteldier verlore geraak het, boaan die soekenjin, soek vir sy adres",
     "debes_ingresar_fecha_para_guardar": "Jy moet 'n datum intik.",
@@ -96,6 +97,7 @@
     "faltan_variables_de_entorno_de_supabase": "Supabase omgewingsveranderlikes ontbreek.",
     "insert_vacio_en_files": "Voeg leeg in lêers in.",
     "la_url_de_supabase_no_es_valida": "Die Supabase-URL is ongeldig.",
+    "la_imagen_no_parece_mostrar_una_mascota": "Die prent lyk nie of dit ’n troeteldier wys nie.",
     "no_se_creo_el_registro_de_direccion": "Die adresrekord is nie geskep nie.",
     "no_se_encontro_la_perdida_para_asociar_fotos": "Die verlies is nie gevind om foto's te assosieer nie.",
     "no_se_enviaron_fotos": "Geen foto's is gestuur nie.",

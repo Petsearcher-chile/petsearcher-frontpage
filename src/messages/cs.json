@@ -85,6 +85,7 @@
   },
   "Api": {
     "bucket_no_encontrado": "Kbelík nenalezen.",
+    "faltan_variables_de_entorno_de_aws": "Chybí proměnné prostředí AWS.",
     "debe_seleccionar_un_lugar_donde_encontro_la_mascota_arriba_en_el_buscador_busque_su_direccion": "Musíte vybrat místo, kde jste zvíře našli, v horní části vyhledávače vyhledejte jeho adresu",
     "debe_seleccionar_un_lugar_donde_se_perdio_su_mascota_arriba_en_el_buscador_busque_su_direccion": "Musíte vybrat místo, kde se váš mazlíček ztratil, v horní části vyhledávače vyhledejte jeho adresu",
     "debes_ingresar_fecha_para_guardar": "Musíte zadat datum pro uložení.",
@@ -96,6 +97,7 @@
     "faltan_variables_de_entorno_de_supabase": "Proměnné prostředí Supabase chybí.",
     "insert_vacio_en_files": "Vložit prázdný do souborů.",
     "la_url_de_supabase_no_es_valida": "Adresa URL Supabase je neplatná.",
+    "la_imagen_no_parece_mostrar_una_mascota": "Obrázek nevypadá, že by zobrazoval domácího mazlíčka.",
     "no_se_creo_el_registro_de_direccion": "Záznam adresy nebyl vytvořen.",
     "no_se_encontro_la_perdida_para_asociar_fotos": "Nebyla nalezena ztráta asociující fotografie.",
     "no_se_enviaron_fotos": "Nebyly odeslány žádné fotografie.",

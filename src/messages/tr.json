@@ -85,6 +85,7 @@
   },
   "Api": {
     "bucket_no_encontrado": "Paket bulunamadı.",
+    "faltan_variables_de_entorno_de_aws": "AWS ortam değişkenleri eksik.",
     "debe_seleccionar_un_lugar_donde_encontro_la_mascota_arriba_en_el_buscador_busque_su_direccion": "Arama motorunun üst kısmında evcil hayvanınızı bulduğunuz yeri seçmelisiniz, adresini aramalısınız",
     "debe_seleccionar_un_lugar_donde_se_perdio_su_mascota_arriba_en_el_buscador_busque_su_direccion": "Evcil hayvanınızın kaybolduğu yeri seçmelisiniz, arama motorunun üst kısmında adresini aramalısınız",
     "debes_ingresar_fecha_para_guardar": "Kaydetmek için bir tarih girmelisiniz.",
@@ -96,6 +97,7 @@
     "faltan_variables_de_entorno_de_supabase": "Supabase ortam değişkenleri eksik.",
     "insert_vacio_en_files": "Dosyalara boş ekleyin.",
     "la_url_de_supabase_no_es_valida": "Supabase URL'si geçersiz.",
+    "la_imagen_no_parece_mostrar_una_mascota": "Görüntü bir evcil hayvan göstermiyor gibi görünüyor.",
     "no_se_creo_el_registro_de_direccion": "Adres kaydı oluşturulmadı.",
     "no_se_encontro_la_perdida_para_asociar_fotos": "Fotoğrafları ilişkilendirecek kayıp bulunamadı.",
     "no_se_enviaron_fotos": "Hiçbir fotoğraf gönderilmedi.",

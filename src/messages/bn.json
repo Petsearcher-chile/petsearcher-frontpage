@@ -85,6 +85,7 @@
   },
   "Api": {
     "bucket_no_encontrado": "বালতি পাওয়া যায়নি।",
+    "faltan_variables_de_entorno_de_aws": "AWS পরিবেশ ভেরিয়েবল নেই।",
     "debe_seleccionar_un_lugar_donde_encontro_la_mascota_arriba_en_el_buscador_busque_su_direccion": "আপনাকে অবশ্যই একটি জায়গা নির্বাচন করতে হবে যেখানে আপনি পোষা প্রাণীটিকে খুঁজে পেয়েছেন, সার্চ ইঞ্জিনের শীর্ষে, এর ঠিকানা অনুসন্ধান করুন",
     "debe_seleccionar_un_lugar_donde_se_perdio_su_mascota_arriba_en_el_buscador_busque_su_direccion": "আপনাকে অবশ্যই এমন একটি জায়গা নির্বাচন করতে হবে যেখানে আপনার পোষা প্রাণী হারিয়ে গেছে, সার্চ ইঞ্জিনের শীর্ষে, এটির ঠিকানা",
     "debes_ingresar_fecha_para_guardar": "অনুসন্ধান করতে আপনাকে অবশ্যই একটি তারিখ লিখতে হবে৷",
@@ -96,6 +97,7 @@
     "faltan_variables_de_entorno_de_supabase": "সুপাবেস এনভায়রনমেন্ট ভেরিয়েবল অনুপস্থিত।",
     "insert_vacio_en_files": "ফাইলগুলিতে খালি ঢোকান।",
     "la_url_de_supabase_no_es_valida": "সুপাবেস URLটি অবৈধ৷",
+    "la_imagen_no_parece_mostrar_una_mascota": "ছবিটি দেখে মনে হচ্ছে না যে এতে কোনো পোষা প্রাণী আছে।",
     "no_se_creo_el_registro_de_direccion": "ঠিকানা রেকর্ড তৈরি করা হয়নি।",
     "no_se_encontro_la_perdida_para_asociar_fotos": "ফটোগুলি সংযুক্ত করার জন্য ক্ষতি পাওয়া যায়নি৷",
     "no_se_enviaron_fotos": "কোনো ফটো পাঠানো হয়নি।",

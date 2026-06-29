@@ -85,6 +85,7 @@
   },
   "Api": {
     "bucket_no_encontrado": "ບໍ່ພົບຖັງ.",
+    "faltan_variables_de_entorno_de_aws": "ຕົວແປສະພາບແວດລ້ອມ AWS ຫາຍໄປ.",
     "debe_seleccionar_un_lugar_donde_encontro_la_mascota_arriba_en_el_buscador_busque_su_direccion": "ທ່ານຕ້ອງເລືອກສະຖານທີ່ທີ່ທ່ານພົບສັດລ້ຽງ, ຢູ່ເທິງສຸດຂອງເຄື່ອງຈັກຊອກຫາ, ຊອກຫາທີ່ຢູ່ຂອງມັນ.",
     "debe_seleccionar_un_lugar_donde_se_perdio_su_mascota_arriba_en_el_buscador_busque_su_direccion": "ທ່ານຕ້ອງເລືອກສະຖານທີ່ບ່ອນທີ່ສັດລ້ຽງຂອງທ່ານສູນເສຍ, ຢູ່ເທິງສຸດຂອງເຄື່ອງຈັກຊອກຫາ, ຄົ້ນຫາທີ່ຢູ່ຂອງມັນ",
     "debes_ingresar_fecha_para_guardar": "ທ່ານຕ້ອງໃສ່ວັນທີເພື່ອບັນທຶກ.",
@@ -96,6 +97,7 @@
     "faltan_variables_de_entorno_de_supabase": "ບໍ່ມີຕົວແປສະພາບແວດລ້ອມ Supabase.",
     "insert_vacio_en_files": "ໃສ່ຫວ່າງເປົ່າໃສ່ໄຟລ໌.",
     "la_url_de_supabase_no_es_valida": "URL Supabase ບໍ່ຖືກຕ້ອງ.",
+    "la_imagen_no_parece_mostrar_una_mascota": "ຮູບນີ້ບໍ່ເຫັນວ່າມີສັດລ້ຽງ.",
     "no_se_creo_el_registro_de_direccion": "ບັນທຶກທີ່ຢູ່ບໍ່ໄດ້ຖືກສ້າງ.",
     "no_se_encontro_la_perdida_para_asociar_fotos": "ບໍ່ພົບເຫັນການສູນເສຍໃນການເຊື່ອມໂຍງກັບຮູບພາບ.",
     "no_se_enviaron_fotos": "ບໍ່ມີການສົ່ງຮູບ.",

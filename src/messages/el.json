@@ -85,6 +85,7 @@
   },
   "Api": {
     "bucket_no_encontrado": "Ο κάδος δεν βρέθηκε.",
+    "faltan_variables_de_entorno_de_aws": "Λείπουν οι μεταβλητές περιβάλλοντος AWS.",
     "debe_seleccionar_un_lugar_donde_encontro_la_mascota_arriba_en_el_buscador_busque_su_direccion": "Πρέπει να επιλέξετε ένα μέρος όπου βρήκατε το κατοικίδιο, στο επάνω μέρος της μηχανής αναζήτησης, να αναζητήσετε τη διεύθυνσή του",
     "debe_seleccionar_un_lugar_donde_se_perdio_su_mascota_arriba_en_el_buscador_busque_su_direccion": "Πρέπει να επιλέξετε ένα μέρος όπου χάθηκε το κατοικίδιό σας, στο επάνω μέρος της μηχανής αναζήτησης, να αναζητήσετε τη διεύθυνσή του",
     "debes_ingresar_fecha_para_guardar": "Πρέπει να εισαγάγετε μια ημερομηνία για αποθήκευση.",
@@ -96,6 +97,7 @@
     "faltan_variables_de_entorno_de_supabase": "Λείπουν οι μεταβλητές περιβάλλοντος Supabase.",
     "insert_vacio_en_files": "Εισαγάγετε κενό σε αρχεία.",
     "la_url_de_supabase_no_es_valida": "Η διεύθυνση URL του Supabase δεν είναι έγκυρη.",
+    "la_imagen_no_parece_mostrar_una_mascota": "Η εικόνα δεν φαίνεται να δείχνει ένα κατοικίδιο.",
     "no_se_creo_el_registro_de_direccion": "Η εγγραφή διεύθυνσης δεν δημιουργήθηκε.",
     "no_se_encontro_la_perdida_para_asociar_fotos": "Η απώλεια δεν βρέθηκε να συσχετίζει τις φωτογραφίες.",
     "no_se_enviaron_fotos": "Δεν στάλθηκαν φωτογραφίες.",

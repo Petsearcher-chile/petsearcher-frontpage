@@ -85,6 +85,7 @@
   },
   "Api": {
     "bucket_no_encontrado": "Кофата не е намерена.",
+    "faltan_variables_de_entorno_de_aws": "Липсват AWS променливите на средата.",
     "debe_seleccionar_un_lugar_donde_encontro_la_mascota_arriba_en_el_buscador_busque_su_direccion": "Трябва да изберете място, където сте намерили домашния любимец, в горната част на търсачката, потърсете неговия адрес",
     "debe_seleccionar_un_lugar_donde_se_perdio_su_mascota_arriba_en_el_buscador_busque_su_direccion": "Трябва да изберете място, където вашият домашен любимец е изгубен, в горната част на търсачката, потърсете неговия адрес",
     "debes_ingresar_fecha_para_guardar": "Трябва да въведете дата, за да запазите.",
@@ -96,6 +97,7 @@
     "faltan_variables_de_entorno_de_supabase": "Липсват променливи на средата Supabase.",
     "insert_vacio_en_files": "Вмъкнете празни във файлове.",
     "la_url_de_supabase_no_es_valida": "URL адресът на Supabase е невалиден.",
+    "la_imagen_no_parece_mostrar_una_mascota": "Изображението не изглежда да показва домашен любимец.",
     "no_se_creo_el_registro_de_direccion": "Записът на адрес не е създаден.",
     "no_se_encontro_la_perdida_para_asociar_fotos": "Загубата не бе намерена за асоцииране на снимки.",
     "no_se_enviaron_fotos": "Няма изпратени снимки.",

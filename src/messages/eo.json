@@ -85,6 +85,7 @@
   },
   "Api": {
     "bucket_no_encontrado": "Sitelo ne trovita.",
+    "faltan_variables_de_entorno_de_aws": "Mankas AWS-ĉirkaŭaj variabloj.",
     "debe_seleccionar_un_lugar_donde_encontro_la_mascota_arriba_en_el_buscador_busque_su_direccion": "Vi devas elekti lokon kie vi trovis la dorlotbeston, ĉe la supro de la serĉilo, serĉi ĝian adreson",
     "debe_seleccionar_un_lugar_donde_se_perdio_su_mascota_arriba_en_el_buscador_busque_su_direccion": "Vi devas elekti lokon kie via dorlotbesto estis perdita, ĉe la supro de la serĉilo, serĉi ĝian adreson",
     "debes_ingresar_fecha_para_guardar": "Vi devas enigi daton por konservi.",
@@ -96,6 +97,7 @@
     "faltan_variables_de_entorno_de_supabase": "Supabase-medivariabloj mankas.",
     "insert_vacio_en_files": "Enmetu malplenan en dosierojn.",
     "la_url_de_supabase_no_es_valida": "La Supabase URL estas nevalida.",
+    "la_imagen_no_parece_mostrar_una_mascota": "La bildo ŝajne ne montras hejmbeston.",
     "no_se_creo_el_registro_de_direccion": "La adresregistro ne estis kreita.",
     "no_se_encontro_la_perdida_para_asociar_fotos": "La perdo ne estis trovita por asocii fotojn.",
     "no_se_enviaron_fotos": "Neniuj fotoj estis senditaj.",

@@ -85,6 +85,7 @@
   },
   "Api": {
     "bucket_no_encontrado": "Kauhaa ei löydy.",
+    "faltan_variables_de_entorno_de_aws": "AWS-ympäristömuuttujat puuttuvat.",
     "debe_seleccionar_un_lugar_donde_encontro_la_mascota_arriba_en_el_buscador_busque_su_direccion": "Sinun on valittava paikka, josta löysit lemmikin, hakukoneen yläosassa, etsi sen osoite",
     "debe_seleccionar_un_lugar_donde_se_perdio_su_mascota_arriba_en_el_buscador_busque_su_direccion": "Sinun on valittava paikka, johon lemmikkisi katosi, hakukoneen yläosassa, etsi sen osoite",
     "debes_ingresar_fecha_para_guardar": "Sinun on syötettävä päivämäärä tallentaaksesi.",
@@ -96,6 +97,7 @@
     "faltan_variables_de_entorno_de_supabase": "Supabase-ympäristömuuttujat puuttuvat.",
     "insert_vacio_en_files": "Lisää tyhjät tiedostot.",
     "la_url_de_supabase_no_es_valida": "Supabase-URL-osoite on virheellinen.",
+    "la_imagen_no_parece_mostrar_una_mascota": "Kuva ei näytä sisältävän lemmikkiä.",
     "no_se_creo_el_registro_de_direccion": "Osoitetietuetta ei luotu.",
     "no_se_encontro_la_perdida_para_asociar_fotos": "Menetyksen ei havaittu yhdistävän valokuvia.",
     "no_se_enviaron_fotos": "Kuvia ei lähetetty.",

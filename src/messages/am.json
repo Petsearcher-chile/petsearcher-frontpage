@@ -85,6 +85,7 @@
   },
   "Api": {
     "bucket_no_encontrado": "ባልዲ አልተገኘም።",
+    "faltan_variables_de_entorno_de_aws": "የAWS የአካባቢ ተለዋዋጮች አልተዘጋጁም።",
     "debe_seleccionar_un_lugar_donde_encontro_la_mascota_arriba_en_el_buscador_busque_su_direccion": "የቤት እንስሳውን ያገኙበት ቦታ መምረጥ አለቦት፣ በፍለጋ ፕሮግራሙ አናት ላይ፣ አድራሻውን ይፈልጉ",
     "debe_seleccionar_un_lugar_donde_se_perdio_su_mascota_arriba_en_el_buscador_busque_su_direccion": "የቤት እንስሳዎ የጠፋበትን ቦታ መምረጥ አለቦት፣ በፍለጋ ፕሮግራሙ አናት ላይ አድራሻውን ይፈልጉ",
     "debes_ingresar_fecha_para_guardar": "ለማስቀመጥ ቀን ማስገባት አለቦት።",
@@ -96,6 +97,7 @@
     "faltan_variables_de_entorno_de_supabase": "የሱፓቤዝ አካባቢ ተለዋዋጮች ጠፍተዋል።",
     "insert_vacio_en_files": "ባዶ ወደ ፋይሎች አስገባ።",
     "la_url_de_supabase_no_es_valida": "የSupabase URL ልክ ያልሆነ ነው።",
+    "la_imagen_no_parece_mostrar_una_mascota": "ምስሉ እንስሳ እንደሚያሳይ አይመስልም።",
     "no_se_creo_el_registro_de_direccion": "የአድራሻ መዝገቡ አልተፈጠረም።",
     "no_se_encontro_la_perdida_para_asociar_fotos": "ጥፋቱ ፎቶዎችን ለማያያዝ አልተገኘም።",
     "no_se_enviaron_fotos": "ምንም ፎቶዎች አልተላኩም።",

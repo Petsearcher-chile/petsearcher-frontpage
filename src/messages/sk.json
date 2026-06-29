@@ -85,6 +85,7 @@
   },
   "Api": {
     "bucket_no_encontrado": "Vedro sa nenašlo.",
+    "faltan_variables_de_entorno_de_aws": "Chýbajú premenné prostredia AWS.",
     "debe_seleccionar_un_lugar_donde_encontro_la_mascota_arriba_en_el_buscador_busque_su_direccion": "Musíte vybrať miesto, kde ste zvieratko našli, v hornej časti vyhľadávača vyhľadajte jeho adresu",
     "debe_seleccionar_un_lugar_donde_se_perdio_su_mascota_arriba_en_el_buscador_busque_su_direccion": "Musíte vybrať miesto, kde sa vaše zvieratko stratilo, v hornej časti vyhľadávača vyhľadajte jeho adresu",
     "debes_ingresar_fecha_para_guardar": "Musíte zadať dátum uloženia.",
@@ -96,6 +97,7 @@
     "faltan_variables_de_entorno_de_supabase": "Premenné prostredia Supabase chýbajú.",
     "insert_vacio_en_files": "Vložiť prázdne do súborov.",
     "la_url_de_supabase_no_es_valida": "Webová adresa služby Supabase je neplatná.",
+    "la_imagen_no_parece_mostrar_una_mascota": "Obrázok nevyzerá, že zobrazuje domáce zviera.",
     "no_se_creo_el_registro_de_direccion": "Záznam adresy nebol vytvorený.",
     "no_se_encontro_la_perdida_para_asociar_fotos": "Nebola nájdená strata, ktorá by spájala fotografie.",
     "no_se_enviaron_fotos": "Neboli odoslané žiadne fotografie.",

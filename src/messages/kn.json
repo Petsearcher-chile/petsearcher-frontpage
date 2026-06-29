@@ -85,6 +85,7 @@
   },
   "Api": {
     "bucket_no_encontrado": "ಬಕೆಟ್ ಕಂಡುಬಂದಿಲ್ಲ.",
+    "faltan_variables_de_entorno_de_aws": "AWS ಪರಿಸರ ಚರಗಳು ಕಾಣೆಯಾಗಿವೆ.",
     "debe_seleccionar_un_lugar_donde_encontro_la_mascota_arriba_en_el_buscador_busque_su_direccion": "ಹುಡುಕಾಟ ಎಂಜಿನ್‌ನ ಮೇಲ್ಭಾಗದಲ್ಲಿ ನೀವು ಸಾಕುಪ್ರಾಣಿಗಳನ್ನು ಕಂಡುಕೊಂಡ ಸ್ಥಳವನ್ನು ನೀವು ಆಯ್ಕೆ ಮಾಡಬೇಕು, ಅದರ ವಿಳಾಸವನ್ನು ಹುಡುಕಿ",
     "debe_seleccionar_un_lugar_donde_se_perdio_su_mascota_arriba_en_el_buscador_busque_su_direccion": "ನಿಮ್ಮ ಸಾಕುಪ್ರಾಣಿ ಕಳೆದುಹೋದ ಸ್ಥಳವನ್ನು ನೀವು ಆಯ್ಕೆ ಮಾಡಬೇಕು, ಹುಡುಕಾಟ ಎಂಜಿನ್‌ನ ಮೇಲ್ಭಾಗದಲ್ಲಿ, ಅದರ ವಿಳಾಸವನ್ನು ಹುಡುಕಿ",
     "debes_ingresar_fecha_para_guardar": "ನೀವು ಉಳಿಸಲು ದಿನಾಂಕವನ್ನು ನಮೂದಿಸಬೇಕು.",
@@ -96,6 +97,7 @@
     "faltan_variables_de_entorno_de_supabase": "ಸುಪಾಬೇಸ್ ಪರಿಸರ ವೇರಿಯಬಲ್‌ಗಳು ಕಾಣೆಯಾಗಿವೆ.",
     "insert_vacio_en_files": "ಫೈಲ್‌ಗಳಲ್ಲಿ ಖಾಲಿ ಸೇರಿಸಿ.",
     "la_url_de_supabase_no_es_valida": "Supabase URL ಅಮಾನ್ಯವಾಗಿದೆ.",
+    "la_imagen_no_parece_mostrar_una_mascota": "ಚಿತ್ರದಲ್ಲಿ ಪೋಷ್ಯ ಪ್ರಾಣಿ ಕಾಣಿಸುತ್ತಿರುವಂತೆ ಕಾಣುವುದಿಲ್ಲ.",
     "no_se_creo_el_registro_de_direccion": "ವಿಳಾಸ ದಾಖಲೆಯನ್ನು ರಚಿಸಲಾಗಿಲ್ಲ.",
     "no_se_encontro_la_perdida_para_asociar_fotos": "ಫೋಟೋಗಳನ್ನು ಸಂಯೋಜಿಸಲು ನಷ್ಟವು ಕಂಡುಬಂದಿಲ್ಲ.",
     "no_se_enviaron_fotos": "ಯಾವುದೇ ಫೋಟೋಗಳನ್ನು ಕಳುಹಿಸಲಾಗಿಲ್ಲ.",

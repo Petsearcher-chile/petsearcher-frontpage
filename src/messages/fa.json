@@ -85,6 +85,7 @@
   },
   "Api": {
     "bucket_no_encontrado": "سطل پیدا نشد",
+    "faltan_variables_de_entorno_de_aws": "متغیرهای محیطی AWS موجود نیستند.",
     "debe_seleccionar_un_lugar_donde_encontro_la_mascota_arriba_en_el_buscador_busque_su_direccion": "باید مکانی را انتخاب کنید که حیوان خانگی را پیدا کرده اید، در بالای موتور جستجو، آدرس آن را جستجو کنید",
     "debe_seleccionar_un_lugar_donde_se_perdio_su_mascota_arriba_en_el_buscador_busque_su_direccion": "باید مکانی را انتخاب کنید که حیوان خانگی شما گم شده است، در بالای موتور جستجو، آدرس آن را جستجو کنید.",
     "debes_ingresar_fecha_para_guardar": "برای ذخیره باید تاریخ را وارد کنید.",
@@ -96,6 +97,7 @@
     "faltan_variables_de_entorno_de_supabase": "متغیرهای محیطی Supabase وجود ندارد.",
     "insert_vacio_en_files": "خالی را در فایل‌ها درج کنید.",
     "la_url_de_supabase_no_es_valida": "URL Supabase نامعتبر است.",
+    "la_imagen_no_parece_mostrar_una_mascota": "به نظر نمی‌رسد تصویر یک حیوان خانگی را نشان دهد.",
     "no_se_creo_el_registro_de_direccion": "رکورد آدرس ایجاد نشد.",
     "no_se_encontro_la_perdida_para_asociar_fotos": "فقدان مربوط به عکس‌ها یافت نشد.",
     "no_se_enviaron_fotos": "هیچ عکسی ارسال نشد.",

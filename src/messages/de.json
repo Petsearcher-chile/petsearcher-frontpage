@@ -85,6 +85,7 @@
   },
   "Api": {
     "bucket_no_encontrado": "Bucket nicht gefunden.",
+    "faltan_variables_de_entorno_de_aws": "AWS-Umgebungsvariablen fehlen.",
     "debe_seleccionar_un_lugar_donde_encontro_la_mascota_arriba_en_el_buscador_busque_su_direccion": "Sie müssen einen Ort auswählen, an dem Sie das Haustier gefunden haben, oben in der Suchmaschine nach seiner Adresse suchen.",
     "debe_seleccionar_un_lugar_donde_se_perdio_su_mascota_arriba_en_el_buscador_busque_su_direccion": "Sie müssen einen Ort auswählen, an dem Ihr Haustier verloren gegangen ist, und oben in der Suchmaschine nach seiner Adresse suchen.",
     "debes_ingresar_fecha_para_guardar": "Sie müssen ein Datum zum Speichern eingeben.",
@@ -96,6 +97,7 @@
     "faltan_variables_de_entorno_de_supabase": "Supabase-Umgebungsvariablen fehlen.",
     "insert_vacio_en_files": "Leer in Dateien einfügen.",
     "la_url_de_supabase_no_es_valida": "Die Supabase-URL ist ungültig.",
+    "la_imagen_no_parece_mostrar_una_mascota": "Das Bild scheint kein Haustier zu zeigen.",
     "no_se_creo_el_registro_de_direccion": "Der Adressdatensatz wurde nicht erstellt.",
     "no_se_encontro_la_perdida_para_asociar_fotos": "Der Verlust wurde nicht gefunden, um Fotos zuzuordnen.",
     "no_se_enviaron_fotos": "Es wurden keine Fotos gesendet.",

@@ -85,6 +85,7 @@
   },
   "Api": {
     "bucket_no_encontrado": "لم يتم العثور على دلو.",
+    "faltan_variables_de_entorno_de_aws": "تفتقد متغيرات بيئة AWS.",
     "debe_seleccionar_un_lugar_donde_encontro_la_mascota_arriba_en_el_buscador_busque_su_direccion": "يجب عليك تحديد المكان الذي وجدت فيه الحيوان الأليف، في أعلى محرك البحث، ابحث عن عنوانه",
     "debe_seleccionar_un_lugar_donde_se_perdio_su_mascota_arriba_en_el_buscador_busque_su_direccion": "يجب عليك تحديد المكان الذي فقد فيه حيوانك الأليف، في أعلى محرك البحث، ابحث عن عنوانه",
     "debes_ingresar_fecha_para_guardar": "يجب عليك إدخال تاريخ للحفظ.",
@@ -96,6 +97,7 @@
     "faltan_variables_de_entorno_de_supabase": "متغيرات بيئة Supabase مفقودة.",
     "insert_vacio_en_files": "أدخل فارغًا في الملفات.",
     "la_url_de_supabase_no_es_valida": "عنوان URL الخاص بـ Supabase غير صالح.",
+    "la_imagen_no_parece_mostrar_una_mascota": "لا تبدو الصورة وكأنها تعرض حيوانًا أليفًا.",
     "no_se_creo_el_registro_de_direccion": "لم يتم إنشاء سجل العنوان.",
     "no_se_encontro_la_perdida_para_asociar_fotos": "لم يتم العثور على الخسارة لربط الصور.",
     "no_se_enviaron_fotos": "لم يتم إرسال أي صور.",

@@ -85,6 +85,7 @@
   },
   "Api": {
     "bucket_no_encontrado": "Kanta nije pronađena.",
+    "faltan_variables_de_entorno_de_aws": "Nedostaju AWS varijable okruženja.",
     "debe_seleccionar_un_lugar_donde_encontro_la_mascota_arriba_en_el_buscador_busque_su_direccion": "Morate odabrati mjesto gdje ste pronašli ljubimca, na vrhu tražilice, potražite njegovu adresu",
     "debe_seleccionar_un_lugar_donde_se_perdio_su_mascota_arriba_en_el_buscador_busque_su_direccion": "Morate odabrati mjesto gdje je vaš ljubimac izgubljen, na vrhu tražilice potražite njegovu adresu",
     "debes_ingresar_fecha_para_guardar": "Morate unijeti datum za spremanje.",
@@ -96,6 +97,7 @@
     "faltan_variables_de_entorno_de_supabase": "Supabase varijable okruženja nedostaju.",
     "insert_vacio_en_files": "Umetanje praznog u datoteke.",
     "la_url_de_supabase_no_es_valida": "Supabase URL je nevažeći.",
+    "la_imagen_no_parece_mostrar_una_mascota": "Slika ne izgleda kao da prikazuje kućnog ljubimca.",
     "no_se_creo_el_registro_de_direccion": "Zapis adrese nije kreiran.",
     "no_se_encontro_la_perdida_para_asociar_fotos": "Gubitak nije pronađen za pridružene fotografije.",
     "no_se_enviaron_fotos": "Nisu poslane fotografije.",

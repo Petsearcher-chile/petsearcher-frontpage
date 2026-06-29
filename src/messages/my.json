@@ -85,6 +85,7 @@
   },
   "Api": {
     "bucket_no_encontrado": "ပုံးမတွေ့ပါ။",
+    "faltan_variables_de_entorno_de_aws": "AWS ပတ်ဝန်းကျင် variable တွေ မရှိပါ။",
     "debe_seleccionar_un_lugar_donde_encontro_la_mascota_arriba_en_el_buscador_busque_su_direccion": "ရှာဖွေရေးအင်ဂျင်၏ထိပ်တွင် အိမ်မွေးတိရစ္ဆာန်တွေ့ရှိသည့်နေရာကို ရွေးရမည်ဖြစ်ပြီး၊ ၎င်း၏လိပ်စာကိုရှာဖွေပါ",
     "debe_seleccionar_un_lugar_donde_se_perdio_su_mascota_arriba_en_el_buscador_busque_su_direccion": "ရှာဖွေရေးအင်ဂျင်၏ထိပ်တွင်၊ ၎င်း၏လိပ်စာကိုရှာဖွေရန်",
     "debes_ingresar_fecha_para_guardar": "သင့်အိမ်မွေးတိရစ္ဆာန်ပျောက်ဆုံးသွားသည့်နေရာကို ရွေးချယ်ရပါမည်။ [[SPLIT_2c9a7d5f ရက်စွဲတစ်ခုထည့်ရန်]]",
@@ -96,6 +97,7 @@
     "faltan_variables_de_entorno_de_supabase": "Supabase ပတ်ဝန်းကျင် ကိန်းရှင်များ ပျောက်ဆုံးနေပါသည်။",
     "insert_vacio_en_files": "ဗလာကို ဖိုင်များထဲသို့ ထည့်ပါ။",
     "la_url_de_supabase_no_es_valida": "Supabase URL သည် မမှန်ကန်ပါ။",
+    "la_imagen_no_parece_mostrar_una_mascota": "ပုံထဲမှာ အိမ်မွေးတိရစ္ဆာန် တစ်ကောင်ကို မမြင်ရပါ။",
     "no_se_creo_el_registro_de_direccion": "လိပ်စာမှတ်တမ်းကို ဖန်တီးမထားပါ။",
     "no_se_encontro_la_perdida_para_asociar_fotos": "ဓာတ်ပုံများတွဲဖက်ရာတွင် ဆုံးရှုံးမှုကို ရှာမတွေ့ပါ။",
     "no_se_enviaron_fotos": "ဓာတ်ပုံများ မပို့ခဲ့ပါ။",

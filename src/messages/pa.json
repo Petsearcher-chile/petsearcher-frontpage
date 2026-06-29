@@ -85,6 +85,7 @@
   },
   "Api": {
     "bucket_no_encontrado": "ਬਾਲਟੀ ਨਹੀਂ ਮਿਲੀ।",
+    "faltan_variables_de_entorno_de_aws": "AWS ਵਾਤਾਵਰਣ ਵਾਲੇ ਵੈਰੀਏਬਲ ਮੌਜੂਦ ਨਹੀਂ ਹਨ।",
     "debe_seleccionar_un_lugar_donde_encontro_la_mascota_arriba_en_el_buscador_busque_su_direccion": "ਤੁਹਾਨੂੰ ਖੋਜ ਇੰਜਣ ਦੇ ਸਿਖਰ 'ਤੇ, ਉਸ ਜਗ੍ਹਾ ਦੀ ਚੋਣ ਕਰਨੀ ਚਾਹੀਦੀ ਹੈ ਜਿੱਥੇ ਤੁਸੀਂ ਪਾਲਤੂ ਜਾਨਵਰ ਲੱਭਿਆ ਸੀ, ਉਸ ਦੇ ਪਤੇ ਦੀ ਖੋਜ ਕਰੋ",
     "debe_seleccionar_un_lugar_donde_se_perdio_su_mascota_arriba_en_el_buscador_busque_su_direccion": "ਤੁਹਾਨੂੰ ਖੋਜ ਇੰਜਣ ਦੇ ਸਿਖਰ 'ਤੇ, ਉਸ ਜਗ੍ਹਾ ਦੀ ਚੋਣ ਕਰਨੀ ਚਾਹੀਦੀ ਹੈ ਜਿੱਥੇ ਤੁਹਾਡਾ ਪਾਲਤੂ ਜਾਨਵਰ ਗੁਆਚ ਗਿਆ ਸੀ, ਉਸ ਦੇ ਪਤੇ ਦੀ ਖੋਜ ਕਰੋ",
     "debes_ingresar_fecha_para_guardar": "ਤੁਹਾਨੂੰ ਇੱਕ ਤਾਰੀਖ ਦਰਜ ਕਰਨ ਲਈ ਸੁਰੱਖਿਅਤ ਕਰਨਾ ਪਵੇਗਾ।",
@@ -96,6 +97,7 @@
     "faltan_variables_de_entorno_de_supabase": "Supabase ਵਾਤਾਵਰਣ ਵੇਰੀਏਬਲ ਗੁੰਮ ਹਨ।",
     "insert_vacio_en_files": "ਫਾਈਲਾਂ ਵਿੱਚ ਖਾਲੀ ਪਾਓ।",
     "la_url_de_supabase_no_es_valida": "Supabase URL ਅਵੈਧ ਹੈ।",
+    "la_imagen_no_parece_mostrar_una_mascota": "ਤਸਵੀਰ ਵਿੱਚ ਪਾਲਤੂ ਜਾਨਵਰ ਦਿਖਾਈ ਨਹੀਂ ਦੇ ਰਿਹਾ।",
     "no_se_creo_el_registro_de_direccion": "ਪਤਾ ਰਿਕਾਰਡ ਨਹੀਂ ਬਣਾਇਆ ਗਿਆ ਸੀ।",
     "no_se_encontro_la_perdida_para_asociar_fotos": "ਫੋਟੋਆਂ ਨੂੰ ਜੋੜਨ ਲਈ ਨੁਕਸਾਨ ਨਹੀਂ ਮਿਲਿਆ।",
     "no_se_enviaron_fotos": "ਕੋਈ ਫੋਟੋਆਂ ਨਹੀਂ ਭੇਜੀਆਂ ਗਈਆਂ।",

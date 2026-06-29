@@ -85,6 +85,7 @@
   },
   "Api": {
     "bucket_no_encontrado": "Ndoo haijapatikana.",
+    "faltan_variables_de_entorno_de_aws": "Vigezo vya mazingira vya AWS havipo.",
     "debe_seleccionar_un_lugar_donde_encontro_la_mascota_arriba_en_el_buscador_busque_su_direccion": "Lazima uchague mahali ambapo umepata mnyama kipenzi, juu ya injini ya utafutaji, utafute anwani yake",
     "debe_seleccionar_un_lugar_donde_se_perdio_su_mascota_arriba_en_el_buscador_busque_su_direccion": "Lazima uchague mahali ambapo mnyama wako alipotea, katika sehemu ya juu ya injini ya utafutaji, utafute anwani yake",
     "debes_ingresar_fecha_para_guardar": "lazima uweke ad5f.",
@@ -96,6 +97,7 @@
     "faltan_variables_de_entorno_de_supabase": "Vigeu vya mazingira vya Supabase havipo.",
     "insert_vacio_en_files": "Ingiza tupu kwenye faili.",
     "la_url_de_supabase_no_es_valida": "URL ya Supabase si sahihi.",
+    "la_imagen_no_parece_mostrar_una_mascota": "Picha haionekani kuonyesha mnyama wa nyumbani.",
     "no_se_creo_el_registro_de_direccion": "Rekodi ya anwani haikuundwa.",
     "no_se_encontro_la_perdida_para_asociar_fotos": "Hasara haikupatikana ili kuhusisha picha.",
     "no_se_enviaron_fotos": "Hakuna picha zilizotumwa.",

@@ -85,6 +85,7 @@
   },
   "Api": {
     "bucket_no_encontrado": "ബക്കറ്റ് കണ്ടെത്തിയില്ല.",
+    "faltan_variables_de_entorno_de_aws": "AWS പരിസ്ഥിതി വേരിയബിളുകൾ ഇല്ല.",
     "debe_seleccionar_un_lugar_donde_encontro_la_mascota_arriba_en_el_buscador_busque_su_direccion": "നിങ്ങൾ വളർത്തുമൃഗത്തെ കണ്ടെത്തിയ സ്ഥലം തിരഞ്ഞെടുക്കണം, തിരയൽ എഞ്ചിൻ്റെ മുകളിൽ, അതിൻ്റെ വിലാസം തിരയുക",
     "debe_seleccionar_un_lugar_donde_se_perdio_su_mascota_arriba_en_el_buscador_busque_su_direccion": "നിങ്ങളുടെ വളർത്തുമൃഗത്തെ നഷ്ടപ്പെട്ട ഒരു സ്ഥലം നിങ്ങൾ തിരഞ്ഞെടുക്കണം, സെർച്ച് എഞ്ചിൻ്റെ മുകളിൽ, അതിൻ്റെ വിലാസം തിരയുക",
     "debes_ingresar_fecha_para_guardar": "സംരക്ഷിക്കാൻ നിങ്ങൾ ഒരു തീയതി നൽകണം.",
@@ -96,6 +97,7 @@
     "faltan_variables_de_entorno_de_supabase": "സുപാബേസ് എൻവയോൺമെൻ്റ് വേരിയബിളുകൾ കാണുന്നില്ല.",
     "insert_vacio_en_files": "ഫയലുകളിൽ ശൂന്യമായി ചേർക്കുക.",
     "la_url_de_supabase_no_es_valida": "Supabase URL അസാധുവാണ്.",
+    "la_imagen_no_parece_mostrar_una_mascota": "ചിത്രത്തിൽ ഒരു വളർത്തുമൃഗം കാണിക്കുന്നതായി തോന്നുന്നില്ല.",
     "no_se_creo_el_registro_de_direccion": "വിലാസ റെക്കോർഡ് സൃഷ്‌ടിച്ചിട്ടില്ല.",
     "no_se_encontro_la_perdida_para_asociar_fotos": "ഫോട്ടോകൾ ബന്ധപ്പെടുത്തുന്നതിന് നഷ്ടം കണ്ടെത്തിയില്ല.",
     "no_se_enviaron_fotos": "ഫോട്ടോകളൊന്നും അയച്ചിട്ടില്ല.",

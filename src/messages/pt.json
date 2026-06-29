@@ -85,6 +85,7 @@
   },
   "Api": {
     "bucket_no_encontrado": "Balde não encontrado.",
+    "faltan_variables_de_entorno_de_aws": "As variáveis de ambiente da AWS estão ausentes.",
     "debe_seleccionar_un_lugar_donde_encontro_la_mascota_arriba_en_el_buscador_busque_su_direccion": "Você deve selecionar um local onde encontrou o animal de estimação, no topo do mecanismo de busca, procure seu endereço",
     "debe_seleccionar_un_lugar_donde_se_perdio_su_mascota_arriba_en_el_buscador_busque_su_direccion": "Você deve selecionar um local onde seu animal de estimação foi perdido, no topo do mecanismo de busca, procure seu endereço",
     "debes_ingresar_fecha_para_guardar": "Você deve inserir uma data para salvar.",
@@ -96,6 +97,7 @@
     "faltan_variables_de_entorno_de_supabase": "Variáveis ​​de ambiente Supabase estão faltando.",
     "insert_vacio_en_files": "Insira vazio nos arquivos.",
     "la_url_de_supabase_no_es_valida": "A URL da Supabase é inválida.",
+    "la_imagen_no_parece_mostrar_una_mascota": "A imagem não parece mostrar um animal de estimação.",
     "no_se_creo_el_registro_de_direccion": "O registro de endereço não foi criado.",
     "no_se_encontro_la_perdida_para_asociar_fotos": "A perda não foi encontrada para associar fotos.",
     "no_se_enviaron_fotos": "Nenhuma foto foi enviada.",

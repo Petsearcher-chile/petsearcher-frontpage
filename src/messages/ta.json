@@ -85,6 +85,7 @@
   },
   "Api": {
     "bucket_no_encontrado": "வாளி கிடைக்கவில்லை.",
+    "faltan_variables_de_entorno_de_aws": "AWS சூழல் மாறிலிகள் இல்லை.",
     "debe_seleccionar_un_lugar_donde_encontro_la_mascota_arriba_en_el_buscador_busque_su_direccion": "தேடுபொறியின் மேற்புறத்தில், செல்லப்பிராணியைக் கண்டறிந்த இடத்தைத் தேர்ந்தெடுக்க வேண்டும், அதன் முகவரியைத் தேடவும்",
     "debe_seleccionar_un_lugar_donde_se_perdio_su_mascota_arriba_en_el_buscador_busque_su_direccion": "உங்கள் செல்லப்பிராணி தொலைந்த இடத்தை நீங்கள் தேர்ந்தெடுக்க வேண்டும், தேடுபொறியின் மேல் பகுதியில், அதன் முகவரியைத் தேடவும்",
     "debes_ingresar_fecha_para_guardar": "சேமிக்க ஒரு தேதியை உள்ளிட வேண்டும்.",
@@ -96,6 +97,7 @@
     "faltan_variables_de_entorno_de_supabase": "சுபாபேஸ் சூழல் மாறிகள் இல்லை.",
     "insert_vacio_en_files": "கோப்புகளில் காலியைச் செருகவும��.",
     "la_url_de_supabase_no_es_valida": "Supabase URL தவறானது.",
+    "la_imagen_no_parece_mostrar_una_mascota": "படத்தில் ஒரு செல்லப்பிராணி காணப்படவில்லை போல தெரிகிறது.",
     "no_se_creo_el_registro_de_direccion": "முகவரிப் பதிவு உருவாக்கப்படவில்லை.",
     "no_se_encontro_la_perdida_para_asociar_fotos": "புகைப்படங்களை இணைப்பதில் இழப்பு கண்டறியப்படவில்லை.",
     "no_se_enviaron_fotos": "புகைப்படங்கள் எதுவும் அனுப்பப்படவில்லை.",

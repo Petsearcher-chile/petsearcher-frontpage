@@ -85,6 +85,7 @@
   },
   "Api": {
     "bucket_no_encontrado": "버킷을 찾을 수 없습니다.",
+    "faltan_variables_de_entorno_de_aws": "AWS 환경 변수가 없습니다.",
     "debe_seleccionar_un_lugar_donde_encontro_la_mascota_arriba_en_el_buscador_busque_su_direccion": "반려동물을 발견한 장소를 선택하고, 검색엔진 상단에서 주소를 검색해야 합니다.",
     "debe_seleccionar_un_lugar_donde_se_perdio_su_mascota_arriba_en_el_buscador_busque_su_direccion": "반려동물을 잃어버린 장소를 선택하고, 검색엔진 상단에서 주소를 검색해야 합니다.",
     "debes_ingresar_fecha_para_guardar": "저장할 날짜를 입력해야 합니다.",
@@ -96,6 +97,7 @@
     "faltan_variables_de_entorno_de_supabase": "Supabase 환경 변수가 누락되었습니다.",
     "insert_vacio_en_files": "파일에 빈 내용을 삽입합니다.",
     "la_url_de_supabase_no_es_valida": "Supabase URL이 잘못되었습니다.",
+    "la_imagen_no_parece_mostrar_una_mascota": "이미지에 반려동물이 보이지 않는 것 같습니다.",
     "no_se_creo_el_registro_de_direccion": "주소 레코드가 생성되지 않았습니다.",
     "no_se_encontro_la_perdida_para_asociar_fotos": "사진을 연결해도 손실이 발견되지 않았습니다.",
     "no_se_enviaron_fotos": "사진이 전송되지 않았습니다.",

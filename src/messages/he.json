@@ -85,6 +85,7 @@
   },
   "Api": {
     "bucket_no_encontrado": "הדלי לא נמצא.",
+    "faltan_variables_de_entorno_de_aws": "משתני הסביבה של AWS חסרים.",
     "debe_seleccionar_un_lugar_donde_encontro_la_mascota_arriba_en_el_buscador_busque_su_direccion": "עליך לבחור מקום בו מצאת את חיית המחמד, בחלק העליון של מנוע החיפוש, לחפש את הכתובת שלה",
     "debe_seleccionar_un_lugar_donde_se_perdio_su_mascota_arriba_en_el_buscador_busque_su_direccion": "עליך לבחור מקום בו חיית המחמד שלך אבדה, בראש מנוע החיפוש, לחפש את הכתובת שלה",
     "debes_ingresar_fecha_para_guardar": "כדי לשמור תאריך.",
@@ -96,6 +97,7 @@
     "faltan_variables_de_entorno_de_supabase": "חסרים משתני סביבת Supabase.",
     "insert_vacio_en_files": "הוסף ריק לקבצים.",
     "la_url_de_supabase_no_es_valida": "כתובת האתר של Supabase אינה חוקית.",
+    "la_imagen_no_parece_mostrar_una_mascota": "נראה שהתמונה לא מציגה חיית מחמד.",
     "no_se_creo_el_registro_de_direccion": "רשומת הכתובת לא נוצרה.",
     "no_se_encontro_la_perdida_para_asociar_fotos": "ההפסד לא נמצא כדי לשייך תמונות.",
     "no_se_enviaron_fotos": "לא נשלחו תמונות.",

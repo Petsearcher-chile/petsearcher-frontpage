@@ -85,6 +85,7 @@
   },
   "Api": {
     "bucket_no_encontrado": "Hink hittades inte.",
+    "faltan_variables_de_entorno_de_aws": "AWS-miljövariabler saknas.",
     "debe_seleccionar_un_lugar_donde_encontro_la_mascota_arriba_en_el_buscador_busque_su_direccion": "Du måste välja en plats där du hittade husdjuret, högst upp i sökmotorn, sök efter dess adress",
     "debe_seleccionar_un_lugar_donde_se_perdio_su_mascota_arriba_en_el_buscador_busque_su_direccion": "Du måste välja en plats där ditt husdjur försvann, högst upp i sökmotorn, sök efter dess adress",
     "debes_ingresar_fecha_para_guardar": "Du måste ange ett datum.",
@@ -96,6 +97,7 @@
     "faltan_variables_de_entorno_de_supabase": "Supabase miljövariabler saknas.",
     "insert_vacio_en_files": "Infoga tom i filer.",
     "la_url_de_supabase_no_es_valida": "Supabase-URL:n är ogiltig.",
+    "la_imagen_no_parece_mostrar_una_mascota": "Bilden verkar inte visa ett husdjur.",
     "no_se_creo_el_registro_de_direccion": "Adressposten skapades inte.",
     "no_se_encontro_la_perdida_para_asociar_fotos": "Förlusten hittades inte för att associera foton.",
     "no_se_enviaron_fotos": "Inga foton skickades.",

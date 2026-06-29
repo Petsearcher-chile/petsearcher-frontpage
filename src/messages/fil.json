@@ -85,6 +85,7 @@
   },
   "Api": {
     "bucket_no_encontrado": "Hindi nahanap ang bucket.",
+    "faltan_variables_de_entorno_de_aws": "Nawawala ang mga variable ng kapaligiran ng AWS.",
     "debe_seleccionar_un_lugar_donde_encontro_la_mascota_arriba_en_el_buscador_busque_su_direccion": "Dapat kang pumili ng lugar kung saan mo nakita ang alagang hayop, sa tuktok ng search engine, hanapin ang address nito",
     "debe_seleccionar_un_lugar_donde_se_perdio_su_mascota_arriba_en_el_buscador_busque_su_direccion": "Dapat kang pumili ng lugar kung saan nawala ang iyong alagang hayop, sa tuktok ng search engine, hanapin ang address nito",
     "debes_ingresar_fecha_para_guardar": "",
@@ -96,6 +97,7 @@
     "faltan_variables_de_entorno_de_supabase": "Nawawala ang mga variable ng environment ng Supabase.",
     "insert_vacio_en_files": "Ipasok ang walang laman sa mga file.",
     "la_url_de_supabase_no_es_valida": "Di-wasto ang URL ng Supabase.",
+    "la_imagen_no_parece_mostrar_una_mascota": "Mukhang hindi nagpapakita ng alagang hayop ang larawan.",
     "no_se_creo_el_registro_de_direccion": "Ang talaan ng address ay hindi ginawa.",
     "no_se_encontro_la_perdida_para_asociar_fotos": "Ang pagkawala ay hindi natagpuan upang iugnay ang mga larawan.",
     "no_se_enviaron_fotos": "Walang naipadalang larawan.",

@@ -85,6 +85,7 @@
   },
   "Api": {
     "bucket_no_encontrado": "Föt fannst ekki.",
+    "faltan_variables_de_entorno_de_aws": "Vantar AWS-umhverfisbreytur.",
     "debe_seleccionar_un_lugar_donde_encontro_la_mascota_arriba_en_el_buscador_busque_su_direccion": "Þú verður að velja stað þar sem þú fannst gæludýrið, efst á leitarvélinni, leita að heimilisfangi þess",
     "debe_seleccionar_un_lugar_donde_se_perdio_su_mascota_arriba_en_el_buscador_busque_su_direccion": "Þú verður að velja stað þar sem gæludýrið þitt týndist, efst á leitarvélinni, leitaðu að heimilisfangi þess",
     "debes_ingresar_fecha_para_guardar": "Þú verður að slá inn dagsetningu.",
@@ -96,6 +97,7 @@
     "faltan_variables_de_entorno_de_supabase": "Umhverfisbreytur Supabase vantar.",
     "insert_vacio_en_files": "Settu tómt inn í skrár.",
     "la_url_de_supabase_no_es_valida": "Slóð Supabase er ógild.",
+    "la_imagen_no_parece_mostrar_una_mascota": "Myndin virðist ekki sýna gæludýr.",
     "no_se_creo_el_registro_de_direccion": "Heimilisfangsskráin var ekki búin til.",
     "no_se_encontro_la_perdida_para_asociar_fotos": "Tapið fannst ekki til að tengja myndir.",
     "no_se_enviaron_fotos": "Engar myndir voru sendar.",

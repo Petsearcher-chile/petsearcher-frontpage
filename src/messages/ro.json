@@ -85,6 +85,7 @@
   },
   "Api": {
     "bucket_no_encontrado": "Găleată nu a fost găsită.",
+    "faltan_variables_de_entorno_de_aws": "Lipsesc variabilele de mediu AWS.",
     "debe_seleccionar_un_lugar_donde_encontro_la_mascota_arriba_en_el_buscador_busque_su_direccion": "Trebuie să selectați un loc unde ați găsit animalul de companie, în partea de sus a motorului de căutare, căutați adresa acestuia",
     "debe_seleccionar_un_lugar_donde_se_perdio_su_mascota_arriba_en_el_buscador_busque_su_direccion": "Trebuie să selectați un loc unde animalul dvs. de companie a fost pierdut, în partea de sus a motorului de căutare, căutați adresa sa",
     "debes_ingresar_fecha_para_guardar": "Trebuie să introduceți o dată pentru a salva.",
@@ -96,6 +97,7 @@
     "faltan_variables_de_entorno_de_supabase": "Variabilele de mediu Supabase lipsesc.",
     "insert_vacio_en_files": "Inserați gol în fișiere.",
     "la_url_de_supabase_no_es_valida": "Adresa URL Supabase este nevalidă.",
+    "la_imagen_no_parece_mostrar_una_mascota": "Imaginea nu pare să arate un animal de companie.",
     "no_se_creo_el_registro_de_direccion": "Înregistrarea adresei nu a fost creată.",
     "no_se_encontro_la_perdida_para_asociar_fotos": "Pierderea nu a fost găsită pentru a asocia fotografii.",
     "no_se_enviaron_fotos": "Nu au fost trimise fotografii.",

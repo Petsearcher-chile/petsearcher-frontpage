@@ -85,6 +85,7 @@
   },
   "Api": {
     "bucket_no_encontrado": "未找到桶。",
+    "faltan_variables_de_entorno_de_aws": "缺少 AWS 环境变量。",
     "debe_seleccionar_un_lugar_donde_encontro_la_mascota_arriba_en_el_buscador_busque_su_direccion": "您必须选择您发现宠物的地点，在搜索引擎顶部搜索其地址",
     "debe_seleccionar_un_lugar_donde_se_perdio_su_mascota_arriba_en_el_buscador_busque_su_direccion": "您必须选择您的宠物丢失的地点，在搜索引擎顶部搜索其地址",
     "debes_ingresar_fecha_para_guardar": "您必须输入保存日期。",
@@ -96,6 +97,7 @@
     "faltan_variables_de_entorno_de_supabase": "Supabase 环境变量丢失。",
     "insert_vacio_en_files": "将空插入文件中。",
     "la_url_de_supabase_no_es_valida": "Supabase URL 无效。",
+    "la_imagen_no_parece_mostrar_una_mascota": "该图片看起来不像是在显示宠物。",
     "no_se_creo_el_registro_de_direccion": "未创建地址记录。",
     "no_se_encontro_la_perdida_para_asociar_fotos": "未发现关联照片的丢失。",
     "no_se_enviaron_fotos": "未发送照片。",

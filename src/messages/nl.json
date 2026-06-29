@@ -85,6 +85,7 @@
   },
   "Api": {
     "bucket_no_encontrado": "Emmer niet gevonden.",
+    "faltan_variables_de_entorno_de_aws": "AWS-omgevingsvariabelen ontbreken.",
     "debe_seleccionar_un_lugar_donde_encontro_la_mascota_arriba_en_el_buscador_busque_su_direccion": "U moet een plaats selecteren waar u het huisdier heeft gevonden, bovenaan de zoekmachine, zoeken naar het adres ervan",
     "debe_seleccionar_un_lugar_donde_se_perdio_su_mascota_arriba_en_el_buscador_busque_su_direccion": "U moet een plaats selecteren waar uw huisdier verdwaald is, bovenaan de zoekmachine, zoeken naar zijn adres",
     "debes_ingresar_fecha_para_guardar": "U moet een datum invoeren om op te slaan.",
@@ -96,6 +97,7 @@
     "faltan_variables_de_entorno_de_supabase": "Supabase-omgevingsvariabelen ontbreken.",
     "insert_vacio_en_files": "Leeg in bestanden invoegen.",
     "la_url_de_supabase_no_es_valida": "De Supabase-URL is ongeldig.",
+    "la_imagen_no_parece_mostrar_una_mascota": "De afbeelding lijkt geen huisdier te tonen.",
     "no_se_creo_el_registro_de_direccion": "Het adresrecord is niet gemaakt.",
     "no_se_encontro_la_perdida_para_asociar_fotos": "Het verlies bleek geen verband te houden met foto's.",
     "no_se_enviaron_fotos": "Er zijn geen foto's verzonden.",

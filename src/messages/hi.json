@@ -85,6 +85,7 @@
   },
   "Api": {
     "bucket_no_encontrado": "बाल्टी नहीं मिली.",
+    "faltan_variables_de_entorno_de_aws": "AWS परिवेश चर अनुपलब्ध हैं।",
     "debe_seleccionar_un_lugar_donde_encontro_la_mascota_arriba_en_el_buscador_busque_su_direccion": "आपको वह स्थान चुनना होगा जहां आपको पालतू जानवर मिला था, खोज इंजन के शीर्ष पर, उसका पता खोजना होगा",
     "debe_seleccionar_un_lugar_donde_se_perdio_su_mascota_arriba_en_el_buscador_busque_su_direccion": "आपको वह स्थान चुनना होगा जहां आपका पालतू जानवर खो गया था, खोज इंजन के शीर्ष पर, उसका पता खोजना होगा",
     "debes_ingresar_fecha_para_guardar": "सहेजने के लिए आपको एक तारीख दर्ज करनी होगी।",
@@ -96,6 +97,7 @@
     "faltan_variables_de_entorno_de_supabase": "सुपाबेस पर्यावरण चर गायब हैं।",
     "insert_vacio_en_files": "फ़ाइलों में खाली डालें।",
     "la_url_de_supabase_no_es_valida": "सुपाबेस यूआरएल अमान्य है।",
+    "la_imagen_no_parece_mostrar_una_mascota": "छवि में पालतू जानवर दिखाई नहीं देता।",
     "no_se_creo_el_registro_de_direccion": "पता रिकॉर्ड नहीं बनाया गया था।",
     "no_se_encontro_la_perdida_para_asociar_fotos": "फ़ोटो से संबद्ध हानि नहीं पाई गई।",
     "no_se_enviaron_fotos": "कोई फ़ोटो नहीं भेजी गई।",

@@ -85,6 +85,7 @@
   },
   "Api": {
     "bucket_no_encontrado": "Bucket not found.",
+    "faltan_variables_de_entorno_de_aws": "Faltan las variables de entorno de AWS.",
     "debe_seleccionar_un_lugar_donde_encontro_la_mascota_arriba_en_el_buscador_busque_su_direccion": "You must select a place where you found the pet, at the top of the search engine, search for its address",
     "debe_seleccionar_un_lugar_donde_se_perdio_su_mascota_arriba_en_el_buscador_busque_su_direccion": "You must select a place where your pet was lost, at the top of the search engine, search for its address",
     "debes_ingresar_fecha_para_guardar": "You must enter a date to save.",
@@ -96,6 +97,7 @@
     "faltan_variables_de_entorno_de_supabase": "Supabase environment variables are missing.",
     "insert_vacio_en_files": "Insert empty into files.",
     "la_url_de_supabase_no_es_valida": "The Supabase URL is invalid.",
+    "la_imagen_no_parece_mostrar_una_mascota": "La imagen no parece mostrar una mascota.",
     "no_se_creo_el_registro_de_direccion": "The address record was not created.",
     "no_se_encontro_la_perdida_para_asociar_fotos": "The loss was not found to associate photos.",
     "no_se_enviaron_fotos": "No photos were sent.",

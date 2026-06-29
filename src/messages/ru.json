@@ -85,6 +85,7 @@
   },
   "Api": {
     "bucket_no_encontrado": "Ведро не найдено.",
+    "faltan_variables_de_entorno_de_aws": "Отсутствуют переменные среды AWS.",
     "debe_seleccionar_un_lugar_donde_encontro_la_mascota_arriba_en_el_buscador_busque_su_direccion": "Необходимо выбрать место, где вы нашли питомца, вверху поисковика, найти его адрес.",
     "debe_seleccionar_un_lugar_donde_se_perdio_su_mascota_arriba_en_el_buscador_busque_su_direccion": "Вы должны выбрать место, где потерялся ваш питомец, вверху поисковика, найти его адрес.",
     "debes_ingresar_fecha_para_guardar": "Для сохранения необходимо ввести дату.",
@@ -96,6 +97,7 @@
     "faltan_variables_de_entorno_de_supabase": "Переменные среды Supabase отсутствуют.",
     "insert_vacio_en_files": "Вставить пустое в файлы.",
     "la_url_de_supabase_no_es_valida": "URL-адрес Supabase недействителен.",
+    "la_imagen_no_parece_mostrar_una_mascota": "Похоже, на изображении нет домашнего животного.",
     "no_se_creo_el_registro_de_direccion": "Запись адреса не была создана.",
     "no_se_encontro_la_perdida_para_asociar_fotos": "Не найдена потеря для связывания фотографий.",
     "no_se_enviaron_fotos": "Фотографии не отправлены.",

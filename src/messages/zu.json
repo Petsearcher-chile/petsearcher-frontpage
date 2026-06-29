@@ -85,6 +85,7 @@
   },
   "Api": {
     "bucket_no_encontrado": "Ibhakede alitholakali.",
+    "faltan_variables_de_entorno_de_aws": "Amanani emvelo e-AWS awatholakali.",
     "debe_seleccionar_un_lugar_donde_encontro_la_mascota_arriba_en_el_buscador_busque_su_direccion": "Kufanele ukhethe indawo lapho uthole khona isilwane esifuywayo, phezulu enjinini yokusesha, sesha ikheli laso",
     "debe_seleccionar_un_lugar_donde_se_perdio_su_mascota_arriba_en_el_buscador_busque_su_direccion": "Kufanele ukhethe indawo lapho isilwane sakho esifuywayo silahlekile khona, phezulu enjinini yokusesha, sesha ikheli laso",
     "debes_ingresar_fecha_para_guardar": "Kufanele ufake idethi ukuze ulondoloze.",
@@ -96,6 +97,7 @@
     "faltan_variables_de_entorno_de_supabase": "Okuguquguqukayo kwemvelo ye-Supabase akukho.",
     "insert_vacio_en_files": "Faka okungenalutho kumafayela.",
     "la_url_de_supabase_no_es_valida": "I-URL ye-Supabase ayivumelekile.",
+    "la_imagen_no_parece_mostrar_una_mascota": "Isithombe asibonakali sikhombisa isilwane sasekhaya.",
     "no_se_creo_el_registro_de_direccion": "Irekhodi lekheli alidaliwe.",
     "no_se_encontro_la_perdida_para_asociar_fotos": "Ukulahlekelwa akutholakalanga ukuhlobanisa izithombe.",
     "no_se_enviaron_fotos": "Azikho izithombe ezithunyelwe.",

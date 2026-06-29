@@ -85,6 +85,7 @@
   },
   "Api": {
     "bucket_no_encontrado": "Spand ikke fundet.",
+    "faltan_variables_de_entorno_de_aws": "AWS-miljøvariabler mangler.",
     "debe_seleccionar_un_lugar_donde_encontro_la_mascota_arriba_en_el_buscador_busque_su_direccion": "Du skal vælge et sted, hvor du fandt kæledyret, øverst i søgemaskinen, søge efter dets adresse",
     "debe_seleccionar_un_lugar_donde_se_perdio_su_mascota_arriba_en_el_buscador_busque_su_direccion": "Du skal vælge et sted, hvor dit kæledyr er gået tabt, øverst i søgemaskinen, søge efter dets adresse",
     "debes_ingresar_fecha_para_guardar": "Du skal indtaste en dato.",
@@ -96,6 +97,7 @@
     "faltan_variables_de_entorno_de_supabase": "Supabase miljøvariabler mangler.",
     "insert_vacio_en_files": "Indsæt tom i filer.",
     "la_url_de_supabase_no_es_valida": "Supabase-URL'en er ugyldig.",
+    "la_imagen_no_parece_mostrar_una_mascota": "Billedet lader ikke til at vise et kæledyr.",
     "no_se_creo_el_registro_de_direccion": "Adresseposten blev ikke oprettet.",
     "no_se_encontro_la_perdida_para_asociar_fotos": "Tabet blev ikke fundet til at knytte billeder.",
     "no_se_enviaron_fotos": "Ingen billeder blev sendt.",

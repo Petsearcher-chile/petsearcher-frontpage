@@ -85,6 +85,7 @@
   },
   "Api": {
     "bucket_no_encontrado": "Không tìm thấy thùng.",
+    "faltan_variables_de_entorno_de_aws": "Thiếu biến môi trường AWS.",
     "debe_seleccionar_un_lugar_donde_encontro_la_mascota_arriba_en_el_buscador_busque_su_direccion": "Bạn phải chọn nơi bạn tìm thấy thú cưng, ở đầu công cụ tìm kiếm, tìm kiếm địa chỉ của nó",
     "debe_seleccionar_un_lugar_donde_se_perdio_su_mascota_arriba_en_el_buscador_busque_su_direccion": "Bạn phải chọn nơi mà thú cưng của bạn bị mất, ở đầu công cụ tìm kiếm, tìm kiếm địa chỉ của nó",
     "debes_ingresar_fecha_para_guardar": "Bạn phải nhập ngày để lưu.",
@@ -96,6 +97,7 @@
     "faltan_variables_de_entorno_de_supabase": "Thiếu biến môi trường Supabase.",
     "insert_vacio_en_files": "Chèn trống vào tệp.",
     "la_url_de_supabase_no_es_valida": "URL Supabase không hợp lệ.",
+    "la_imagen_no_parece_mostrar_una_mascota": "Hình ảnh này dường như không hiển thị một thú cưng.",
     "no_se_creo_el_registro_de_direccion": "Bản ghi địa chỉ chưa được tạo.",
     "no_se_encontro_la_perdida_para_asociar_fotos": "Không tìm thấy lỗi liên quan đến ảnh.",
     "no_se_enviaron_fotos": "Không có ảnh nào được gửi.",

@@ -85,6 +85,7 @@
   },
   "Api": {
     "bucket_no_encontrado": "బకెట్ దొరకలేదు.",
+    "faltan_variables_de_entorno_de_aws": "AWS పర్యావరణ వేరియబుల్స్ లేవు.",
     "debe_seleccionar_un_lugar_donde_encontro_la_mascota_arriba_en_el_buscador_busque_su_direccion": "మీరు పెంపుడు జంతువును కనుగొన్న స్థలాన్ని తప్పనిసరిగా ఎంచుకోవాలి, శోధన ఇంజిన్ ఎగువన, దాని చిరునామా కోసం శోధించండి",
     "debe_seleccionar_un_lugar_donde_se_perdio_su_mascota_arriba_en_el_buscador_busque_su_direccion": "మీరు తప్పనిసరిగా మీ పెంపుడు జంతువు పోయిన ప్రదేశాన్ని తప్పక ఎంచుకోవాలి, శోధన ఇంజిన్ ఎగువన, దాని చిరునామా కోసం శోధించండి",
     "debes_ingresar_fecha_para_guardar": "మీరు సేవ్ చేయడానికి తప్పనిసరిగా తేదీని నమోదు చేయాలి.",
@@ -96,6 +97,7 @@
     "faltan_variables_de_entorno_de_supabase": "సుపాబేస్ ఎన్విరాన్మెంట్ వేరియబుల్స్ లేవు.",
     "insert_vacio_en_files": "ఫైల్‌లలో ఖాళీని చొప్పించండి.",
     "la_url_de_supabase_no_es_valida": "సుపాబేస్ URL చెల్లదు.",
+    "la_imagen_no_parece_mostrar_una_mascota": "చిత్రంలో పెంపుడు జంతువు ఉన్నట్లు కనిపించడం లేదు.",
     "no_se_creo_el_registro_de_direccion": "చిరునామా రికార్డు సృష్టించబడలేదు.",
     "no_se_encontro_la_perdida_para_asociar_fotos": "ఫోటోలను అనుబంధించడానికి నష్టం కనుగొనబడలేదు.",
     "no_se_enviaron_fotos": "ఫోటోలు పంపబడలేదు.",

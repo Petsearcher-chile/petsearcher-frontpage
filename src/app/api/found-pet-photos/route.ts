@@ -2,6 +2,7 @@ import { auth, clerkClient } from "@clerk/nextjs/server";
 import { createClient } from "@supabase/supabase-js";
 import { Jimp, JimpMime } from "jimp";
 import { getApiTranslator } from "@/i18n/api-messages";
+import { validatePetPhoto } from "../_lib/photo-validation";
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -46,6 +47,17 @@ export async function POST(request: Request) {
     const tApi = await getApiTranslator();
     if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
       return Response.json({ message: tApi("faltan_variables_de_entorno_de_supabase") }, { status: 500 });
+    }
+
+    if (
+      !process.env.AWS_REGION ||
+      !process.env.AWS_ACCESS_KEY_ID ||
+      !process.env.AWS_SECRET_ACCESS_KEY
+    ) {
+      return Response.json(
+        { message: tApi("faltan_variables_de_entorno_de_aws") },
+        { status: 500 },
+      );
     }
 
     if (!isValidHttpUrl(SUPABASE_URL)) {
@@ -99,6 +111,24 @@ export async function POST(request: Request) {
       );
     }
 
+    const preparedFiles: { file: File; bytes: Buffer }[] = [];
+    for (const file of uploadedFiles) {
+      const bytes = Buffer.from(await file.arrayBuffer());
+      const validation = await validatePetPhoto(bytes);
+      if (!validation.ok) {
+        if (validation.reason === "not-pet") {
+          return Response.json(
+            { message: tApi("la_imagen_no_parece_mostrar_una_mascota") },
+            { status: 400 },
+          );
+        }
+
+        return Response.json({ message: tApi("error_inesperado_al_subir_fotos") }, { status: 500 });
+      }
+
+      preparedFiles.push({ file, bytes });
+    }
+
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
     const { data: bucket, error: bucketError } = await supabase.storage.getBucket(BUCKET_NAME);
     if (bucketError || !bucket) {
@@ -112,8 +142,7 @@ export async function POST(request: Request) {
     }
 
     const uploadedImages = await Promise.all(
-      uploadedFiles.map(async (file) => {
-        const bytes = Buffer.from(await file.arrayBuffer());
+      preparedFiles.map(async ({ file, bytes }) => {
         const extension =
           file.name.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") ?? "jpg";
         const baseName = `${Date.now()}-${crypto.randomUUID()}`;
@@ -191,8 +220,8 @@ export async function POST(request: Request) {
     if (failedFiles.length > 0) {
       return Response.json(
         {
-          message: tApi("no_se_pudieron_subir_todas_las_fotos"),
-          detail: failedFiles[0]?.message ?? tApi("error_de_subida"),
+          message: tApi("error_inesperado_al_subir_fotos"),
+          detail: tApi("error_de_subida"),
           failedFiles,
         },
         { status: 500 },
