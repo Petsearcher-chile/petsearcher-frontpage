@@ -14,6 +14,7 @@ import {
 } from "react";
 import type { RegisteredPetMarker } from "@/components/MapView";
 import dancingMonkeyAnimation from "@/assets/Dancing Monkey.json";
+import turtleSkatingAnimation from "@/assets/Turtle Skating.json";
 
 const MapView = dynamic(() => import("@/components/MapView"), {
   ssr: false,
@@ -736,6 +737,21 @@ export default function Home() {
             animationData={dancingMonkeyAnimation}
             loop={isMonkeyAnimating}
           />
+        </div>
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -top-28 right-0 z-30 w-36"
+          style={{
+            opacity: isMonkeyVisible ? 1 : 0,
+            transform: isMonkeyVisible
+              ? "translateX(calc(-100vw - 9rem))"
+              : "translateX(0)",
+            transition: isMonkeyVisible
+              ? "transform 18s linear, opacity 300ms ease-out"
+              : "none",
+          }}
+        >
+          <Lottie animationData={turtleSkatingAnimation} loop />
         </div>
         <div
           aria-hidden="true"
