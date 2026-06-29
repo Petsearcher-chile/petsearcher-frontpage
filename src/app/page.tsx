@@ -190,6 +190,9 @@ export default function Home() {
       if (files.length === 0) {
         return;
       }
+      if (activePetForm === null) {
+        return;
+      }
 
       resetUploadProgress();
       setPhotoError("");
@@ -198,11 +201,12 @@ export default function Home() {
       setUploadProgress(0);
 
       const formData = new FormData();
+      const isFoundForm = activePetForm === "found";
       if (petLossId !== null) {
-        formData.append("petLossId", String(petLossId));
+        formData.append(isFoundForm ? "petFoundId" : "petLossId", String(petLossId));
       }
-      formData.append("lostPetDate", lostPetDate);
-      formData.append("lostPetName", lostPetName);
+      formData.append(isFoundForm ? "foundPetDate" : "lostPetDate", lostPetDate);
+      formData.append(isFoundForm ? "foundPetName" : "lostPetName", lostPetName);
       files.forEach((file) => {
         formData.append("photos", file);
       });
@@ -213,7 +217,7 @@ export default function Home() {
       }));
 
       const request = new XMLHttpRequest();
-      request.open("POST", "/api/lost-pet-photos");
+      request.open("POST", isFoundForm ? "/api/found-pet-photos" : "/api/lost-pet-photos");
       request.responseType = "json";
 
       request.upload.onprogress = (event) => {
@@ -246,9 +250,12 @@ export default function Home() {
         const responsePetLossId =
           request.response &&
           typeof request.response === "object" &&
-          "petLossId" in request.response &&
-          typeof request.response.petLossId === "number"
-            ? request.response.petLossId
+          (isFoundForm ? "petFoundId" in request.response : "petLossId" in request.response) &&
+          typeof (isFoundForm ? request.response.petFoundId : request.response.petLossId) ===
+            "number"
+            ? isFoundForm
+              ? request.response.petFoundId
+              : request.response.petLossId
             : null;
         if (responsePetLossId !== null) {
           setPetLossId(responsePetLossId);
@@ -309,7 +316,7 @@ export default function Home() {
 
       request.send(formData);
     },
-    [lostPetDate, lostPetName, petLossId, resetUploadProgress],
+    [activePetForm, lostPetDate, lostPetName, petLossId, resetUploadProgress],
   );
 
   const handlePhotoChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -391,8 +398,11 @@ export default function Home() {
       }
 
       if (!addressToSave) {
+        const isFoundForm = activePetForm === "found";
         setUploadError(
-          "Debe seleccionar un lugar donde se perdió su mascota, arriba en el buscador, busque su dirección",
+          isFoundForm
+            ? "Debe seleccionar un lugar donde encontró la mascota, arriba en el buscador, busque su dirección"
+            : "Debe seleccionar un lugar donde se perdió su mascota, arriba en el buscador, busque su dirección",
         );
         return;
       }
@@ -403,13 +413,22 @@ export default function Home() {
       }
 
       setIsSaving(true);
-      void fetch("/api/lost-pet-save", {
+      const isFoundForm = activePetForm === "found";
+      void fetch(isFoundForm ? "/api/found-pet-save" : "/api/lost-pet-save", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          petLossId,
-          lostPetDate,
-          lostPetName,
+          ...(isFoundForm
+            ? {
+                petFoundId: petLossId,
+                foundPetDate: lostPetDate,
+                foundPetName: lostPetName,
+              }
+            : {
+                petLossId,
+                lostPetDate,
+                lostPetName,
+              }),
           mapboxAddress: addressToSave,
         }),
       })
@@ -429,7 +448,9 @@ export default function Home() {
             lastSelectedAddressRef.current = null;
             clearThumbnailPreviews();
             setSaveSuccessMessage(
-              "Lamentamos mucho el extravío de su mascota. En caso de que alguien la encuentre, será contactado por el correo que utilizó para identificarse.",
+              isFoundForm
+                ? "Gracias por registrar la mascota encontrada. Te contactaremos por el correo que utilizaste para identificarte."
+                : "Lamentamos mucho el extravío de su mascota. En caso de que alguien la encuentre, será contactado por el correo que utilizó para identificarse.",
             );
             return;
           }
@@ -438,17 +459,21 @@ export default function Home() {
           const errorMessage =
             payload.message && payload.detail
               ? `${payload.message} ${payload.detail}`
-              : payload.message ?? "No se pudo guardar la pérdida.";
+              : payload.message ??
+                (isFoundForm ? "No se pudo guardar el hallazgo." : "No se pudo guardar la pérdida.");
           setUploadError(errorMessage);
         })
         .catch(() => {
-          setUploadError("No se pudo guardar la pérdida.");
+          setUploadError(
+            isFoundForm ? "No se pudo guardar el hallazgo." : "No se pudo guardar la pérdida.",
+          );
         })
         .finally(() => {
           setIsSaving(false);
         });
     })();
   }, [
+    activePetForm,
     clearThumbnailPreviews,
     lostPetDate,
     lostPetName,
