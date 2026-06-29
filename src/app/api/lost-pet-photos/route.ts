@@ -1,6 +1,6 @@
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import { createClient } from "@supabase/supabase-js";
-import sharp from "sharp";
+import { Jimp, JimpMime } from "jimp";
 
 const SUPABASE_URL =
   process.env.SUPABASE_URL;
@@ -131,8 +131,14 @@ export async function POST(request: Request) {
           };
         }
 
-        const sourceImage = sharp(bytes).rotate();
-        const metadata = await sourceImage.metadata();
+        const sourceImage = await Jimp.read(bytes);
+        sourceImage.rotate(0);
+        const metadata = {
+          width: sourceImage.bitmap.width,
+          height: sourceImage.bitmap.height,
+          format: file.type.split("/")[1] ?? "jpeg",
+          hasAlpha: sourceImage.hasAlpha(),
+        };
         console.log("thumbnail source metadata", {
           name: file.name,
           type: file.type,
@@ -142,20 +148,11 @@ export async function POST(request: Request) {
           hasAlpha: metadata.hasAlpha,
         });
         const shouldPreserveAlpha = Boolean(metadata.hasAlpha) || metadata.format === "png";
+        sourceImage.scaleToFit({ w: 320, h: 320 });
         const thumbnailPath = `${THUMBNAILS_FOLDER}/${baseName}.${shouldPreserveAlpha ? "png" : "jpg"}`;
         const thumbnailBuffer = shouldPreserveAlpha
-          ? await sharp(bytes)
-              .rotate()
-              .trim()
-              .resize(320, 320, { fit: "inside", withoutEnlargement: true })
-              .png()
-              .toBuffer()
-          : await sharp(bytes)
-              .rotate()
-              .trim()
-              .resize(320, 320, { fit: "inside", withoutEnlargement: true })
-              .jpeg({ quality: 90, mozjpeg: true })
-              .toBuffer();
+          ? await sourceImage.getBuffer(JimpMime.png)
+          : await sourceImage.getBuffer(JimpMime.jpeg);
         const { error: thumbnailError } = await supabase.storage
           .from(BUCKET_NAME)
           .upload(thumbnailPath, thumbnailBuffer, {
