@@ -2,6 +2,7 @@
 
 import { useAuth, useClerk } from "@clerk/nextjs";
 import dynamic from "next/dynamic";
+import Lottie from "lottie-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -12,6 +13,7 @@ import {
   useState,
 } from "react";
 import type { RegisteredPetMarker } from "@/components/MapView";
+import dancingMonkeyAnimation from "@/assets/Dancing Monkey.json";
 
 const MapView = dynamic(() => import("@/components/MapView"), {
   ssr: false,
@@ -89,6 +91,7 @@ export default function Home() {
     name: string;
     isLoading: boolean;
   } | null>(null);
+  const [isMonkeyVisible, setIsMonkeyVisible] = useState(false);
   const photoInputRef = useRef<HTMLInputElement>(null);
   const uploadResetTimerRef = useRef<number | null>(null);
   const thumbnailUrlsRef = useRef<string[]>([]);
@@ -108,6 +111,16 @@ export default function Home() {
         setActivePetForm("lost");
       }
     });
+  }, []);
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      setIsMonkeyVisible(true);
+    }, 30);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
   }, []);
 
   const updatePetFormSearchParam = useCallback(
@@ -614,6 +627,14 @@ export default function Home() {
           isPanelOpen ? "h-[calc(20vh+25px)]" : "h-14"
         }`}
       >
+        <div
+          aria-hidden="true"
+          className={`pointer-events-none absolute -top-28 left-0 z-30 w-36 transition-transform duration-700 ease-out ${
+            isMonkeyVisible ? "translate-x-0" : "-translate-x-full"
+          }`}
+        >
+          <Lottie animationData={dancingMonkeyAnimation} loop />
+        </div>
         {uploadProgress !== null ? (
           <div className="absolute inset-x-0 top-0 h-1 bg-zinc-200 dark:bg-zinc-800">
             <div
