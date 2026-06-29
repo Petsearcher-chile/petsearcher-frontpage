@@ -53,6 +53,8 @@ export type RegisteredPetMarker = {
   fullAddress: string;
   petName: string | null;
   lostPetDate: string | null;
+  creatorName: string | null;
+  creatorEmail: string | null;
   thumbnailUrl: string | null;
   photos: { originalUrl: string | null; thumbnailUrl: string; nanoUrl: string }[];
 };

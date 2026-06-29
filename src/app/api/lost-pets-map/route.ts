@@ -47,6 +47,14 @@ type FileRow = {
   storage_key: string | null;
   bucket_name: string | null;
   url: string | null;
+  id_user: string | null;
+};
+
+type UserRow = {
+  id: string;
+  name: string | null;
+  last_name: string | null;
+  email: string;
 };
 
 type MarkerPhoto = {
@@ -63,8 +71,35 @@ type MarkerResponse = {
   fullAddress: string;
   petName: string | null;
   lostPetDate: string | null;
+  creatorName: string | null;
+  creatorEmail: string | null;
   thumbnailUrl: string | null;
   photos: MarkerPhoto[];
+};
+
+const formatUserName = (user: UserRow | undefined) => {
+  if (!user) {
+    return null;
+  }
+
+  const fullName = `${user.name ?? ""} ${user.last_name ?? ""}`.trim();
+  return fullName.length > 0 ? fullName : null;
+};
+
+const resolveCreatorInfo = (
+  petFiles: { originalId: string }[],
+  fileById: Map<string, FileRow>,
+  userById: Map<string, UserRow>,
+) => {
+  const creatorUserId = petFiles
+    .map((fileIdsByPet) => fileById.get(fileIdsByPet.originalId)?.id_user)
+    .find((userId): userId is string => Boolean(userId));
+
+  const creator = creatorUserId ? userById.get(creatorUserId) : undefined;
+  return {
+    creatorName: formatUserName(creator),
+    creatorEmail: creator?.email ?? null,
+  };
 };
 
 const parseNumber = (value: string | null) => {
@@ -240,7 +275,7 @@ export async function GET(request: Request) {
   if (fileIds.length > 0) {
     const { data: files, error: filesError } = await supabase
       .from("files")
-      .select("id, storage_key, bucket_name, url")
+      .select("id, storage_key, bucket_name, url, id_user")
       .in("id", fileIds);
 
     if (filesError) {
@@ -251,6 +286,31 @@ export async function GET(request: Request) {
     }
 
     fileById = new Map(((files ?? []) as FileRow[]).map((file) => [file.id, file]));
+  }
+
+  const userIds = Array.from(
+    new Set(
+      Array.from(fileById.values())
+        .map((file) => file.id_user)
+        .filter((userId): userId is string => Boolean(userId)),
+    ),
+  );
+
+  let userById = new Map<string, UserRow>();
+  if (userIds.length > 0) {
+    const { data: users, error: usersError } = await supabase
+      .from("user")
+      .select("id, name, last_name, email")
+      .in("id", userIds);
+
+    if (usersError) {
+      return Response.json(
+        { message: "No se pudieron consultar usuarios.", detail: usersError.message },
+        { status: 500 },
+      );
+    }
+
+    userById = new Map(((users ?? []) as UserRow[]).map((user) => [user.id, user]));
   }
 
   const signedUrlCache = new Map<string, string | null>();
@@ -341,6 +401,8 @@ export async function GET(request: Request) {
           return null;
         }
 
+        const creatorInfo = resolveCreatorInfo(petFiles, fileById, userById);
+
         const marker: MarkerResponse = {
           markerType: "lost",
           markerId: pet.id,
@@ -349,6 +411,8 @@ export async function GET(request: Request) {
           fullAddress: address.full_address,
           petName: pet.nombre_mascota,
           lostPetDate: pet.date_perdida,
+          creatorName: creatorInfo.creatorName,
+          creatorEmail: creatorInfo.creatorEmail,
           thumbnailUrl: photos[0].nanoUrl,
           photos,
         };
@@ -397,6 +461,8 @@ export async function GET(request: Request) {
           return null;
         }
 
+        const creatorInfo = resolveCreatorInfo(petFiles, fileById, userById);
+
         const marker: MarkerResponse = {
           markerType: "found",
           markerId: pet.id,
@@ -405,6 +471,8 @@ export async function GET(request: Request) {
           fullAddress: address.full_address,
           petName: pet.supuesto_nombre,
           lostPetDate: pet.date_encontre,
+          creatorName: creatorInfo.creatorName,
+          creatorEmail: creatorInfo.creatorEmail,
           thumbnailUrl: photos[0].nanoUrl,
           photos,
         };

@@ -7,6 +7,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
   ChangeEvent,
+  MouseEvent,
   useCallback,
   useEffect,
   useRef,
@@ -109,6 +110,11 @@ export default function Home() {
     name: string;
     isLoading: boolean;
   } | null>(null);
+  const [copyTooltip, setCopyTooltip] = useState<{
+    x: number;
+    y: number;
+    visible: boolean;
+  } | null>(null);
   const [isMonkeyVisible, setIsMonkeyVisible] = useState(false);
   const [monkeyDialogue, setMonkeyDialogue] = useState<string>("");
   const [isMonkeyAnimating, setIsMonkeyAnimating] = useState(true);
@@ -118,6 +124,7 @@ export default function Home() {
   const lastSelectedAddressRef = useRef<SelectedAddressDetail | null>(null);
   const monkeyLottieRef = useRef<LottieRefCurrentProps | null>(null);
   const monkeyTimeoutsRef = useRef<number[]>([]);
+  const copyTooltipTimerRef = useRef<number | null>(null);
   const hasTriggeredAddressGuideRef = useRef(false);
   const hasTriggeredInicioGuideRef = useRef(false);
 
@@ -344,6 +351,36 @@ export default function Home() {
     setUploadedThumbnailPreviews([]);
     setHoveredPreview(null);
   }, []);
+
+  const clearCopyTooltipTimer = useCallback(() => {
+    if (copyTooltipTimerRef.current !== null) {
+      window.clearTimeout(copyTooltipTimerRef.current);
+      copyTooltipTimerRef.current = null;
+    }
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      clearCopyTooltipTimer();
+    };
+  }, [clearCopyTooltipTimer]);
+
+  const handleCopyCreatorEmail = useCallback(
+    async (email: string, event: MouseEvent<HTMLButtonElement>) => {
+      await navigator.clipboard.writeText(email);
+      const offsetX = 18;
+      const offsetY = 18;
+      const x = event.clientX + offsetX;
+      const y = event.clientY + offsetY;
+
+      clearCopyTooltipTimer();
+      setCopyTooltip({ x, y, visible: true });
+      copyTooltipTimerRef.current = window.setTimeout(() => {
+        setCopyTooltip((current) => (current ? { ...current, visible: false } : current));
+      }, 1400);
+    },
+    [clearCopyTooltipTimer],
+  );
 
   const uploadPhotos = useCallback(
     (files: File[]) => {
@@ -687,6 +724,43 @@ export default function Home() {
                     : "Fecha de extravío"}
                   : {formatLostPetDate(selectedLostPet.lostPetDate)}
                 </p>
+                {selectedLostPet.creatorName ? (
+                  <p>Publicado por: {selectedLostPet.creatorName}</p>
+                ) : null}
+                {selectedLostPet.creatorEmail ? (
+                  <div className="flex items-center gap-2">
+                    <p className="min-w-0 truncate">
+                      Correo: {selectedLostPet.creatorEmail}
+                    </p>
+                    <button
+                      type="button"
+                      aria-label="Copiar correo"
+                      className="ml-auto shrink-0 rounded-md border border-zinc-200 p-1.5 text-zinc-700 transition hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-800"
+                      onClick={(event) => {
+                        void handleCopyCreatorEmail(selectedLostPet.creatorEmail ?? "", event);
+                      }}
+                    >
+                      <svg aria-hidden="true" viewBox="0 0 20 20" className="h-4 w-4">
+                        <path
+                          d="M7 7.5V5.75A1.75 1.75 0 0 1 8.75 4h5.5A1.75 1.75 0 0 1 16 5.75v5.5A1.75 1.75 0 0 1 14.25 13H12.5"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.6"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                        <path
+                          d="M5.75 7A1.75 1.75 0 0 0 4 8.75v5.5A1.75 1.75 0 0 0 5.75 16h5.5A1.75 1.75 0 0 0 13 14.25v-5.5A1.75 1.75 0 0 0 11.25 7h-5.5Z"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.6"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    </button>
+                  </div>
+                ) : null}
                 <p>{selectedLostPet.fullAddress}</p>
               </div>
             </div>
@@ -737,6 +811,27 @@ export default function Home() {
             </div>
           </div>
         </aside>
+      ) : null}
+
+      {copyTooltip ? (
+        <div
+          className={`pointer-events-none fixed z-50 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-500 px-3 py-1.5 text-sm font-medium text-white shadow-lg shadow-emerald-950/20 transition-all duration-300 ${
+            copyTooltip.visible ? "opacity-100 scale-100" : "opacity-0 scale-95"
+          }`}
+          style={{ left: copyTooltip.x, top: copyTooltip.y }}
+        >
+          <svg aria-hidden="true" viewBox="0 0 20 20" className="h-4 w-4">
+            <path
+              d="M16.25 5.5 8.5 13.25 3.75 8.5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+          Copiado
+        </div>
       ) : null}
 
       <section
