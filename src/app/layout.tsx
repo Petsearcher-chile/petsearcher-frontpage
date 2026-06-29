@@ -2,8 +2,10 @@ import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Analytics } from "@vercel/analytics/next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { NextIntlClientProvider } from "next-intl";
 import BrowserLanguageLogger from "./browser-language-logger";
 import "./globals.css";
+import { getIntl } from "@/i18n/get-intl";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -125,18 +127,19 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const { locale, messages } = await getIntl();
+
   return (
-    <html
-      lang="es"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
+    <html lang={locale} className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">
-        <ClerkProvider>{children}</ClerkProvider>
+        <NextIntlClientProvider locale={locale} messages={messages}>
+          <ClerkProvider>{children}</ClerkProvider>
+        </NextIntlClientProvider>
         <BrowserLanguageLogger />
         <Analytics />
       </body>

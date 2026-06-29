@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import Lottie, { type LottieRefCurrentProps } from "lottie-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import {
   ChangeEvent,
   MouseEvent,
@@ -126,8 +127,17 @@ const LANGUAGE_OPTIONS: LanguageOption[] = [
   { value: "eo", label: "Esperanto", flag: "🏳️" },
 ] as const;
 
-const normalizeLanguageValue = (value: string) =>
-  value.toLowerCase().replaceAll("_", "-").split("-")[0] ?? value.toLowerCase();
+const normalizeLanguageValue = (value: string | null) =>
+  value ? value.toLowerCase().replaceAll("_", "-").split("-")[0] ?? value.toLowerCase() : "";
+
+const getCookieValue = (name: string) => {
+  if (typeof document === "undefined") {
+    return null;
+  }
+
+  const match = document.cookie.match(new RegExp(`(?:^|; )${name}=([^;]*)`));
+  return match ? decodeURIComponent(match[1]) : null;
+};
 
 const getBrowserLanguageOption = () => {
   if (typeof navigator === "undefined") {
@@ -157,6 +167,18 @@ const getBrowserLanguageOption = () => {
   );
 };
 
+const getPreferredLanguageOption = () => {
+  const cookieLocale = normalizeLanguageValue(getCookieValue("locale"));
+  if (cookieLocale) {
+    const cookieLanguage = LANGUAGE_OPTIONS.find((option) => option.value === cookieLocale);
+    if (cookieLanguage) {
+      return cookieLanguage;
+    }
+  }
+
+  return getBrowserLanguageOption();
+};
+
 const formatLostPetDate = (value: string | null) => {
   if (!value) {
     return "No disponible";
@@ -180,7 +202,8 @@ export default function Home() {
   const { openSignIn } = useClerk();
   const router = useRouter();
   const pathname = usePathname();
-  const initialBrowserLanguage = getBrowserLanguageOption();
+  const t = useTranslations();
+  const initialBrowserLanguage = getPreferredLanguageOption();
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [activePetForm, setActivePetForm] = useState<"lost" | "found" | null>(null);
   const [petLossId, setPetLossId] = useState<number | null>(null);
@@ -846,20 +869,22 @@ export default function Home() {
                   : {formatLostPetDate(selectedLostPet.lostPetDate)}
                 </p>
                 {selectedLostPet.creatorName ? (
-                  <p>Publicado por: {selectedLostPet.creatorName}</p>
+                  <p>
+                    {t("published_by")} {selectedLostPet.creatorName}
+                  </p>
                 ) : null}
                 {selectedLostPet.creatorEmail ? (
-                  <div className="flex items-center gap-2">
-                    <p className="min-w-0 truncate">
-                      Correo: {selectedLostPet.creatorEmail}
-                    </p>
-                    <button
-                      type="button"
-                      aria-label="Copiar correo"
-                      className="ml-auto shrink-0 text-zinc-700 transition hover:text-zinc-900 dark:text-zinc-200 dark:hover:text-zinc-100"
-                      onClick={(event) => {
-                        void handleCopyCreatorEmail(selectedLostPet.creatorEmail ?? "", event);
-                      }}
+                <div className="flex items-center gap-2">
+                  <p className="min-w-0 truncate">
+                    {t("email")} {selectedLostPet.creatorEmail}
+                  </p>
+                  <button
+                    type="button"
+                    aria-label={t("copy_email")}
+                    className="ml-auto shrink-0 text-zinc-700 transition hover:text-zinc-900 dark:text-zinc-200 dark:hover:text-zinc-100"
+                    onClick={(event) => {
+                      void handleCopyCreatorEmail(selectedLostPet.creatorEmail ?? "", event);
+                    }}
                     >
                       <svg aria-hidden="true" viewBox="0 0 20 20" className="h-4 w-4">
                         <path
@@ -884,8 +909,8 @@ export default function Home() {
                 ) : null}
                 <p>
                   {selectedLostPet.markerType === "found"
-                    ? "Se encontró cerca de: "
-                    : "Se perdió cerca de: "}
+                    ? `${t("se_found_near")} `
+                    : `${t("se_lost_near")} `}
                   {selectedLostPet.fullAddress}
                 </p>
               </div>
@@ -898,7 +923,7 @@ export default function Home() {
                 setHoveredLostPetPhoto(null);
               }}
             >
-              Cerrar
+              {t("close")}
             </button>
           </div>
           <div className="flex-1 overflow-auto p-4">
@@ -1037,14 +1062,14 @@ export default function Home() {
                 }
               }}
             >
-              inicio
+              {t("home")}
             </Link>
-            {activePetForm === "lost" ? <span>&gt; mascota extraviada</span> : null}
-            {activePetForm === "found" ? <span>&gt; mascota encontrada</span> : null}
+            {activePetForm === "lost" ? <span>&gt; {t("lost_pet")}</span> : null}
+            {activePetForm === "found" ? <span>&gt; {t("found_pet")}</span> : null}
           </div>
           <div className="relative flex items-center gap-2">
             <label htmlFor="language-search" className="sr-only">
-              Buscar idioma
+              {t("search_language")}
             </label>
             <input
               id="language-search"
@@ -1067,7 +1092,7 @@ export default function Home() {
                   }
                 }, 120);
               }}
-              placeholder="Buscar idioma"
+              placeholder={t("search_language")}
               className="h-9 w-48 rounded-full border border-zinc-200 bg-white/90 px-3 text-sm font-medium text-zinc-700 outline-none transition placeholder:text-zinc-400 hover:bg-zinc-100 focus:border-zinc-400 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200 dark:placeholder:text-zinc-500 dark:hover:bg-zinc-800 dark:focus:border-zinc-500"
             />
             {isLanguageMenuOpen ? (
@@ -1089,6 +1114,8 @@ export default function Home() {
                           setLanguageQuery("");
                           setIsLanguageSearching(false);
                           setIsLanguageMenuOpen(false);
+                          document.cookie = `locale=${encodeURIComponent(language.value)}; path=/; max-age=31536000`;
+                          window.location.reload();
                         }}
                       >
                         <span className="text-base">{language.flag}</span>
@@ -1097,7 +1124,7 @@ export default function Home() {
                     ))
                   ) : (
                     <p className="px-3 py-2 text-sm text-zinc-500 dark:text-zinc-400">
-                      No se encontraron idiomas.
+                      {t("no_results")}
                     </p>
                   )}
                 </div>
@@ -1105,7 +1132,7 @@ export default function Home() {
             ) : null}
             <button
               type="button"
-              aria-label={isPanelOpen ? "Ocultar zona de componentes" : "Mostrar zona de componentes"}
+              aria-label={t("toggle_panel")}
               className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-zinc-200 bg-white/90 text-zinc-700 transition hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:bg-zinc-800"
               onClick={() => setIsPanelOpen((current) => !current)}
             >
@@ -1148,9 +1175,7 @@ export default function Home() {
                       htmlFor="lost-pet-date"
                       className="shrink-0 text-sm font-medium text-zinc-700 dark:text-zinc-200"
                     >
-                      {activePetForm === "found"
-                        ? "Fecha que la encontré"
-                        : "Fecha en la que se perdió"}
+                      {activePetForm === "found" ? t("date_found") : t("date_lost")}
                     </label>
                     <input
                       id="lost-pet-date"
@@ -1166,7 +1191,7 @@ export default function Home() {
                           htmlFor="lost-pet-name"
                           className="shrink-0 text-sm font-medium text-zinc-700 dark:text-zinc-200"
                         >
-                          {activePetForm === "found" ? "Nombre (opcional)" : "Nombre al que responde"}
+                          {activePetForm === "found" ? t("name_optional") : "Nombre al que responde"}
                         </label>
                         <input
                           id="lost-pet-name"
@@ -1178,7 +1203,7 @@ export default function Home() {
                               event.target.value.slice(0, LOST_PET_NAME_MAX_LENGTH),
                             )
                           }
-                          placeholder={activePetForm === "found" ? "Nombre (opcional)" : undefined}
+                          placeholder={activePetForm === "found" ? t("name_optional") : undefined}
                           className="w-[150px] max-w-[150px] flex-none rounded-xl border border-zinc-200 bg-white px-2 py-2 text-zinc-900 outline-none transition focus:border-zinc-400 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:focus:border-zinc-600"
                         />
                       </div>
@@ -1198,7 +1223,7 @@ export default function Home() {
                         className="flex-none cursor-pointer rounded-xl border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-zinc-800 transition hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:border-zinc-700 dark:hover:bg-zinc-800"
                         onClick={() => photoInputRef.current?.click()}
                       >
-                        subir
+                        {t("upload")}
                       </button>
                       <input
                         ref={photoInputRef}
@@ -1215,7 +1240,7 @@ export default function Home() {
                         className="ml-auto cursor-pointer rounded-xl border border-zinc-200 bg-white px-5 py-2 text-sm font-medium text-zinc-800 transition hover:border-zinc-300 hover:bg-zinc-50 disabled:cursor-not-allowed disabled:border-zinc-200 disabled:bg-zinc-100 disabled:text-zinc-400 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:border-zinc-700 dark:hover:bg-zinc-800 dark:disabled:border-zinc-800 dark:disabled:bg-zinc-800 dark:disabled:text-zinc-500"
                         onClick={handleSaveClick}
                       >
-                        {isSaving ? "Guardando..." : "Guardar"}
+                        {isSaving ? t("saving") : t("save")}
                       </button>
                     </div>
 

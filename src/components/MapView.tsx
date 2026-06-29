@@ -1,6 +1,7 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 import Map, {
   Marker,
@@ -100,6 +101,7 @@ export default function MapView({
   selectedMarkerId,
   selectedMarkerType,
 }: MapViewProps) {
+  const t = useTranslations();
   const router = useRouter();
   const pathname = usePathname();
   const mapRef = useRef<MapRef>(null);
@@ -523,7 +525,7 @@ export default function MapView({
         }}
       >
         <label htmlFor="location-search" className="sr-only">
-          Buscar ubicación
+          {t("search_location")}
         </label>
         <div className="flex">
           <input
@@ -531,7 +533,7 @@ export default function MapView({
             type="text"
             value={searchQuery}
             onChange={(event) => handleQueryChange(event.target.value)}
-            placeholder="Buscar ciudad, dirección o lugar"
+            placeholder={t("search_location")}
             className="h-11 flex-1 rounded-xl border border-zinc-200 bg-white/90 px-4 text-sm text-zinc-900 outline-none placeholder:text-zinc-500 focus:border-zinc-400 dark:border-zinc-700 dark:bg-zinc-900/80 dark:text-zinc-100 dark:placeholder:text-zinc-400"
           />
         </div>
