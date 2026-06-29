@@ -62,13 +62,8 @@ export default function Home() {
   const { openSignIn } = useClerk();
   const router = useRouter();
   const pathname = usePathname();
-  const hasPunParamAtLoad =
-    typeof window !== "undefined" &&
-    new URLSearchParams(window.location.search).get("pun") === "true";
-  const [isPanelOpen, setIsPanelOpen] = useState(() => hasPunParamAtLoad);
-  const [activePetForm, setActivePetForm] = useState<"lost" | "found" | null>(
-    () => (hasPunParamAtLoad ? "lost" : null),
-  );
+  const [isPanelOpen, setIsPanelOpen] = useState(false);
+  const [activePetForm, setActivePetForm] = useState<"lost" | "found" | null>(null);
   const [petLossId, setPetLossId] = useState<number | null>(null);
   const [lostPetDate, setLostPetDate] = useState("");
   const [lostPetName, setLostPetName] = useState("");
@@ -99,15 +94,36 @@ export default function Home() {
   const thumbnailUrlsRef = useRef<string[]>([]);
   const lastSelectedAddressRef = useRef<SelectedAddressDetail | null>(null);
 
-  const updatePunSearchParam = useCallback(
-    (enabled: boolean) => {
+  useEffect(() => {
+    queueMicrotask(() => {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("eum") === "true") {
+        setIsPanelOpen(true);
+        setActivePetForm("found");
+        return;
+      }
+
+      if (params.get("pun") === "true") {
+        setIsPanelOpen(true);
+        setActivePetForm("lost");
+      }
+    });
+  }, []);
+
+  const updatePetFormSearchParam = useCallback(
+    (form: "lost" | "found" | null) => {
       const params = new URLSearchParams(
         typeof window !== "undefined" ? window.location.search : "",
       );
-      if (enabled) {
+      if (form === "lost") {
         params.set("pun", "true");
+        params.delete("eum");
+      } else if (form === "found") {
+        params.set("eum", "true");
+        params.delete("pun");
       } else {
         params.delete("pun");
+        params.delete("eum");
       }
 
       const nextQuery = params.toString();
@@ -388,8 +404,8 @@ export default function Home() {
     setSelectedLostPet(null);
     setHoveredLostPetPhoto(null);
     setActivePetForm("lost");
-    updatePunSearchParam(true);
-  }, [isLoaded, isSignedIn, openSignIn, updatePunSearchParam]);
+    updatePetFormSearchParam("lost");
+  }, [isLoaded, isSignedIn, openSignIn, updatePetFormSearchParam]);
 
   const handleFoundPetClick = useCallback(() => {
     if (!isLoaded) {
@@ -405,8 +421,8 @@ export default function Home() {
     setSelectedLostPet(null);
     setHoveredLostPetPhoto(null);
     setActivePetForm("found");
-    updatePunSearchParam(false);
-  }, [isLoaded, isSignedIn, openSignIn, updatePunSearchParam]);
+    updatePetFormSearchParam("found");
+  }, [isLoaded, isSignedIn, openSignIn, updatePetFormSearchParam]);
 
   const lostPetNamePattern = /^(?!.*[ _\-°ñÑ]{2})[a-zA-Z0-9°_\-ñÑ ]+$/;
   const isLostPetNameValid =
@@ -465,7 +481,7 @@ export default function Home() {
             setPhotoError("");
             setActivePetForm(null);
             setIsPanelOpen(false);
-            updatePunSearchParam(false);
+            updatePetFormSearchParam(null);
             setSelectedLostPet(null);
             setHoveredLostPetPhoto(null);
             setPetLossId(null);
@@ -508,7 +524,7 @@ export default function Home() {
     petLossId,
     requestAddressAutoselection,
     selectedAddressDetail,
-    updatePunSearchParam,
+    updatePetFormSearchParam,
   ]);
 
   const handleMarkerSelect = useCallback((marker: SelectedLostPetMarker) => {
@@ -630,7 +646,7 @@ export default function Home() {
                 setUploadError("");
                 setSaveSuccessMessage("");
                 clearThumbnailPreviews();
-                updatePunSearchParam(false);
+                updatePetFormSearchParam(null);
               }}
             >
               inicio
