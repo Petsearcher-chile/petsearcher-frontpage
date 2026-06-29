@@ -382,6 +382,18 @@ export default function MapView({
     centerMapOnPoint(point);
   }, [centerMapOnPoint, emitLocationSelected, mapSelectedAddress, updatePointInUrl]);
 
+  const handleSelectedPointDragEnd = useCallback(
+    (event: { lngLat: { lng: number; lat: number } }) => {
+      const point = {
+        longitude: event.lngLat.lng,
+        latitude: event.lngLat.lat,
+      };
+      setSelectedPoint(point);
+      updatePointInUrl(point);
+    },
+    [updatePointInUrl],
+  );
+
   const searchAndSelect = useCallback(
     async (query: string) => {
       if (!hasToken) {
@@ -580,6 +592,8 @@ export default function MapView({
             longitude={selectedPoint.longitude}
             latitude={selectedPoint.latitude}
             anchor="bottom"
+            draggable
+            onDragEnd={handleSelectedPointDragEnd}
           >
             <svg
               aria-hidden="true"
