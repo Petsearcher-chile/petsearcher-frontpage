@@ -55,6 +55,7 @@ const ADDRESS_CONFIRMATION_DIALOGUE = "Muy bien!!";
 const ADDRESS_NEXT_STEP_DIALOGUE = "ahora presiona el botón inicio que está debajo de mi";
 const INICIO_CONFIRMATION_DIALOGUE = "Bien, ya lo estás entendiendo!!";
 const INICIO_NEXT_STEP_DIALOGUE = "Ahora indica si la perdiste o si la encontraste y rellena el formulario";
+const LOST_PET_NAME_MAX_LENGTH = 30;
 
 const formatLostPetDate = (value: string | null) => {
   if (!value) {
@@ -536,7 +537,9 @@ export default function Home() {
 
   const lostPetNamePattern = /^(?!.*[ _\-°ñÑ]{2})[a-zA-Z0-9°_\-ñÑ ]+$/;
   const isLostPetNameValid =
-    lostPetName.trim().length > 0 && lostPetNamePattern.test(lostPetName);
+    lostPetName.trim().length > 0 &&
+    lostPetName.length <= LOST_PET_NAME_MAX_LENGTH &&
+    lostPetNamePattern.test(lostPetName);
   const isSaveEnabled =
     uploadedThumbnailPreviews.length > 0 &&
     lostPetDate.trim().length > 0 &&
@@ -562,6 +565,11 @@ export default function Home() {
 
       if (petLossId === null) {
         setUploadError("Debes subir al menos una foto antes de guardar.");
+        return;
+      }
+
+      if (activePetForm === "lost" && lostPetName.length > LOST_PET_NAME_MAX_LENGTH) {
+        setUploadError(`El nombre de la mascota debe tener máximo ${LOST_PET_NAME_MAX_LENGTH} caracteres.`);
         return;
       }
 
@@ -871,7 +879,14 @@ export default function Home() {
                           id="lost-pet-name"
                           type="text"
                           value={lostPetName}
-                          onChange={(event) => setLostPetName(event.target.value)}
+                          maxLength={activePetForm === "lost" ? LOST_PET_NAME_MAX_LENGTH : undefined}
+                          onChange={(event) =>
+                            setLostPetName(
+                              activePetForm === "lost"
+                                ? event.target.value.slice(0, LOST_PET_NAME_MAX_LENGTH)
+                                : event.target.value,
+                            )
+                          }
                           placeholder={activePetForm === "found" ? "Nombre (opcional)" : undefined}
                           className="w-[150px] max-w-[150px] flex-none rounded-xl border border-zinc-200 bg-white px-2 py-2 text-zinc-900 outline-none transition focus:border-zinc-400 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:focus:border-zinc-600"
                         />
