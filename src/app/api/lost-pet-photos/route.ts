@@ -131,17 +131,28 @@ export async function POST(request: Request) {
           };
         }
 
-        const sourceImage = sharp(bytes, { failOn: "none" }).rotate();
+        const sourceImage = sharp(bytes).rotate();
         const metadata = await sourceImage.metadata();
+        console.log("thumbnail source metadata", {
+          name: file.name,
+          type: file.type,
+          format: metadata.format,
+          width: metadata.width,
+          height: metadata.height,
+          hasAlpha: metadata.hasAlpha,
+        });
         const shouldPreserveAlpha = Boolean(metadata.hasAlpha) || metadata.format === "png";
-        const trimmedImage = sourceImage.trim();
         const thumbnailPath = `${THUMBNAILS_FOLDER}/${baseName}.${shouldPreserveAlpha ? "png" : "jpg"}`;
         const thumbnailBuffer = shouldPreserveAlpha
-          ? await trimmedImage
+          ? await sharp(bytes)
+              .rotate()
+              .trim()
               .resize(320, 320, { fit: "inside", withoutEnlargement: true })
               .png()
               .toBuffer()
-          : await trimmedImage
+          : await sharp(bytes)
+              .rotate()
+              .trim()
               .resize(320, 320, { fit: "inside", withoutEnlargement: true })
               .jpeg({ quality: 90, mozjpeg: true })
               .toBuffer();
@@ -153,6 +164,12 @@ export async function POST(request: Request) {
           });
 
         if (thumbnailError) {
+          console.error("thumbnail upload failed", {
+            name: file.name,
+            type: file.type,
+            format: metadata.format,
+            error: thumbnailError,
+          });
           await supabase.storage.from(BUCKET_NAME).remove([originalPath]);
           return {
             ok: false,
