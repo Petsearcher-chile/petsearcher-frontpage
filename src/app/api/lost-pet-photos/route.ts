@@ -134,13 +134,14 @@ export async function POST(request: Request) {
         const sourceImage = sharp(bytes, { failOn: "none" }).rotate();
         const metadata = await sourceImage.metadata();
         const shouldPreserveAlpha = Boolean(metadata.hasAlpha) || metadata.format === "png";
+        const trimmedImage = sourceImage.trim();
         const thumbnailPath = `${THUMBNAILS_FOLDER}/${baseName}.${shouldPreserveAlpha ? "png" : "jpg"}`;
         const thumbnailBuffer = shouldPreserveAlpha
-          ? await sourceImage
+          ? await trimmedImage
               .resize(320, 320, { fit: "inside", withoutEnlargement: true })
               .png()
               .toBuffer()
-          : await sourceImage
+          : await trimmedImage
               .resize(320, 320, { fit: "inside", withoutEnlargement: true })
               .jpeg({ quality: 90, mozjpeg: true })
               .toBuffer();
