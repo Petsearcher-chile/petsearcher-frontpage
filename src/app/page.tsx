@@ -41,6 +41,8 @@ type SelectedLostPetMarker = RegisteredPetMarker;
 
 const LOCATION_EVENT_NAME = "petsearcher:location-selected";
 const AUTOSELECT_REQUEST_EVENT_NAME = "petsearcher:location-autoselect-request";
+const LOST_PET_FORM_SEARCH_PARAM = "pum";
+const FOUND_PET_FORM_SEARCH_PARAM = "eum";
 const INTRO_MONKEY_DIALOGUE_MESSAGES = [
   "Hola!!",
   "Espero que estés bien",
@@ -122,13 +124,16 @@ export default function Home() {
   useEffect(() => {
     queueMicrotask(() => {
       const params = new URLSearchParams(window.location.search);
-      if (params.get("eum") === "true") {
+      if (params.get(FOUND_PET_FORM_SEARCH_PARAM) === "true") {
         setIsPanelOpen(true);
         setActivePetForm("found");
         return;
       }
 
-      if (params.get("pun") === "true") {
+      if (
+        params.get(LOST_PET_FORM_SEARCH_PARAM) === "true" ||
+        params.get("pun") === "true"
+      ) {
         setIsPanelOpen(true);
         setActivePetForm("lost");
       }
@@ -225,12 +230,15 @@ export default function Home() {
         typeof window !== "undefined" ? window.location.search : "",
       );
       if (form === "lost") {
-        params.set("pun", "true");
+        params.delete(FOUND_PET_FORM_SEARCH_PARAM);
+        params.set(LOST_PET_FORM_SEARCH_PARAM, "true");
       } else if (form === "found") {
-        params.set("eum", "true");
+        params.delete(LOST_PET_FORM_SEARCH_PARAM);
+        params.set(FOUND_PET_FORM_SEARCH_PARAM, "true");
       } else {
+        params.delete(LOST_PET_FORM_SEARCH_PARAM);
+        params.delete(FOUND_PET_FORM_SEARCH_PARAM);
         params.delete("pun");
-        params.delete("eum");
       }
 
       const nextQuery = params.toString();
