@@ -1,6 +1,7 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
 const publicRoutes = createRouteMatcher([
+  "/",
   "/api/lost-pets-map(.*)",
   "/api/lost-pet-photos(.*)",
 ]);
