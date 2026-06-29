@@ -64,9 +64,16 @@ const DEFAULT_CENTER = {
 };
 
 const parsePointFromSearchParams = (searchParams: URLSearchParams): SelectedPoint | null => {
-  const latitudeValue = Number(searchParams.get(LATITUDE_PARAM_NAME));
-  const longitudeValue = Number(searchParams.get(LONGITUDE_PARAM_NAME));
-  const hasInvalidNumber = Number.isNaN(latitudeValue) || Number.isNaN(longitudeValue);
+  const rawLatitude = searchParams.get(LATITUDE_PARAM_NAME);
+  const rawLongitude = searchParams.get(LONGITUDE_PARAM_NAME);
+
+  if (!rawLatitude || !rawLongitude) {
+    return null;
+  }
+
+  const latitudeValue = Number(rawLatitude);
+  const longitudeValue = Number(rawLongitude);
+  const hasInvalidNumber = !Number.isFinite(latitudeValue) || !Number.isFinite(longitudeValue);
   const hasInvalidRange =
     latitudeValue < -90 || latitudeValue > 90 || longitudeValue < -180 || longitudeValue > 180;
   if (hasInvalidNumber || hasInvalidRange) {
@@ -95,6 +102,8 @@ export default function MapView({
   const router = useRouter();
   const pathname = usePathname();
   const mapRef = useRef<MapRef>(null);
+  const isMapLoadedRef = useRef(false);
+  const pendingCenterPointRef = useRef<SelectedPoint | null>(null);
   const geolocateControlRef = useRef<GeolocateControlInstance | null>(null);
   const geolocateTriggeredRef = useRef(false);
   const selectedQueryRef = useRef("");
@@ -144,12 +153,29 @@ export default function MapView({
     });
   }, []);
 
-  const handleGeolocateResult = useCallback(
-    (event: { coords?: { longitude?: number; latitude?: number } }) => {
+  const applyInitialUserPoint = useCallback(
+    (point: SelectedPoint) => {
+      if (selectedPoint !== null) {
+        return;
+      }
+
       if (parsePointFromSearchParams(new URLSearchParams(window.location.search)) !== null) {
         return;
       }
 
+      setSelectedPoint(point);
+      updatePointInUrl(point);
+      if (isMapLoadedRef.current) {
+        centerMapOnPoint(point);
+      } else {
+        pendingCenterPointRef.current = point;
+      }
+    },
+    [centerMapOnPoint, selectedPoint, updatePointInUrl],
+  );
+
+  const handleGeolocateResult = useCallback(
+    (event: { coords?: { longitude?: number; latitude?: number } }) => {
       const longitude = event.coords?.longitude;
       const latitude = event.coords?.latitude;
       if (typeof longitude !== "number" || typeof latitude !== "number") {
@@ -161,12 +187,31 @@ export default function MapView({
       }
 
       const userPoint = { longitude, latitude };
-      setSelectedPoint(userPoint);
-      updatePointInUrl(userPoint);
-      centerMapOnPoint(userPoint);
+      applyInitialUserPoint(userPoint);
     },
-    [centerMapOnPoint, updatePointInUrl],
+    [applyInitialUserPoint],
   );
+
+  useEffect(() => {
+    if (selectedPoint !== null) {
+      return;
+    }
+
+    if (!navigator.geolocation) {
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        applyInitialUserPoint({
+          longitude: position.coords.longitude,
+          latitude: position.coords.latitude,
+        });
+      },
+      () => {},
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 },
+    );
+  }, [applyInitialUserPoint, selectedPoint]);
 
   const fetchRegisteredMarkers = useCallback(async () => {
     const map = mapRef.current;
@@ -194,9 +239,12 @@ export default function MapView({
   }, []);
 
   const handleLoad = useCallback(() => {
+    isMapLoadedRef.current = true;
     mapRef.current?.resize();
-    if (selectedPoint) {
-      centerMapOnPoint(selectedPoint);
+    const pointToCenter = selectedPoint ?? pendingCenterPointRef.current;
+    if (pointToCenter) {
+      centerMapOnPoint(pointToCenter);
+      pendingCenterPointRef.current = null;
     } else if (!geolocateTriggeredRef.current) {
       geolocateTriggeredRef.current = true;
       geolocateControlRef.current?.trigger();
