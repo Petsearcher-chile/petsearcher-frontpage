@@ -134,10 +134,9 @@ export async function POST(request: Request) {
         const thumbnailBuffer = await sharp(bytes)
           .rotate()
           .resize(320, 320, {
-            fit: "cover",
-            position: "attention",
+            fit: "contain",
+            background: { r: 243, g: 244, b: 246, alpha: 1 },
           })
-          .flatten({ background: "#ffffff" })
           .jpeg({ quality: 85, mozjpeg: true })
           .toBuffer();
         const thumbnailPath = `${THUMBNAILS_FOLDER}/${baseName}.jpg`;
