@@ -57,10 +57,16 @@ const DEFAULT_CENTER = {
 type MapViewProps = {
   onMarkerSelect?: (marker: RegisteredPetMarker) => void;
   selectedMarkerId?: number | null;
+  selectedMarkerType?: "lost" | "found" | null;
   activePetForm?: "lost" | "found" | null;
 };
 
-export default function MapView({ onMarkerSelect, selectedMarkerId, activePetForm }: MapViewProps) {
+export default function MapView({
+  onMarkerSelect,
+  selectedMarkerId,
+  selectedMarkerType,
+  activePetForm,
+}: MapViewProps) {
   const mapRef = useRef<MapRef>(null);
   const selectedQueryRef = useRef("");
   const [searchQuery, setSearchQuery] = useState("");
@@ -398,16 +404,12 @@ export default function MapView({ onMarkerSelect, selectedMarkerId, activePetFor
               type="button"
               aria-label={`Ver ${marker.markerType === "found" ? "mascota encontrada" : "mascota perdida"}`}
               className="pointer-events-auto flex flex-col items-center bg-transparent p-0"
-              onClick={() => {
-                if (marker.markerType === "lost") {
-                  onMarkerSelect?.(marker);
-                }
-              }}
+              onClick={() => onMarkerSelect?.(marker)}
             >
               {marker.thumbnailUrl ? (
                 <div
                   className={`mb-1 overflow-hidden rounded-md border-2 bg-white shadow-lg ${
-                    selectedMarkerId === marker.markerId && marker.markerType === "lost"
+                    selectedMarkerId === marker.markerId && selectedMarkerType === marker.markerType
                       ? "h-14 w-14 border-blue-500 ring-2 ring-blue-300"
                       : "h-12 w-12 border-white"
                   }`}

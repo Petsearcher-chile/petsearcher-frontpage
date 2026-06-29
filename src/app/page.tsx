@@ -493,6 +493,7 @@ export default function Home() {
       <MapView
         onMarkerSelect={handleMarkerSelect}
         selectedMarkerId={selectedLostPet?.markerId ?? null}
+        selectedMarkerType={selectedLostPet?.markerType ?? null}
         activePetForm={activePetForm}
       />
 
@@ -501,10 +502,18 @@ export default function Home() {
           <div className="flex items-start justify-between gap-3 border-b border-zinc-200 px-4 py-3 dark:border-zinc-800">
             <div className="min-w-0">
               <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
-                {selectedLostPet.petName ?? "Mascota perdida"}
+                {selectedLostPet.petName ??
+                  (selectedLostPet.markerType === "found"
+                    ? "Mascota encontrada"
+                    : "Mascota perdida")}
               </p>
               <div className="mt-1 space-y-1 text-xs text-zinc-600 dark:text-zinc-400">
-                <p>Fecha de extravío: {formatLostPetDate(selectedLostPet.lostPetDate)}</p>
+                <p>
+                  {selectedLostPet.markerType === "found"
+                    ? "Fecha de hallazgo"
+                    : "Fecha de extravío"}
+                  : {formatLostPetDate(selectedLostPet.lostPetDate)}
+                </p>
                 <p>{selectedLostPet.fullAddress}</p>
               </div>
             </div>
@@ -528,13 +537,23 @@ export default function Home() {
                 >
                   <img
                     src={photo.thumbnailUrl}
-                    alt={`${selectedLostPet.petName ?? "Mascota perdida"} foto ${index + 1}`}
+                    alt={`${
+                      selectedLostPet.petName ??
+                      (selectedLostPet.markerType === "found"
+                        ? "Mascota encontrada"
+                        : "Mascota perdida")
+                    } foto ${index + 1}`}
                     className="h-36 w-full object-cover"
                     loading="lazy"
                     onMouseEnter={() =>
                       setHoveredLostPetPhoto({
                         url: photo.originalUrl ?? photo.thumbnailUrl,
-                        name: `${selectedLostPet.petName ?? "Mascota perdida"} foto ${index + 1}`,
+                        name: `${
+                          selectedLostPet.petName ??
+                          (selectedLostPet.markerType === "found"
+                            ? "Mascota encontrada"
+                            : "Mascota perdida")
+                        } foto ${index + 1}`,
                         isLoading: true,
                       })
                     }
