@@ -117,10 +117,8 @@ export default function Home() {
       );
       if (form === "lost") {
         params.set("pun", "true");
-        params.delete("eum");
       } else if (form === "found") {
         params.set("eum", "true");
-        params.delete("pun");
       } else {
         params.delete("pun");
         params.delete("eum");
@@ -631,7 +629,8 @@ export default function Home() {
               href="/"
               scroll={false}
               className="text-blue-600 underline transition hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
-              onClick={() => {
+              onClick={(event) => {
+                event.preventDefault();
                 setIsPanelOpen(true);
                 setActivePetForm(null);
                 setPetLossId(null);
