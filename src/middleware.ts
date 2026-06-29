@@ -1,5 +1,6 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
+import { resolveSupportedLocale } from "@/i18n/locales";
 
 const publicRoutes = createRouteMatcher([
   "/",
@@ -13,6 +14,7 @@ const publicRoutes = createRouteMatcher([
 
 export default clerkMiddleware((auth, req) => {
   const pathname = req.nextUrl.pathname;
+  const searchLocale = resolveSupportedLocale(req.nextUrl.searchParams.get("locale"));
   const userAgent = req.headers.get("user-agent") ?? "";
   const isSmartphone =
     /Android|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
@@ -23,6 +25,23 @@ export default clerkMiddleware((auth, req) => {
 
   if (!publicRoutes(req)) {
     auth.protect();
+  }
+
+  if (searchLocale) {
+    const requestHeaders = new Headers(req.headers);
+    requestHeaders.set("x-locale", searchLocale);
+
+    const response = NextResponse.next({
+      request: {
+        headers: requestHeaders,
+      },
+    });
+    response.cookies.set("locale", searchLocale, {
+      path: "/",
+      maxAge: 60 * 60 * 24 * 365,
+    });
+
+    return response;
   }
 });
 

@@ -1,15 +1,7 @@
 import { cookies, headers } from "next/headers";
 
 import enMessages from "@/messages/en.json";
-import { AVAILABLE_LOCALES, type AvailableLocale } from "./locales";
-
-const normalizeLocale = (value: string | undefined | null) => {
-  if (!value) {
-    return null;
-  }
-
-  return value.toLowerCase().replaceAll("_", "-").split("-")[0] ?? null;
-};
+import { resolveSupportedLocale, type AvailableLocale } from "./locales";
 
 const loadMessages = async (locale: AvailableLocale) => {
   try {
@@ -24,15 +16,20 @@ const resolveLocale = async () => {
   const requestCookies = await cookies();
   const requestHeaders = await headers();
 
-  const cookieLocale = normalizeLocale(requestCookies.get("locale")?.value);
-  if (cookieLocale && AVAILABLE_LOCALES.includes(cookieLocale as AvailableLocale)) {
-    return cookieLocale as AvailableLocale;
+  const requestedLocale = resolveSupportedLocale(requestHeaders.get("x-locale"));
+  if (requestedLocale) {
+    return requestedLocale;
+  }
+
+  const cookieLocale = resolveSupportedLocale(requestCookies.get("locale")?.value);
+  if (cookieLocale) {
+    return cookieLocale;
   }
 
   const acceptLanguage = requestHeaders.get("accept-language");
-  const headerLocale = normalizeLocale(acceptLanguage?.split(",")[0] ?? null);
-  if (headerLocale && AVAILABLE_LOCALES.includes(headerLocale as AvailableLocale)) {
-    return headerLocale as AvailableLocale;
+  const headerLocale = resolveSupportedLocale(acceptLanguage?.split(",")[0] ?? null);
+  if (headerLocale) {
+    return headerLocale;
   }
 
   return "en";

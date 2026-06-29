@@ -2,15 +2,7 @@ import { cookies, headers } from "next/headers";
 import { getRequestConfig } from "next-intl/server";
 
 import enMessages from "@/messages/en.json";
-import { AVAILABLE_LOCALES, type AvailableLocale } from "./locales";
-
-const normalizeLocale = (value: string | undefined | null) => {
-  if (!value) {
-    return null;
-  }
-
-  return value.toLowerCase().replaceAll("_", "-").split("-")[0] ?? null;
-};
+import { resolveSupportedLocale, type AvailableLocale } from "./locales";
 
 const loadMessages = async (locale: AvailableLocale) => {
   try {
@@ -22,15 +14,15 @@ const loadMessages = async (locale: AvailableLocale) => {
 };
 
 export default getRequestConfig(async ({ requestLocale }) => {
-  const requestedLocale = normalizeLocale(await requestLocale);
-  const cookieLocale = normalizeLocale((await cookies()).get("locale")?.value);
-  const headerLocale = normalizeLocale((await headers()).get("accept-language")?.split(",")[0]);
+  const requestHeaders = await headers();
+  const requestCookies = await cookies();
 
   const locale =
-    [requestedLocale, cookieLocale, headerLocale].find(
-      (candidate): candidate is AvailableLocale =>
-        Boolean(candidate) && AVAILABLE_LOCALES.includes(candidate as AvailableLocale),
-    ) ?? "en";
+    resolveSupportedLocale(requestHeaders.get("x-locale")) ??
+    resolveSupportedLocale(await requestLocale) ??
+    resolveSupportedLocale(requestCookies.get("locale")?.value) ??
+    resolveSupportedLocale(requestHeaders.get("accept-language")?.split(",")[0]) ??
+    "en";
 
   return {
     locale,
