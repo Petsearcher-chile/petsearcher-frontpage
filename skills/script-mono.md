@@ -18,5 +18,5 @@ al seleccionar una dirección, y una vez que haya cambiado el mapa, el mono:
 luego cuando la persona presiona inicio el mono dice
 - Bien, ya lo estás entendiendo!! <baila por 3 segundos>
 
-luego el mono dice "Ahora indica si la perdiste o si la encontraste y rellena el formulario" <mientras el mono se mueve por 5 segundos más> 
+luego el mono dice "Ahora indica si la perdiste o si la encontraste y rellena el formulario" <mientras el mono se mueve por 10 segundos más> 
 - luego se va por donde vino <el texto desaparece también>

@@ -728,7 +728,7 @@ export default function Home() {
       >
         <div
           aria-hidden="true"
-          className={`pointer-events-none absolute -top-28 left-0 z-30 w-36 transition-transform duration-700 ease-out ${
+          className={`pointer-events-none absolute bottom-full left-0 z-30 mb-[-59px] w-72 transition-transform duration-700 ease-out ${
             isMonkeyVisible ? "translate-x-0" : "-translate-x-full"
           }`}
         >
@@ -752,7 +752,7 @@ export default function Home() {
         </div>
         <div
           aria-hidden="true"
-          className={`pointer-events-none absolute -top-32 left-28 z-30 max-w-[320px] rounded-2xl border border-zinc-200 bg-white/95 px-3 py-2 text-sm text-zinc-700 shadow-lg transition-[transform,opacity] duration-700 ease-out dark:border-zinc-700 dark:bg-zinc-900/95 dark:text-zinc-200 ${
+          className={`pointer-events-none absolute -top-40 left-56 z-30 max-w-[520px] rounded-2xl border border-zinc-200 bg-white/95 px-4 py-3 text-xl text-zinc-700 shadow-lg transition-[transform,opacity] duration-700 ease-out dark:border-zinc-700 dark:bg-zinc-900/95 dark:text-zinc-200 ${
             isMonkeyVisible && monkeyDialogue
               ? "translate-x-0 opacity-100"
               : "-translate-x-full opacity-0"
