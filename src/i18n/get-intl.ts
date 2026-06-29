@@ -1,9 +1,7 @@
 import { cookies, headers } from "next/headers";
 
 import enMessages from "@/messages/en.json";
-
-const AVAILABLE_LOCALES = ["en", "es", "pt"] as const;
-type AvailableLocale = (typeof AVAILABLE_LOCALES)[number];
+import { AVAILABLE_LOCALES, type AvailableLocale } from "./locales";
 
 const normalizeLocale = (value: string | undefined | null) => {
   if (!value) {
