@@ -6,8 +6,16 @@ const SUPABASE_URL =
   process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const BUCKET_NAME = "fotos_perdidos";
+const SIGNED_URL_TTL_SECONDS = 60 * 60;
 const ORIGINALS_FOLDER = "originales";
 const THUMBNAILS_FOLDER = "miniatura";
+const ALLOWED_IMAGE_MIME_TYPES = new Set([
+  "image/png",
+  "image/jpeg",
+  "image/jpg",
+  "image/bmp",
+  "image/gif",
+]);
 const LOST_PET_NAME_PATTERN = /^(?!.*[ _\-°ñÑ]{2})[a-zA-Z0-9°_\-ñÑ ]+$/;
 
 export const runtime = "nodejs";
@@ -17,8 +25,11 @@ type UploadedImage = {
   mimeType: string;
   sizeBytes: number;
   thumbnailSizeBytes: number;
+  nanoSizeBytes: number;
   originalPath: string;
   thumbnailPath: string;
+  nanoPath: string;
+  outputMimeType: string;
 };
 
 const isValidHttpUrl = (value: string) => {
@@ -86,10 +97,12 @@ export async function POST(request: Request) {
       );
     }
 
-    const hasNonImage = uploadedFiles.some((file) => !file.type.startsWith("image/"));
+    const hasNonImage = uploadedFiles.some(
+      (file) => !ALLOWED_IMAGE_MIME_TYPES.has(file.type.toLowerCase()),
+    );
     if (hasNonImage) {
       return Response.json(
-        { message: "Solo se permiten archivos de imagen." },
+        { message: "Solo se permiten archivos PNG, JPG, BMP o GIF." },
         { status: 400 },
       );
     }
@@ -148,15 +161,23 @@ export async function POST(request: Request) {
           hasAlpha: metadata.hasAlpha,
         });
         const shouldPreserveAlpha = Boolean(metadata.hasAlpha) || metadata.format === "png";
-        sourceImage.scaleToFit({ w: 320, h: 320 });
+        const outputMimeType = shouldPreserveAlpha ? "image/png" : "image/jpeg";
         const thumbnailPath = `${THUMBNAILS_FOLDER}/${baseName}.${shouldPreserveAlpha ? "png" : "jpg"}`;
+        const thumbnailImage = sourceImage.clone();
+        thumbnailImage.scaleToFit({ w: 320, h: 320 });
         const thumbnailBuffer = shouldPreserveAlpha
-          ? await sourceImage.getBuffer(JimpMime.png)
-          : await sourceImage.getBuffer(JimpMime.jpeg);
+          ? await thumbnailImage.getBuffer(JimpMime.png)
+          : await thumbnailImage.getBuffer(JimpMime.jpeg);
+        const nanoImage = sourceImage.clone();
+        nanoImage.scaleToFit({ w: 55, h: 55 });
+        const nanoPath = `nano/${baseName}.${shouldPreserveAlpha ? "png" : "jpg"}`;
+        const nanoBuffer = shouldPreserveAlpha
+          ? await nanoImage.getBuffer(JimpMime.png)
+          : await nanoImage.getBuffer(JimpMime.jpeg);
         const { error: thumbnailError } = await supabase.storage
           .from(BUCKET_NAME)
           .upload(thumbnailPath, thumbnailBuffer, {
-            contentType: shouldPreserveAlpha ? "image/png" : "image/jpeg",
+            contentType: outputMimeType,
             upsert: false,
           });
 
@@ -175,14 +196,39 @@ export async function POST(request: Request) {
           };
         }
 
+        const { error: nanoError } = await supabase.storage
+          .from(BUCKET_NAME)
+          .upload(nanoPath, nanoBuffer, {
+            contentType: outputMimeType,
+            upsert: false,
+          });
+
+        if (nanoError) {
+          console.error("nano upload failed", {
+            name: file.name,
+            type: file.type,
+            format: metadata.format,
+            error: nanoError,
+          });
+          await supabase.storage.from(BUCKET_NAME).remove([originalPath, thumbnailPath]);
+          return {
+            ok: false,
+            name: file.name,
+            message: nanoError.message,
+          };
+        }
+
         return {
           ok: true as const,
           name: file.name,
           mimeType: file.type,
           sizeBytes: file.size,
           thumbnailSizeBytes: thumbnailBuffer.byteLength,
+          nanoSizeBytes: nanoBuffer.byteLength,
           originalPath,
           thumbnailPath,
+          nanoPath,
+          outputMimeType,
         };
       }),
     );
@@ -205,6 +251,7 @@ export async function POST(request: Request) {
     const uploadedPaths = successfulUploads.flatMap((file) => [
       file.originalPath,
       file.thumbnailPath,
+      file.nanoPath,
     ]);
 
     const { userId: clerkUserId } = await auth();
@@ -357,8 +404,18 @@ export async function POST(request: Request) {
         name: `${file.name} (miniatura)`,
         storage_key: file.thumbnailPath,
         bucket_name: BUCKET_NAME,
-        mime_type: "image/jpeg",
+        mime_type: file.outputMimeType,
         size_bytes: file.thumbnailSizeBytes,
+        url: null,
+        status: "active",
+        id_user: appUserId,
+      },
+      {
+        name: `${file.name} (nano)`,
+        storage_key: file.nanoPath,
+        bucket_name: BUCKET_NAME,
+        mime_type: file.outputMimeType,
+        size_bytes: file.nanoSizeBytes,
         url: null,
         status: "active",
         id_user: appUserId,
@@ -391,8 +448,9 @@ export async function POST(request: Request) {
     const petPhotoRows = successfulUploads.map((file) => {
       const originalFileId = fileIdByStorageKey.get(file.originalPath);
       const thumbnailFileId = fileIdByStorageKey.get(file.thumbnailPath);
+      const nanoFileId = fileIdByStorageKey.get(file.nanoPath);
 
-      if (!originalFileId || !thumbnailFileId) {
+      if (!originalFileId || !thumbnailFileId || !nanoFileId) {
         throw new Error("No se pudieron resolver los IDs de archivos creados.");
       }
 
@@ -400,6 +458,7 @@ export async function POST(request: Request) {
         id_perdida: petLossId,
         id_file: originalFileId,
         id_file_miniatura: thumbnailFileId,
+        id_file_nano: nanoFileId,
       };
     });
 
@@ -424,11 +483,44 @@ export async function POST(request: Request) {
       );
     }
 
+    const previewImages = (
+      await Promise.all(
+        successfulUploads.map(async (file) => {
+          const { data, error } = await supabase.storage
+            .from(BUCKET_NAME)
+            .createSignedUrl(file.thumbnailPath, SIGNED_URL_TTL_SECONDS);
+          if (error || !data?.signedUrl) {
+            return null;
+          }
+          const { data: originalData, error: originalError } = await supabase.storage
+            .from(BUCKET_NAME)
+            .createSignedUrl(file.originalPath, SIGNED_URL_TTL_SECONDS);
+          if (originalError || !originalData?.signedUrl) {
+            return null;
+          }
+          return {
+            id: file.thumbnailPath,
+            thumbnailUrl: data.signedUrl,
+            originalUrl: originalData.signedUrl,
+            name: file.name,
+          };
+        }),
+      )
+    ).filter(
+      (item): item is {
+        id: string;
+        thumbnailUrl: string;
+        originalUrl: string;
+        name: string;
+      } => Boolean(item),
+    );
+
     return Response.json({
       ok: true,
       count: uploadedFiles.length,
       petLossId,
       files: successfulUploads,
+      previewImages,
     });
   } catch (error: unknown) {
     return Response.json(

@@ -75,7 +75,7 @@ export default function Home() {
   const [selectedLostPet, setSelectedLostPet] =
     useState<SelectedLostPetMarker | null>(null);
   const [uploadedThumbnailPreviews, setUploadedThumbnailPreviews] = useState<
-    { id: string; url: string; name: string }[]
+    { id: string; thumbnailUrl: string; originalUrl: string; name: string }[]
   >([]);
   const [hoveredPreview, setHoveredPreview] = useState<{
     url: string;
@@ -254,8 +254,45 @@ export default function Home() {
           setPetLossId(responsePetLossId);
         }
 
-        thumbnailUrlsRef.current.push(...pendingPreviews.map((preview) => preview.url));
-        setUploadedThumbnailPreviews((current) => [...current, ...pendingPreviews]);
+        const responsePreviews: {
+          id: string;
+          thumbnailUrl: string;
+          originalUrl: string;
+          name: string;
+        }[] =
+          request.response &&
+          typeof request.response === "object" &&
+          "previewImages" in request.response &&
+          Array.isArray(request.response.previewImages)
+            ? request.response.previewImages.filter(
+                (
+                  preview: unknown,
+                ): preview is {
+                  id: string;
+                  thumbnailUrl: string;
+                  originalUrl: string;
+                  name: string;
+                } =>
+                  Boolean(
+                    preview &&
+                      typeof preview === "object" &&
+                      "id" in preview &&
+                      typeof preview.id === "string" &&
+                      "thumbnailUrl" in preview &&
+                      typeof preview.thumbnailUrl === "string" &&
+                      "originalUrl" in preview &&
+                      typeof preview.originalUrl === "string" &&
+                      "name" in preview &&
+                      typeof preview.name === "string",
+                  ),
+              )
+            : [];
+
+        pendingPreviews.forEach((preview) => URL.revokeObjectURL(preview.url));
+        thumbnailUrlsRef.current.push(
+          ...responsePreviews.flatMap((preview) => [preview.thumbnailUrl, preview.originalUrl]),
+        );
+        setUploadedThumbnailPreviews((current) => [...current, ...responsePreviews]);
 
         setUploadProgress(100);
         uploadResetTimerRef.current = window.setTimeout(() => {
@@ -601,7 +638,7 @@ export default function Home() {
                         ref={photoInputRef}
                         id="lost-pet-photos"
                         type="file"
-                        accept="image/*"
+                        accept=".png,.jpg,.jpeg,.bmp,.gif,image/png,image/jpeg,image/bmp,image/gif"
                         multiple
                         onChange={handlePhotoChange}
                         className="sr-only"
@@ -620,12 +657,12 @@ export default function Home() {
                       {uploadedThumbnailPreviews.map((preview) => (
                         <img
                           key={preview.id}
-                          src={preview.url}
+                          src={preview.thumbnailUrl}
                           alt={preview.name}
                           className="h-16 w-16 cursor-pointer flex-none rounded-md border border-zinc-200 object-cover dark:border-zinc-700"
                           onMouseEnter={() =>
                             setHoveredPreview({
-                              url: preview.url,
+                              url: preview.originalUrl,
                               name: preview.name,
                             })
                           }
