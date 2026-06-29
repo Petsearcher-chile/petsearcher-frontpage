@@ -11,6 +11,7 @@ import {
   MouseEvent,
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -18,13 +19,19 @@ import type { RegisteredPetMarker } from "@/components/MapView";
 import dancingMonkeyAnimation from "@/assets/Dancing Monkey.json";
 import turtleSkatingAnimation from "@/assets/Turtle Skating.json";
 
+function LoadingMapFallback() {
+  const tCommon = useTranslations("Common");
+
+  return (
+    <div className="flex h-screen w-screen items-center justify-center bg-zinc-100 dark:bg-zinc-900">
+      <p className="text-zinc-500">{tCommon("loading_map")}</p>
+    </div>
+  );
+}
+
 const MapView = dynamic(() => import("@/components/MapView"), {
   ssr: false,
-  loading: () => (
-    <div className="flex h-screen w-screen items-center justify-center bg-zinc-100 dark:bg-zinc-900">
-      <p className="text-zinc-500">Cargando mapa…</p>
-    </div>
-  ),
+  loading: () => <LoadingMapFallback />,
 });
 
 type SelectedAddressDetail = {
@@ -51,20 +58,10 @@ const LOCATION_EVENT_NAME = "petsearcher:location-selected";
 const AUTOSELECT_REQUEST_EVENT_NAME = "petsearcher:location-autoselect-request";
 const LOST_PET_FORM_SEARCH_PARAM = "pum";
 const FOUND_PET_FORM_SEARCH_PARAM = "eum";
-const INTRO_MONKEY_DIALOGUE_MESSAGES = [
-  "Hola!!",
-  "Espero que estés bien",
-  "Te vamos a ayudar a encontrar a tu mascota",
-  "Para eso necesito que busques en la barra de arriba la dirección en donde ocurrió",
-] as const;
 const MONKEY_INTRO_ENTRY_DELAY_MS = 3000;
 const MONKEY_INTRO_SECOND_MESSAGE_DELAY_MS = 3000;
 const MONKEY_INTRO_THIRD_MESSAGE_DELAY_MS = 4000;
 const MONKEY_INTRO_FOURTH_MESSAGE_DELAY_MS = 4000;
-const ADDRESS_CONFIRMATION_DIALOGUE = "Muy bien!!";
-const ADDRESS_NEXT_STEP_DIALOGUE = "ahora presiona el botón inicio que está debajo de mi";
-const INICIO_CONFIRMATION_DIALOGUE = "Bien, ya lo estás entendiendo!!";
-const INICIO_NEXT_STEP_DIALOGUE = "Ahora indica si la perdiste o si la encontraste y rellena el formulario";
 const LOST_PET_NAME_MAX_LENGTH = 30;
 const LANGUAGE_OPTIONS: LanguageOption[] = [
   { value: "es", label: "Español", flag: "🇪🇸" },
@@ -179,9 +176,9 @@ const getPreferredLanguageOption = () => {
   return getBrowserLanguageOption();
 };
 
-const formatLostPetDate = (value: string | null) => {
+const formatLostPetDate = (value: string | null, unavailableText: string) => {
   if (!value) {
-    return "No disponible";
+    return unavailableText;
   }
 
   const datePart = value.slice(0, 10);
@@ -202,7 +199,8 @@ export default function Home() {
   const { openSignIn } = useClerk();
   const router = useRouter();
   const pathname = usePathname();
-  const t = useTranslations();
+  const tCommon = useTranslations("Common");
+  const tIndex = useTranslations("Index");
   const initialBrowserLanguage = getPreferredLanguageOption();
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [activePetForm, setActivePetForm] = useState<"lost" | "found" | null>(null);
@@ -252,6 +250,19 @@ export default function Home() {
   const copyTooltipTimerRef = useRef<number | null>(null);
   const hasTriggeredAddressGuideRef = useRef(false);
   const hasTriggeredInicioGuideRef = useRef(false);
+  const introMonkeyDialogueMessages = useMemo(
+    () => [
+      tIndex("intro_monkey_1"),
+      tIndex("intro_monkey_2"),
+      tIndex("intro_monkey_3"),
+      tIndex("intro_monkey_4"),
+    ] as const,
+    [tIndex],
+  );
+  const addressConfirmationDialogue = tIndex("address_confirmation");
+  const addressNextStepDialogue = tIndex("address_next_step");
+  const inicioConfirmationDialogue = tIndex("inicio_confirmation");
+  const inicioNextStepDialogue = tIndex("inicio_next_step");
 
   useEffect(() => {
     queueMicrotask(() => {
@@ -295,27 +306,27 @@ export default function Home() {
   const runAddressSelectedGuide = useCallback(() => {
     clearMonkeyTimeouts();
     setIsMonkeyVisible(true);
-    setMonkeyDialogue(ADDRESS_CONFIRMATION_DIALOGUE);
+    setMonkeyDialogue(addressConfirmationDialogue);
     setMonkeyMotion(true);
 
     queueMonkeyTimeout(() => {
-      setMonkeyDialogue(ADDRESS_NEXT_STEP_DIALOGUE);
+      setMonkeyDialogue(addressNextStepDialogue);
       setMonkeyMotion(true);
     }, 4000);
 
     queueMonkeyTimeout(() => {
       setMonkeyMotion(false);
     }, 6000);
-  }, [clearMonkeyTimeouts, queueMonkeyTimeout, setMonkeyMotion]);
+  }, [addressConfirmationDialogue, addressNextStepDialogue, clearMonkeyTimeouts, queueMonkeyTimeout, setMonkeyMotion]);
 
   const runInicioGuide = useCallback(() => {
     clearMonkeyTimeouts();
     setIsMonkeyVisible(true);
-    setMonkeyDialogue(INICIO_CONFIRMATION_DIALOGUE);
+    setMonkeyDialogue(inicioConfirmationDialogue);
     setMonkeyMotion(true);
 
     queueMonkeyTimeout(() => {
-      setMonkeyDialogue(INICIO_NEXT_STEP_DIALOGUE);
+      setMonkeyDialogue(inicioNextStepDialogue);
       setMonkeyMotion(true);
     }, 3000);
 
@@ -324,12 +335,12 @@ export default function Home() {
       setMonkeyDialogue("");
       setIsMonkeyVisible(false);
     }, 8000);
-  }, [clearMonkeyTimeouts, queueMonkeyTimeout, setMonkeyMotion]);
+  }, [clearMonkeyTimeouts, inicioConfirmationDialogue, inicioNextStepDialogue, queueMonkeyTimeout, setMonkeyMotion]);
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
       setIsMonkeyVisible(true);
-      setMonkeyDialogue(INTRO_MONKEY_DIALOGUE_MESSAGES[0]);
+      setMonkeyDialogue(introMonkeyDialogueMessages[0]);
       setMonkeyMotion(true);
 
       const thirdMessageDelay =
@@ -337,15 +348,15 @@ export default function Home() {
       const fourthMessageDelay = thirdMessageDelay + MONKEY_INTRO_FOURTH_MESSAGE_DELAY_MS;
 
       queueMonkeyTimeout(() => {
-        setMonkeyDialogue(INTRO_MONKEY_DIALOGUE_MESSAGES[1]);
+        setMonkeyDialogue(introMonkeyDialogueMessages[1]);
       }, MONKEY_INTRO_SECOND_MESSAGE_DELAY_MS);
 
       queueMonkeyTimeout(() => {
-        setMonkeyDialogue(INTRO_MONKEY_DIALOGUE_MESSAGES[2]);
+        setMonkeyDialogue(introMonkeyDialogueMessages[2]);
       }, thirdMessageDelay);
 
       queueMonkeyTimeout(() => {
-        setMonkeyDialogue(INTRO_MONKEY_DIALOGUE_MESSAGES[3]);
+        setMonkeyDialogue(introMonkeyDialogueMessages[3]);
         setMonkeyMotion(false);
       }, fourthMessageDelay);
     }, MONKEY_INTRO_ENTRY_DELAY_MS);
@@ -354,7 +365,7 @@ export default function Home() {
       window.clearTimeout(timeoutId);
       clearMonkeyTimeouts();
     };
-  }, [clearMonkeyTimeouts, queueMonkeyTimeout, setMonkeyMotion]);
+  }, [clearMonkeyTimeouts, introMonkeyDialogueMessages, queueMonkeyTimeout, setMonkeyMotion]);
 
   const updatePetFormSearchParam = useCallback(
     (form: "lost" | "found" | null) => {
@@ -561,8 +572,8 @@ export default function Home() {
                   typeof request.response.detail === "string"
                   ? `${request.response.message} ${request.response.detail}`
                   : request.response.message
-                : "No se pudieron subir las fotos."
-              : "No se pudieron subir las fotos.";
+                : tIndex("upload_photos_error")
+              : tIndex("upload_photos_error");
           setUploadError(responseMessage);
           pendingPreviews.forEach((preview) => URL.revokeObjectURL(preview.url));
           setUploadProgress(null);
@@ -631,14 +642,14 @@ export default function Home() {
       };
 
       request.onerror = () => {
-        setUploadError("No se pudieron subir las fotos.");
+        setUploadError(tIndex("upload_photos_error"));
         pendingPreviews.forEach((preview) => URL.revokeObjectURL(preview.url));
         setUploadProgress(null);
       };
 
       request.send(formData);
     },
-    [activePetForm, lostPetDate, lostPetName, petLossId, resetUploadProgress],
+    [activePetForm, lostPetDate, lostPetName, petLossId, resetUploadProgress, tIndex],
   );
 
   const handlePhotoChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -651,7 +662,7 @@ export default function Home() {
 
     if (selectedFiles.length + uploadedThumbnailPreviews.length > 10) {
       setPhotoError("");
-      setUploadError("Puedes seleccionar hasta 10 fotos.");
+      setUploadError(tIndex("max_photos_error"));
       event.target.value = "";
       return;
     }
@@ -660,7 +671,7 @@ export default function Home() {
     const hasNonImage = files.some((file) => !file.type.startsWith("image/"));
     if (hasNonImage) {
       setPhotoError("");
-      setUploadError("Solo se permiten archivos de imagen.");
+      setUploadError(tIndex("image_only_error"));
       event.target.value = "";
       return;
     }
@@ -727,20 +738,20 @@ export default function Home() {
         const isFoundForm = activePetForm === "found";
         setUploadError(
           isFoundForm
-            ? "Debe seleccionar un lugar donde encontró la mascota, arriba en el buscador, busque su dirección"
-            : "Debe seleccionar un lugar donde se perdió su mascota, arriba en el buscador, busque su dirección",
+            ? tIndex("select_found_location_error")
+            : tIndex("select_lost_location_error"),
         );
         return;
       }
 
       if (petLossId === null) {
-        setUploadError("Debes subir al menos una foto antes de guardar.");
+        setUploadError(tIndex("must_upload_photo"));
         return;
       }
 
       if (lostPetName.length > LOST_PET_NAME_MAX_LENGTH) {
         setUploadError(
-          `El nombre de la mascota debe tener máximo ${LOST_PET_NAME_MAX_LENGTH} caracteres.`,
+          tIndex("name_max_length_error", { max: LOST_PET_NAME_MAX_LENGTH }),
         );
         return;
       }
@@ -783,8 +794,8 @@ export default function Home() {
             clearThumbnailPreviews();
             setSaveSuccessMessage(
               isFoundForm
-                ? "Gracias por registrar la mascota encontrada. Te contactaremos por el correo que utilizaste para identificarte."
-                : "Lamentamos mucho el extravío de su mascota. En caso de que alguien la encuentre, será contactado por el correo que utilizó para identificarse.",
+                ? tIndex("save_success_found")
+                : tIndex("save_success_lost"),
             );
             return;
           }
@@ -794,12 +805,12 @@ export default function Home() {
             payload.message && payload.detail
               ? `${payload.message} ${payload.detail}`
               : payload.message ??
-                (isFoundForm ? "No se pudo guardar el hallazgo." : "No se pudo guardar la pérdida.");
+                isFoundForm ? tIndex("save_found_error") : tIndex("save_lost_error");
           setUploadError(errorMessage);
         })
         .catch(() => {
           setUploadError(
-            isFoundForm ? "No se pudo guardar el hallazgo." : "No se pudo guardar la pérdida.",
+            isFoundForm ? tIndex("save_found_error") : tIndex("save_lost_error"),
           );
         })
         .finally(() => {
@@ -814,6 +825,7 @@ export default function Home() {
     petLossId,
     requestAddressAutoselection,
     selectedAddressDetail,
+    tIndex,
     updatePetFormSearchParam,
   ]);
 
@@ -858,33 +870,33 @@ export default function Home() {
               <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
                 {selectedLostPet.petName ??
                   (selectedLostPet.markerType === "found"
-                    ? "Mascota encontrada"
-                    : "Mascota perdida")}
+                    ? tIndex("pet_found_label")
+                    : tIndex("pet_lost_label"))}
               </p>
               <div className="mt-1 space-y-1 text-xs text-zinc-600 dark:text-zinc-400">
                 <p>
                   {selectedLostPet.markerType === "found"
-                    ? "Fecha de hallazgo"
-                    : "Fecha de extravío"}
-                  : {formatLostPetDate(selectedLostPet.lostPetDate)}
+                    ? tCommon("date_found")
+                    : tCommon("date_lost")}
+                  : {formatLostPetDate(selectedLostPet.lostPetDate, tCommon("not_available"))}
                 </p>
                 {selectedLostPet.creatorName ? (
                   <p>
-                    {t("published_by")} {selectedLostPet.creatorName}
+                    {tCommon("published_by")} {selectedLostPet.creatorName}
                   </p>
                 ) : null}
                 {selectedLostPet.creatorEmail ? (
-                <div className="flex items-center gap-2">
-                  <p className="min-w-0 truncate">
-                    {t("email")} {selectedLostPet.creatorEmail}
-                  </p>
-                  <button
-                    type="button"
-                    aria-label={t("copy_email")}
-                    className="ml-auto shrink-0 text-zinc-700 transition hover:text-zinc-900 dark:text-zinc-200 dark:hover:text-zinc-100"
-                    onClick={(event) => {
-                      void handleCopyCreatorEmail(selectedLostPet.creatorEmail ?? "", event);
-                    }}
+                  <div className="flex items-center gap-2">
+                    <p className="min-w-0 truncate">
+                      {tCommon("email")} {selectedLostPet.creatorEmail}
+                    </p>
+                    <button
+                      type="button"
+                      aria-label={tCommon("copy_email")}
+                      className="ml-auto shrink-0 text-zinc-700 transition hover:text-zinc-900 dark:text-zinc-200 dark:hover:text-zinc-100"
+                      onClick={(event) => {
+                        void handleCopyCreatorEmail(selectedLostPet.creatorEmail ?? "", event);
+                      }}
                     >
                       <svg aria-hidden="true" viewBox="0 0 20 20" className="h-4 w-4">
                         <path
@@ -909,8 +921,8 @@ export default function Home() {
                 ) : null}
                 <p>
                   {selectedLostPet.markerType === "found"
-                    ? `${t("se_found_near")} `
-                    : `${t("se_lost_near")} `}
+                    ? `${tCommon("se_found_near")} `
+                    : `${tCommon("se_lost_near")} `}
                   {selectedLostPet.fullAddress}
                 </p>
               </div>
@@ -923,7 +935,7 @@ export default function Home() {
                 setHoveredLostPetPhoto(null);
               }}
             >
-              {t("close")}
+              {tCommon("close")}
             </button>
           </div>
           <div className="flex-1 overflow-auto p-4">
@@ -935,23 +947,17 @@ export default function Home() {
                 >
                   <img
                     src={photo.thumbnailUrl}
-                    alt={`${
-                      selectedLostPet.petName ??
-                      (selectedLostPet.markerType === "found"
-                        ? "Mascota encontrada"
-                        : "Mascota perdida")
-                    } foto ${index + 1}`}
+                    alt={`${selectedLostPet.petName ?? (selectedLostPet.markerType === "found"
+                      ? tIndex("pet_found_label")
+                      : tIndex("pet_lost_label"))} ${tIndex("photo_label", { number: index + 1 })}`}
                     className="h-36 w-full object-cover"
                     loading="lazy"
                     onMouseEnter={() =>
                       setHoveredLostPetPhoto({
                         url: photo.originalUrl ?? photo.thumbnailUrl,
-                        name: `${
-                          selectedLostPet.petName ??
-                          (selectedLostPet.markerType === "found"
-                            ? "Mascota encontrada"
-                            : "Mascota perdida")
-                        } foto ${index + 1}`,
+                        name: `${selectedLostPet.petName ?? (selectedLostPet.markerType === "found"
+                          ? tIndex("pet_found_label")
+                          : tIndex("pet_lost_label"))} ${tIndex("photo_label", { number: index + 1 })}`,
                         isLoading: true,
                       })
                     }
@@ -981,7 +987,7 @@ export default function Home() {
               strokeLinejoin="round"
             />
           </svg>
-          Copiado
+          {tCommon("copied")}
         </div>
       ) : null}
 
@@ -1062,14 +1068,14 @@ export default function Home() {
                 }
               }}
             >
-              {t("home")}
+              {tIndex("home")}
             </Link>
-            {activePetForm === "lost" ? <span>&gt; {t("lost_pet")}</span> : null}
-            {activePetForm === "found" ? <span>&gt; {t("found_pet")}</span> : null}
+            {activePetForm === "lost" ? <span>&gt; {tIndex("lost_pet")}</span> : null}
+            {activePetForm === "found" ? <span>&gt; {tIndex("found_pet")}</span> : null}
           </div>
           <div className="relative flex items-center gap-2">
             <label htmlFor="language-search" className="sr-only">
-              {t("search_language")}
+              {tCommon("search_language")}
             </label>
             <input
               id="language-search"
@@ -1092,7 +1098,7 @@ export default function Home() {
                   }
                 }, 120);
               }}
-              placeholder={t("search_language")}
+              placeholder={tCommon("search_language")}
               className="h-9 w-48 rounded-full border border-zinc-200 bg-white/90 px-3 text-sm font-medium text-zinc-700 outline-none transition placeholder:text-zinc-400 hover:bg-zinc-100 focus:border-zinc-400 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200 dark:placeholder:text-zinc-500 dark:hover:bg-zinc-800 dark:focus:border-zinc-500"
             />
             {isLanguageMenuOpen ? (
@@ -1124,7 +1130,7 @@ export default function Home() {
                     ))
                   ) : (
                     <p className="px-3 py-2 text-sm text-zinc-500 dark:text-zinc-400">
-                      {t("no_results")}
+                      {tCommon("no_results")}
                     </p>
                   )}
                 </div>
@@ -1132,7 +1138,7 @@ export default function Home() {
             ) : null}
             <button
               type="button"
-              aria-label={t("toggle_panel")}
+              aria-label={tCommon("toggle_panel")}
               className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-zinc-200 bg-white/90 text-zinc-700 transition hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:bg-zinc-800"
               onClick={() => setIsPanelOpen((current) => !current)}
             >
@@ -1175,7 +1181,7 @@ export default function Home() {
                       htmlFor="lost-pet-date"
                       className="shrink-0 text-sm font-medium text-zinc-700 dark:text-zinc-200"
                     >
-                      {activePetForm === "found" ? t("date_found") : t("date_lost")}
+                      {activePetForm === "found" ? tCommon("date_found") : tCommon("date_lost")}
                     </label>
                     <input
                       id="lost-pet-date"
@@ -1191,7 +1197,7 @@ export default function Home() {
                           htmlFor="lost-pet-name"
                           className="shrink-0 text-sm font-medium text-zinc-700 dark:text-zinc-200"
                         >
-                          {activePetForm === "found" ? t("name_optional") : "Nombre al que responde"}
+                          {activePetForm === "found" ? tCommon("name_optional") : tIndex("responds_to_name")}
                         </label>
                         <input
                           id="lost-pet-name"
@@ -1203,7 +1209,7 @@ export default function Home() {
                               event.target.value.slice(0, LOST_PET_NAME_MAX_LENGTH),
                             )
                           }
-                          placeholder={activePetForm === "found" ? t("name_optional") : undefined}
+                          placeholder={activePetForm === "found" ? tCommon("name_optional") : undefined}
                           className="w-[150px] max-w-[150px] flex-none rounded-xl border border-zinc-200 bg-white px-2 py-2 text-zinc-900 outline-none transition focus:border-zinc-400 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:focus:border-zinc-600"
                         />
                       </div>
@@ -1216,14 +1222,14 @@ export default function Home() {
                         htmlFor="lost-pet-photos"
                         className="shrink-0 text-sm font-medium text-zinc-700 dark:text-zinc-200"
                       >
-                        Fotos (max 10, max 5mg)
+                        {tIndex("photos_label")}
                       </label>
                       <button
                         type="button"
                         className="flex-none cursor-pointer rounded-xl border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-zinc-800 transition hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:border-zinc-700 dark:hover:bg-zinc-800"
                         onClick={() => photoInputRef.current?.click()}
                       >
-                        {t("upload")}
+                        {tCommon("upload")}
                       </button>
                       <input
                         ref={photoInputRef}
@@ -1240,7 +1246,7 @@ export default function Home() {
                         className="ml-auto cursor-pointer rounded-xl border border-zinc-200 bg-white px-5 py-2 text-sm font-medium text-zinc-800 transition hover:border-zinc-300 hover:bg-zinc-50 disabled:cursor-not-allowed disabled:border-zinc-200 disabled:bg-zinc-100 disabled:text-zinc-400 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:border-zinc-700 dark:hover:bg-zinc-800 dark:disabled:border-zinc-800 dark:disabled:bg-zinc-800 dark:disabled:text-zinc-500"
                         onClick={handleSaveClick}
                       >
-                        {isSaving ? t("saving") : t("save")}
+                        {isSaving ? tCommon("saving") : tCommon("save")}
                       </button>
                     </div>
 
@@ -1273,11 +1279,11 @@ export default function Home() {
               <div className="grid h-full gap-3 md:grid-cols-2">
                 {[
                   {
-                    label: "Perdí una mascota",
+                    label: tIndex("lost_pet_button"),
                     onClick: handleLostPetClick,
                   },
                   {
-                    label: "Encontré una mascota",
+                    label: tIndex("found_pet_button"),
                     onClick: handleFoundPetClick,
                   },
                 ].map(({ label, onClick }) => (
@@ -1341,7 +1347,7 @@ export default function Home() {
             className="mt-3 rounded-md bg-red-200 px-3 py-1.5 text-sm font-medium text-red-900 transition hover:bg-red-300"
             onClick={() => setUploadError("")}
           >
-            Cerrar
+            {tCommon("close")}
           </button>
         </div>
       ) : null}
@@ -1354,7 +1360,7 @@ export default function Home() {
             className="mt-3 rounded-md bg-emerald-200 px-3 py-1.5 text-sm font-medium text-emerald-900 transition hover:bg-emerald-300"
             onClick={() => setSaveSuccessMessage("")}
           >
-            Cerrar
+            {tCommon("close")}
           </button>
         </div>
       ) : null}

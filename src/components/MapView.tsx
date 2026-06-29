@@ -101,7 +101,8 @@ export default function MapView({
   selectedMarkerId,
   selectedMarkerType,
 }: MapViewProps) {
-  const t = useTranslations();
+  const tCommon = useTranslations("Common");
+  const tMap = useTranslations("MapView");
   const router = useRouter();
   const pathname = usePathname();
   const mapRef = useRef<MapRef>(null);
@@ -233,12 +234,12 @@ export default function MapView({
       cache: "no-store",
     });
     if (!response.ok) {
-      throw new Error("No se pudieron cargar marcadores.");
+      throw new Error(tMap("markers_load_error"));
     }
 
     const data = (await response.json()) as { markers?: RegisteredPetMarker[] };
     setRegisteredMarkers(Array.isArray(data.markers) ? data.markers : []);
-  }, []);
+  }, [tMap]);
 
   const handleLoad = useCallback(() => {
     isMapLoadedRef.current = true;
@@ -315,7 +316,7 @@ export default function MapView({
   const fetchSuggestions = useCallback(
     async (query: string, signal: AbortSignal) => {
       if (!hasToken) {
-        setSearchError("Falta configurar NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN.");
+        setSearchError(tMap("missing_mapbox_token"));
         return;
       }
 
@@ -325,14 +326,14 @@ export default function MapView({
       );
 
       if (!response.ok) {
-        throw new Error("No se pudo buscar la ubicación.");
+        throw new Error(tMap("search_location_failed"));
       }
 
       const data: { features?: LocationSuggestion[] } = await response.json();
       setResults(data.features ?? []);
       setSearchError(null);
     },
-    [hasToken],
+    [hasToken, tMap],
   );
 
   useEffect(() => {
@@ -356,12 +357,12 @@ export default function MapView({
 
         setResults([]);
 
-        if (error instanceof Error && error.message === "No se pudo buscar la ubicación.") {
+        if (error instanceof Error && error.message === tMap("search_location_failed")) {
           setSearchError(error.message);
           return;
         }
 
-        setSearchError("No se pudo buscar la ubicación.");
+        setSearchError(tMap("search_location_failed"));
       });
     }, 250);
 
@@ -369,7 +370,7 @@ export default function MapView({
       window.clearTimeout(timeoutId);
       controller.abort();
     };
-  }, [fetchSuggestions, searchQuery]);
+  }, [fetchSuggestions, searchQuery, tMap]);
 
   const handleSelectResult = useCallback((result: LocationSuggestion) => {
     selectedQueryRef.current = result.place_name;
@@ -397,14 +398,14 @@ export default function MapView({
       );
 
       if (!response.ok) {
-        throw new Error("No se pudo resolver la dirección.");
+        throw new Error(tMap("resolve_address_failed"));
       }
 
       const data: { features?: LocationSuggestion[] } = await response.json();
       const [result] = data.features ?? [];
       return result ?? null;
     },
-    [hasToken],
+    [hasToken, tMap],
   );
 
   const handleSelectedPointDragEnd = useCallback(
@@ -429,16 +430,16 @@ export default function MapView({
           emitLocationSelected(true, mapSelectedAddress(result));
         })
         .catch(() => {
-          setSearchError("No se pudo buscar la ubicación.");
+          setSearchError(tMap("search_location_failed"));
         });
     },
-    [emitLocationSelected, mapSelectedAddress, reverseGeocodePoint, updatePointInUrl],
+    [emitLocationSelected, mapSelectedAddress, reverseGeocodePoint, tMap, updatePointInUrl],
   );
 
   const searchAndSelect = useCallback(
     async (query: string) => {
       if (!hasToken) {
-        setSearchError("Falta configurar NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN.");
+        setSearchError(tMap("missing_mapbox_token"));
         return;
       }
 
@@ -447,20 +448,20 @@ export default function MapView({
       );
 
       if (!response.ok) {
-        throw new Error("No se pudo buscar la ubicación.");
+        throw new Error(tMap("search_location_failed"));
       }
 
       const data: { features?: LocationSuggestion[] } = await response.json();
       const [result] = data.features ?? [];
 
       if (!result) {
-        setSearchError("No se encontraron resultados.");
+        setSearchError(tMap("no_results"));
         return;
       }
 
       handleSelectResult(result);
     },
-    [hasToken, handleSelectResult],
+    [hasToken, handleSelectResult, tMap],
   );
 
   useEffect(() => {
@@ -479,7 +480,7 @@ export default function MapView({
 
       void searchAndSelect(query).catch(() => {
         setResults([]);
-        setSearchError("No se pudo buscar la ubicación.");
+        setSearchError(tMap("search_location_failed"));
         emitLocationSelected(false);
       });
     };
@@ -489,7 +490,7 @@ export default function MapView({
     return () => {
       window.removeEventListener(AUTOSELECT_REQUEST_EVENT_NAME, handleAutoselectRequest);
     };
-  }, [emitLocationSelected, handleSelectResult, results, searchAndSelect, searchQuery]);
+  }, [emitLocationSelected, handleSelectResult, results, searchAndSelect, searchQuery, tMap]);
 
   useEffect(() => {
     if (!hasToken) {
@@ -520,12 +521,12 @@ export default function MapView({
 
           void searchAndSelect(query).catch(() => {
             setResults([]);
-            setSearchError("No se pudo buscar la ubicación.");
+            setSearchError(tMap("search_location_failed"));
           });
         }}
       >
         <label htmlFor="location-search" className="sr-only">
-          {t("search_location")}
+          {tCommon("search_location")}
         </label>
         <div className="flex">
           <input
@@ -533,7 +534,7 @@ export default function MapView({
             type="text"
             value={searchQuery}
             onChange={(event) => handleQueryChange(event.target.value)}
-            placeholder={t("search_location")}
+            placeholder={tCommon("search_location")}
             className="h-11 flex-1 rounded-xl border border-zinc-200 bg-white/90 px-4 text-sm text-zinc-900 outline-none placeholder:text-zinc-500 focus:border-zinc-400 dark:border-zinc-700 dark:bg-zinc-900/80 dark:text-zinc-100 dark:placeholder:text-zinc-400"
           />
         </div>
@@ -589,7 +590,11 @@ export default function MapView({
           >
             <button
               type="button"
-              aria-label={`Ver ${marker.markerType === "found" ? "mascota encontrada" : "mascota perdida"}`}
+              aria-label={
+                marker.markerType === "found"
+                  ? tMap("view_found_pet")
+                  : tMap("view_lost_pet")
+              }
               className="pointer-events-auto flex flex-col items-center bg-transparent p-0"
               onClick={() => onMarkerSelect?.(marker)}
             >
@@ -603,7 +608,7 @@ export default function MapView({
                 >
                   <img
                     src={marker.thumbnailUrl}
-                    alt={marker.petName ?? "Mascota perdida"}
+                    alt={marker.petName ?? tMap("lost_pet_default_name")}
                     className="h-full w-full object-cover"
                   />
                 </div>
