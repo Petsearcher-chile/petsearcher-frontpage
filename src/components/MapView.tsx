@@ -94,12 +94,16 @@ type MapViewProps = {
   selectedMarkerId?: number | null;
   selectedMarkerType?: "lost" | "found" | null;
   activePetForm?: "lost" | "found" | null;
+  searchPanelClassName?: string;
+  searchInputClassName?: string;
 };
 
 export default function MapView({
   onMarkerSelect,
   selectedMarkerId,
   selectedMarkerType,
+  searchPanelClassName,
+  searchInputClassName,
 }: MapViewProps) {
   const tCommon = useTranslations("Common");
   const tMap = useTranslations("MapView");
@@ -505,7 +509,9 @@ export default function MapView({
   return (
     <div className="relative h-full w-full overflow-hidden">
       <form
-        className="absolute left-1/2 top-4 z-10 w-[min(92vw,42rem)] -translate-x-1/2 rounded-2xl border border-white/30 bg-white/70 p-3 shadow-lg backdrop-blur-xl dark:border-white/10 dark:bg-zinc-950/60"
+        className={`absolute left-1/2 top-4 z-10 w-[min(92vw,42rem)] -translate-x-1/2 rounded-2xl border border-white/30 bg-white/70 p-3 shadow-lg backdrop-blur-xl dark:border-white/10 dark:bg-zinc-950/60 ${
+          searchPanelClassName ?? ""
+        }`}
         onSubmit={(event) => {
           event.preventDefault();
           const query = searchQuery.trim();
@@ -535,7 +541,9 @@ export default function MapView({
             value={searchQuery}
             onChange={(event) => handleQueryChange(event.target.value)}
             placeholder={tCommon("search_location")}
-            className="h-11 flex-1 rounded-xl border border-zinc-200 bg-white/90 px-4 text-sm text-zinc-900 outline-none placeholder:text-zinc-500 focus:border-zinc-400 dark:border-zinc-700 dark:bg-zinc-900/80 dark:text-zinc-100 dark:placeholder:text-zinc-400"
+            className={`h-11 flex-1 rounded-xl border border-zinc-200 bg-white/90 px-4 text-sm text-zinc-900 outline-none placeholder:text-zinc-500 focus:border-zinc-400 dark:border-zinc-700 dark:bg-zinc-900/80 dark:text-zinc-100 dark:placeholder:text-zinc-400 ${
+              searchInputClassName ?? ""
+            }`}
           />
         </div>
         {searchError ? (

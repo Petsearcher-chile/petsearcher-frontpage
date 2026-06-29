@@ -4,6 +4,7 @@ import { resolveSupportedLocale } from "@/i18n/locales";
 
 const publicRoutes = createRouteMatcher([
   "/",
+  "/movil(.*)",
   "/warning-wizard(.*)",
   "/api/lost-pets-map(.*)",
   "/api/lost-pet-photos(.*)",
@@ -19,8 +20,8 @@ export default clerkMiddleware((auth, req) => {
   const isSmartphone =
     /Android|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
 
-  if (!pathname.startsWith("/api") && isSmartphone && pathname !== "/warning-wizard") {
-    return NextResponse.redirect(new URL("/warning-wizard", req.url));
+  if (!pathname.startsWith("/api") && isSmartphone && pathname !== "/movil") {
+    return NextResponse.redirect(new URL("/movil", req.url));
   }
 
   if (!publicRoutes(req)) {

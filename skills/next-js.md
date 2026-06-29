@@ -372,6 +372,8 @@ Cuando entregue una solución, preferir este orden:
 - Si la funcionalidad en /app/<carpera> es muy compleja, o necesita una funcionalidad que pueda ser utilizada por otros proyectos, se debe crear un paquete npm privado para esa funcionalidad, y agregarlo como dependencia desde /componentes
 - está construido con next-intl, así que cada respuesta hacia el cliente o error debe ser descrito según esta definición, y ponerlos en los archivos de lenguajes para que language en src/messages/*.json
 - de copiar una nueva key en el archivo de lenguajes src/messages/en.json, se debe agregar la nueva key en el archivo de lenguaje para todos los otros json dentro de esta carpeta src/messages/ y traducir su valor en el lenguaje indicado
+- modificado el archivo de lenguaje en.json, replica el cambio en los otros archivos de lenguaje solo agregando las keys faltantes en el lenguaje que indica el nombre del archivo
+
 ### Referencias entre .tsx y .ts
 - Este proyecto referencia las rutas con `@/` indicando como inicio de ruta.
 
