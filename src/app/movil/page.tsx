@@ -10,14 +10,11 @@ type SelectedPoint = {
   latitude: number;
 };
 
-type ReportType = "lost" | "found" | null;
-
 export default function MobileMapPage() {
   const router = useRouter();
   const tIndex = useTranslations("Index");
   const [selectedPoint, setSelectedPoint] = useState<SelectedPoint | null>(null);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
-  const [selectedReportType, setSelectedReportType] = useState<ReportType>(null);
   const dragStartYRef = useRef<number | null>(null);
   const dragOffsetRef = useRef(0);
   const [dragOffset, setDragOffset] = useState(0);
@@ -35,6 +32,12 @@ export default function MobileMapPage() {
     dragStartYRef.current = null;
   }, []);
 
+  const startSheetDrag = useCallback((clientY: number) => {
+    dragStartYRef.current = clientY;
+    dragOffsetRef.current = 0;
+    setDragOffset(0);
+  }, []);
+
   const handlePointSelect = useCallback(
     (point: SelectedPoint) => {
       setSelectedPoint(point);
@@ -44,13 +47,18 @@ export default function MobileMapPage() {
   );
 
   const handleReportSelect = useCallback(
-    (reportType: Exclude<ReportType, null>) => {
-      setSelectedReportType(reportType);
-      const params = new URLSearchParams(window.location.search);
-      params.set("report", reportType);
-      router.replace(params.toString() ? `/movil?${params.toString()}` : "/movil");
+    (reportType: "lost" | "found") => {
+      const params = new URLSearchParams();
+      params.set(reportType === "lost" ? "pum" : "eum", "true");
+
+      if (selectedPoint) {
+        params.set("lat", String(selectedPoint.latitude));
+        params.set("lng", String(selectedPoint.longitude));
+      }
+
+      router.push(params.toString() ? `/?${params.toString()}` : "/");
     },
-    [router],
+    [router, selectedPoint],
   );
 
   return (
@@ -70,18 +78,30 @@ export default function MobileMapPage() {
             : "translateY(100%)",
         }}
       >
-        <div
-          className="flex h-full flex-col"
+        <div className="flex h-full flex-col">
+          <div
+          className="flex cursor-grab items-center justify-center py-3 active:cursor-grabbing"
+          style={{ touchAction: "none" }}
+          onPointerDown={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            event.currentTarget.setPointerCapture(event.pointerId);
+            startSheetDrag(event.clientY);
+          }}
           onPointerMove={(event) => {
             if (dragStartYRef.current === null) {
               return;
             }
 
+            event.preventDefault();
+            event.stopPropagation();
             const offset = Math.max(0, event.clientY - dragStartYRef.current);
             dragOffsetRef.current = offset;
             setDragOffset(offset);
           }}
-          onPointerUp={() => {
+          onPointerUp={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
             if (dragOffsetRef.current > 120) {
               closeSheet();
               return;
@@ -96,42 +116,27 @@ export default function MobileMapPage() {
             dragOffsetRef.current = 0;
             dragStartYRef.current = null;
           }}
-        >
-          <button
-            type="button"
-            className="mx-auto mt-3 h-1.5 w-16 rounded-full bg-white/60"
-            aria-label="Drag handle"
-            onPointerDown={(event) => {
-              dragStartYRef.current = event.clientY;
-              (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
-            }}
-          />
+          >
+          <div className="h-1.5 w-16 rounded-full bg-white/60" />
+          </div>
 
           <div className="flex-1 px-4 pb-5 pt-4">
-            <div className="mb-4 h-px w-full bg-white/15" />
-            <div className="grid gap-3">
-              <button
-                type="button"
-                className={`w-full rounded-2xl px-4 py-4 text-left text-base font-semibold transition ${
-                  selectedReportType === "lost"
-                    ? "bg-red-500/90 text-white"
-                    : "bg-white/20 text-white hover:bg-white/30"
-                }`}
-                onClick={() => handleReportSelect("lost")}
-              >
-                {tIndex("lost_pet_button")}
-              </button>
-              <button
-                type="button"
-                className={`w-full rounded-2xl px-4 py-4 text-left text-base font-semibold transition ${
-                  selectedReportType === "found"
-                    ? "bg-blue-500/90 text-white"
-                    : "bg-white/20 text-white hover:bg-white/30"
-                }`}
-                onClick={() => handleReportSelect("found")}
-              >
-                {tIndex("found_pet_button")}
-              </button>
+          <div className="mb-4 h-px w-full bg-white/15" />
+          <div className="grid gap-3">
+            <button
+              type="button"
+              className="w-full rounded-2xl bg-white/20 px-4 py-4 text-left text-base font-semibold text-white transition hover:bg-white/30"
+              onClick={() => handleReportSelect("lost")}
+            >
+              {tIndex("lost_pet_button")}
+            </button>
+            <button
+              type="button"
+              className="w-full rounded-2xl bg-white/20 px-4 py-4 text-left text-base font-semibold text-white transition hover:bg-white/30"
+              onClick={() => handleReportSelect("found")}
+            >
+              {tIndex("found_pet_button")}
+            </button>
             </div>
             {selectedPoint ? (
               <p className="mt-4 text-sm text-white/75">
