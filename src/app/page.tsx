@@ -744,7 +744,7 @@ export default function Home() {
 
               </form>
             ) : (
-              <div className="grid h-full gap-3 md:grid-cols-3">
+              <div className="grid h-full gap-3 md:grid-cols-2">
                 {[
                   {
                     label: "Perdí una mascota",
@@ -753,10 +753,6 @@ export default function Home() {
                   {
                     label: "Encontré una mascota",
                     onClick: handleFoundPetClick,
-                  },
-                  {
-                    label: "Regalo mascotas",
-                    onClick: undefined,
                   },
                 ].map(({ label, onClick }) => (
                   <button
