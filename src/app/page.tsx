@@ -38,6 +38,24 @@ type SelectedLostPetMarker = RegisteredPetMarker;
 const LOCATION_EVENT_NAME = "petsearcher:location-selected";
 const AUTOSELECT_REQUEST_EVENT_NAME = "petsearcher:location-autoselect-request";
 
+const formatLostPetDate = (value: string | null) => {
+  if (!value) {
+    return "No disponible";
+  }
+
+  const datePart = value.slice(0, 10);
+  const [year, month, day] = datePart.split("-").map((part) => Number(part));
+  if (!year || !month || !day) {
+    return value;
+  }
+
+  return new Date(Date.UTC(year, month - 1, day)).toLocaleDateString("es-CL", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+};
+
 export default function Home() {
   const { isLoaded, isSignedIn } = useAuth();
   const { openSignIn } = useClerk();
@@ -406,9 +424,10 @@ export default function Home() {
               <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
                 {selectedLostPet.petName ?? "Mascota perdida"}
               </p>
-              <p className="mt-1 text-xs text-zinc-600 dark:text-zinc-400">
-                {selectedLostPet.fullAddress}
-              </p>
+              <div className="mt-1 space-y-1 text-xs text-zinc-600 dark:text-zinc-400">
+                <p>Fecha de extravío: {formatLostPetDate(selectedLostPet.lostPetDate)}</p>
+                <p>{selectedLostPet.fullAddress}</p>
+              </div>
             </div>
             <button
               type="button"

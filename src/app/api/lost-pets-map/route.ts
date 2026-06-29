@@ -18,6 +18,7 @@ type PetLossRow = {
   id: number;
   id_address: string | null;
   nombre_mascota: string | null;
+  date_perdida: string | null;
 };
 
 type PetPhotoRow = {
@@ -95,12 +96,13 @@ export async function GET(request: Request) {
 
   const { data: petLosses, error: petLossesError } = await supabase
     .from("pet_perdida")
-    .select("id, id_address, nombre_mascota")
+    .select("id, id_address, nombre_mascota, date_perdida")
     .eq("estado", "registrada")
     .in("id_address", addressIds)
     .limit(300);
 
   if (petLossesError) {
+    console.error("Error fetching pet losses:", petLossesError);
     return Response.json(
       { message: "No se pudieron consultar pérdidas.", detail: petLossesError.message },
       { status: 500 },
@@ -250,6 +252,7 @@ export async function GET(request: Request) {
           latitude: address.latitude,
           fullAddress: address.full_address,
           petName: pet.nombre_mascota,
+          lostPetDate: pet.date_perdida,
           thumbnailUrl: photos[0].thumbnailUrl,
           photos,
         };

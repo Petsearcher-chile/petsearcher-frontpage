@@ -42,6 +42,7 @@ export type RegisteredPetMarker = {
   latitude: number;
   fullAddress: string;
   petName: string | null;
+  lostPetDate: string | null;
   thumbnailUrl: string | null;
   photos: { originalUrl: string | null; thumbnailUrl: string }[];
 };
