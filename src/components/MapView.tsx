@@ -465,9 +465,22 @@ export default function MapView({
       } else {
         pendingCenterPointRef.current = point;
       }
+      void reverseGeocodePoint(point)
+        .then((result) => {
+          if (!result) {
+            return;
+          }
+
+          selectedQueryRef.current = result.place_name;
+          setSearchQuery(result.place_name);
+          emitLocationSelected(true, mapSelectedAddress(result));
+        })
+        .catch(() => {
+          setSearchError(tMap("search_location_failed"));
+        });
       onMapPointSelect?.(point);
     },
-    [centerMapOnPoint, mobileMode, onMapPointSelect, updatePointInUrl],
+    [centerMapOnPoint, emitLocationSelected, mapSelectedAddress, mobileMode, onMapPointSelect, reverseGeocodePoint, tMap, updatePointInUrl],
   );
 
   const searchAndSelect = useCallback(
