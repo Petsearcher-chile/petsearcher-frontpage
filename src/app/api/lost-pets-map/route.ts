@@ -1,11 +1,12 @@
 import { createClient } from "@supabase/supabase-js";
 
 const SUPABASE_URL =
-  process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL;
+  process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const SIGNED_URL_TTL_SECONDS = 60 * 60;
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 type AddressRow = {
   id: string;
@@ -263,5 +264,12 @@ export async function GET(request: Request) {
     Boolean(marker),
   );
 
-  return Response.json({ markers: filteredMarkers });
+  return Response.json(
+    { markers: filteredMarkers },
+    {
+      headers: {
+        "Cache-Control": "no-store, max-age=0",
+      },
+    },
+  );
 }

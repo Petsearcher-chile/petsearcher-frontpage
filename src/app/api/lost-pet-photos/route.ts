@@ -3,7 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import sharp from "sharp";
 
 const SUPABASE_URL =
-  process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL;
+  process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const BUCKET_NAME = "fotos_perdidos";
 const ORIGINALS_FOLDER = "originales";
