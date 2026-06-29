@@ -23,4 +23,6 @@ debes encontrar todos los textos que encuentres que salgan por pantalla, y a par
 ## traducción final
 - debes crear un arhivo en src/messages/ por cada idioma existente
 - lo que debes traducir es el texto original, y el texto traducido debe ir en el mismo lugar que el texto original
+- haz esto para los idiomas, toma como base "en.json", los idiomas que debes traducir son:
+  - es, en-gb, pt, fr, de, it, nl, sv, no, da, fi, is, pl, cs, sk, sl, hr, sr, bs, ro, bg, ru, uk, be, el, tr, he, ar, fa, ur, hi, bn, pa, ta, te, ml, mr, gu, kn, th, vi, id, ms, fil, ja, ko, zh, yue, km, lo, my, sw, am, zu, af, xh, eo
 
