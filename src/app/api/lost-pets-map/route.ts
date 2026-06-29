@@ -1,5 +1,4 @@
 import { createClient } from "@supabase/supabase-js";
-import { getApiTranslator } from "@/i18n/api-messages";
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -112,10 +111,9 @@ const parseNumber = (value: string | null) => {
 };
 
 export async function GET(request: Request) {
-  const tApi = await getApiTranslator();
   if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
     return Response.json(
-      { message: tApi("faltan_variables_de_entorno_de_supabase") },
+      { message: "Faltan variables de entorno de Supabase." },
       { status: 500 },
     );
   }
@@ -132,7 +130,7 @@ export async function GET(request: Request) {
     minLatitude === null ||
     maxLatitude === null
   ) {
-    return Response.json({ message: tApi("parametros_de_limites_invalidos") }, { status: 400 });
+    return Response.json({ message: "Parámetros de límites inválidos." }, { status: 400 });
   }
 
   const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
@@ -148,7 +146,7 @@ export async function GET(request: Request) {
 
   if (addressesError) {
     return Response.json(
-      { message: tApi("no_se_pudieron_consultar_direcciones"), detail: addressesError.message },
+      { message: "No se pudieron consultar direcciones.", detail: addressesError.message },
       { status: 500 },
     );
   }
@@ -178,14 +176,14 @@ export async function GET(request: Request) {
 
   if (petLossesResult.error) {
     return Response.json(
-      { message: tApi("no_se_pudieron_consultar_perdidas"), detail: petLossesResult.error.message },
+      { message: "No se pudieron consultar pérdidas.", detail: petLossesResult.error.message },
       { status: 500 },
     );
   }
 
   if (petFoundResult.error) {
     return Response.json(
-      { message: tApi("no_se_pudieron_consultar_hallazgos"), detail: petFoundResult.error.message },
+      { message: "No se pudieron consultar hallazgos.", detail: petFoundResult.error.message },
       { status: 500 },
     );
   }
@@ -217,14 +215,14 @@ export async function GET(request: Request) {
 
   if (petLossPhotosResult.error) {
     return Response.json(
-      { message: tApi("no_se_pudieron_consultar_fotos_de_perdidas"), detail: petLossPhotosResult.error.message },
+      { message: "No se pudieron consultar fotos de pérdidas.", detail: petLossPhotosResult.error.message },
       { status: 500 },
     );
   }
 
   if (petFoundPhotosResult.error) {
     return Response.json(
-      { message: tApi("no_se_pudieron_consultar_fotos_de_hallazgos"), detail: petFoundPhotosResult.error.message },
+      { message: "No se pudieron consultar fotos de hallazgos.", detail: petFoundPhotosResult.error.message },
       { status: 500 },
     );
   }
@@ -282,7 +280,7 @@ export async function GET(request: Request) {
 
     if (filesError) {
       return Response.json(
-        { message: tApi("no_se_pudieron_consultar_archivos"), detail: filesError.message },
+        { message: "No se pudieron consultar archivos.", detail: filesError.message },
         { status: 500 },
       );
     }
@@ -307,7 +305,7 @@ export async function GET(request: Request) {
 
     if (usersError) {
       return Response.json(
-        { message: tApi("no_se_pudieron_consultar_usuarios"), detail: usersError.message },
+        { message: "No se pudieron consultar usuarios.", detail: usersError.message },
         { status: 500 },
       );
     }

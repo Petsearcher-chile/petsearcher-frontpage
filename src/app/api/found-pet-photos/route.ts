@@ -1,7 +1,6 @@
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import { createClient } from "@supabase/supabase-js";
 import { Jimp, JimpMime } from "jimp";
-import { getApiTranslator } from "@/i18n/api-messages";
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -43,13 +42,12 @@ const isValidHttpUrl = (value: string) => {
 
 export async function POST(request: Request) {
   try {
-    const tApi = await getApiTranslator();
     if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
-      return Response.json({ message: tApi("faltan_variables_de_entorno_de_supabase") }, { status: 500 });
+      return Response.json({ message: "Faltan variables de entorno de Supabase." }, { status: 500 });
     }
 
     if (!isValidHttpUrl(SUPABASE_URL)) {
-      return Response.json({ message: tApi("la_url_de_supabase_no_es_valida") }, { status: 500 });
+      return Response.json({ message: "La URL de Supabase no es válida." }, { status: 500 });
     }
 
     const formData = await request.formData();
@@ -71,9 +69,8 @@ export async function POST(request: Request) {
     if (foundPetName !== null && !FOUND_PET_NAME_PATTERN.test(foundPetName)) {
       return Response.json(
         {
-          message: tApi(
-            "nombre_invalido_no_puede_tener_dos_espacios_ni_caracteres_especiales_juntos",
-          ),
+          message:
+            "Nombre inválido. No puede tener dos espacios ni caracteres especiales juntos.",
         },
         { status: 400 },
       );
@@ -83,10 +80,10 @@ export async function POST(request: Request) {
       (entry): entry is File => entry instanceof File,
     );
     if (uploadedFiles.length === 0) {
-      return Response.json({ message: tApi("no_se_enviaron_fotos") }, { status: 400 });
+      return Response.json({ message: "No se enviaron fotos." }, { status: 400 });
     }
     if (uploadedFiles.length > 10) {
-      return Response.json({ message: tApi("puedes_subir_hasta_10_fotos") }, { status: 400 });
+      return Response.json({ message: "Puedes subir hasta 10 fotos." }, { status: 400 });
     }
 
     const hasNonImage = uploadedFiles.some(
@@ -94,7 +91,7 @@ export async function POST(request: Request) {
     );
     if (hasNonImage) {
       return Response.json(
-        { message: tApi("solo_se_permiten_archivos_png_jpg_bmp_o_gif") },
+        { message: "Solo se permiten archivos PNG, JPG, BMP o GIF." },
         { status: 400 },
       );
     }
@@ -104,8 +101,8 @@ export async function POST(request: Request) {
     if (bucketError || !bucket) {
       return Response.json(
         {
-          message: tApi("no_se_pudo_acceder_al_bucket_bucket_name", { bucketName: BUCKET_NAME }),
-          detail: bucketError?.message ?? tApi("bucket_no_encontrado"),
+          message: `No se pudo acceder al bucket "${BUCKET_NAME}".`,
+          detail: bucketError?.message ?? "Bucket no encontrado.",
         },
         { status: 500 },
       );
@@ -191,8 +188,8 @@ export async function POST(request: Request) {
     if (failedFiles.length > 0) {
       return Response.json(
         {
-          message: tApi("no_se_pudieron_subir_todas_las_fotos"),
-          detail: failedFiles[0]?.message ?? tApi("error_de_subida"),
+          message: "No se pudieron subir todas las fotos.",
+          detail: failedFiles[0]?.message ?? "Error de subida.",
           failedFiles,
         },
         { status: 500 },
@@ -211,10 +208,7 @@ export async function POST(request: Request) {
     const { userId: clerkUserId } = await auth();
     if (!clerkUserId) {
       await supabase.storage.from(BUCKET_NAME).remove(uploadedPaths);
-      return Response.json(
-        { message: tApi("debes_iniciar_sesion_para_subir_fotos") },
-        { status: 401 },
-      );
+      return Response.json({ message: "Debes iniciar sesión para subir fotos." }, { status: 401 });
     }
 
     const clerk = await clerkClient();
@@ -225,7 +219,7 @@ export async function POST(request: Request) {
     if (!primaryEmail) {
       await supabase.storage.from(BUCKET_NAME).remove(uploadedPaths);
       return Response.json(
-        { message: tApi("no_se_pudo_obtener_el_email_del_usuario_logeado") },
+        { message: "No se pudo obtener el email del usuario logeado." },
         { status: 500 },
       );
     }
@@ -238,7 +232,7 @@ export async function POST(request: Request) {
     if (existingUserError) {
       await supabase.storage.from(BUCKET_NAME).remove(uploadedPaths);
       return Response.json(
-        { message: tApi("no_se_pudo_consultar_el_usuario"), detail: existingUserError.message },
+        { message: "No se pudo consultar el usuario.", detail: existingUserError.message },
         { status: 500 },
       );
     }
@@ -259,7 +253,7 @@ export async function POST(request: Request) {
       if (createUserError) {
         await supabase.storage.from(BUCKET_NAME).remove(uploadedPaths);
         return Response.json(
-          { message: tApi("no_se_pudo_crear_el_usuario"), detail: createUserError.message },
+          { message: "No se pudo crear el usuario.", detail: createUserError.message },
           { status: 500 },
         );
       }
@@ -292,8 +286,8 @@ export async function POST(request: Request) {
         await supabase.storage.from(BUCKET_NAME).remove(uploadedPaths);
         return Response.json(
           {
-            message: tApi("no_se_pudo_actualizar_el_hallazgo"),
-            detail: updatePetFoundError?.message ?? tApi("registro_no_encontrado"),
+            message: "No se pudo actualizar el hallazgo.",
+            detail: updatePetFoundError?.message ?? "Registro no encontrado.",
           },
           { status: 500 },
         );
@@ -313,7 +307,7 @@ export async function POST(request: Request) {
       if (createPetFoundError) {
         await supabase.storage.from(BUCKET_NAME).remove(uploadedPaths);
         return Response.json(
-          { message: tApi("no_se_pudo_crear_el_hallazgo"), detail: createPetFoundError.message },
+          { message: "No se pudo crear el hallazgo.", detail: createPetFoundError.message },
           { status: 500 },
         );
       }
@@ -366,8 +360,8 @@ export async function POST(request: Request) {
       }
       return Response.json(
         {
-          message: tApi("no_se_pudo_registrar_la_metadata_de_archivos"),
-          detail: createFilesError?.message ?? tApi("insert_vacio_en_files"),
+          message: "No se pudo registrar la metadata de archivos.",
+          detail: createFilesError?.message ?? "Insert vacío en files.",
         },
         { status: 500 },
       );
@@ -384,7 +378,7 @@ export async function POST(request: Request) {
       const nanoFileId = fileIdByStorageKey.get(file.nanoPath);
 
       if (!originalFileId || !thumbnailFileId || !nanoFileId) {
-        throw new Error(tApi("error_de_subida"));
+        throw new Error("No se pudieron resolver los IDs de archivos creados.");
       }
 
       return {
@@ -406,7 +400,7 @@ export async function POST(request: Request) {
       }
       return Response.json(
         {
-          message: tApi("no_se_pudo_vincular_el_hallazgo_con_sus_fotos"),
+          message: "No se pudo vincular el hallazgo con sus fotos.",
           detail: createPetFoundPhotosError.message,
         },
         { status: 500 },
@@ -451,10 +445,9 @@ export async function POST(request: Request) {
       previewImages,
     });
   } catch (error: unknown) {
-    const tApi = await getApiTranslator();
     return Response.json(
       {
-        message: tApi("error_inesperado_al_subir_fotos"),
+        message: "Error inesperado al subir fotos.",
         detail: error instanceof Error ? error.message : "Error desconocido.",
       },
       { status: 500 },

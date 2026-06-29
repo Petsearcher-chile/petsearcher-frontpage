@@ -1,6 +1,5 @@
 import { auth } from "@clerk/nextjs/server";
 import { createClient } from "@supabase/supabase-js";
-import { getApiTranslator } from "@/i18n/api-messages";
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -64,18 +63,17 @@ const parseSelectedAddress = (value: unknown): SelectedAddressDetail | null => {
 };
 
 export async function POST(request: Request) {
-  const tApi = await getApiTranslator();
   if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
-    return Response.json({ message: tApi("faltan_variables_de_entorno_de_supabase") }, { status: 500 });
+    return Response.json({ message: "Faltan variables de entorno de Supabase." }, { status: 500 });
   }
 
   if (!isValidHttpUrl(SUPABASE_URL)) {
-    return Response.json({ message: tApi("la_url_de_supabase_no_es_valida") }, { status: 500 });
+    return Response.json({ message: "La URL de Supabase no es válida." }, { status: 500 });
   }
 
   const { userId } = await auth();
   if (!userId) {
-    return Response.json({ message: tApi("debes_iniciar_sesion_para_guardar") }, { status: 401 });
+    return Response.json({ message: "Debes iniciar sesión para guardar." }, { status: 401 });
   }
 
   const body = (await request.json()) as {
@@ -100,21 +98,20 @@ export async function POST(request: Request) {
 
   if (petFoundId === null) {
     return Response.json(
-      { message: tApi("no_se_pudo_identificar_el_hallazgo_para_guardar") },
+      { message: "No se pudo identificar el hallazgo para guardar." },
       { status: 400 },
     );
   }
 
   if (foundPetDate === null) {
-    return Response.json({ message: tApi("debes_ingresar_fecha_para_guardar") }, { status: 400 });
+    return Response.json({ message: "Debes ingresar fecha para guardar." }, { status: 400 });
   }
 
   if (foundPetName !== null && !FOUND_PET_NAME_PATTERN.test(foundPetName)) {
     return Response.json(
       {
-        message: tApi(
-          "nombre_invalido_no_puede_tener_dos_espacios_ni_caracteres_especiales_juntos",
-        ),
+        message:
+          "Nombre inválido. No puede tener dos espacios ni caracteres especiales juntos.",
       },
       { status: 400 },
     );
@@ -125,9 +122,8 @@ export async function POST(request: Request) {
   if (!mapboxAddress) {
     return Response.json(
       {
-        message: tApi(
-          "debe_seleccionar_un_lugar_donde_encontro_la_mascota_arriba_en_el_buscador_busque_su_direccion",
-        ),
+        message:
+          "Debe seleccionar un lugar donde encontró la mascota, arriba en el buscador, busque su dirección",
       },
       { status: 400 },
     );
@@ -152,8 +148,8 @@ export async function POST(request: Request) {
   if (addressError || !createdAddress) {
     return Response.json(
       {
-        message: tApi("no_se_pudo_guardar_la_direccion_seleccionada"),
-        detail: addressError?.message ?? tApi("no_se_creo_el_registro_de_direccion"),
+        message: "No se pudo guardar la dirección seleccionada.",
+        detail: addressError?.message ?? "No se creó el registro de dirección.",
       },
       { status: 500 },
     );
@@ -174,8 +170,8 @@ export async function POST(request: Request) {
   if (error || !data) {
     return Response.json(
       {
-        message: tApi("no_se_pudo_guardar_el_hallazgo"),
-        detail: error?.message ?? tApi("registro_no_encontrado"),
+        message: "No se pudo guardar el hallazgo.",
+        detail: error?.message ?? "Registro no encontrado.",
       },
       { status: 500 },
     );
