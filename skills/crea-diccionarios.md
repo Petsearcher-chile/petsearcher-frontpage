@@ -25,3 +25,4 @@ debes encontrar todos los textos que encuentres que salgan por pantalla o que qu
 - debes crear un arhivo en src/messages/en.json
 - lo que debes traducir es el "texto original", y el texto traducido debe ir en el mismo lugar que el texto original
 - haz esto para los idiomas, toma como base "en.json", los idiomas que debes traducir son:
+    en.json
