@@ -199,8 +199,24 @@ export default function WarningWizardPage() {
   }, [speechSteps]);
 
   return (
-    <main className="relative flex min-h-screen items-center justify-center bg-zinc-950 px-6 py-10 text-zinc-50">
-      <div className="fixed right-4 top-4 z-30">
+    <main className="flex min-h-screen items-center justify-center bg-zinc-950 px-6 py-10 text-zinc-50">
+      <section className="flex w-full max-w-4xl flex-col items-center justify-center gap-6">
+        <div
+          className={`relative rounded-3xl border border-white/10 bg-white/8 px-6 py-4 text-center shadow-2xl shadow-black/30 backdrop-blur-sm transition-all duration-700 ${
+            isSpeaking ? "opacity-100 translate-y-0" : "pointer-events-none opacity-0 -translate-y-2"
+          }`}
+          aria-live="polite"
+        >
+          <p className="max-w-[28rem] whitespace-pre-line text-lg font-medium leading-relaxed text-zinc-100 sm:text-xl">
+            {speechSteps[speechIndex].text}
+          </p>
+          <div className="absolute left-1/2 top-full h-0 w-0 -translate-x-1/2 border-x-10 border-t-10 border-x-transparent border-t-white/8" />
+        </div>
+
+        <div className="h-[60vh] w-[min(85vw,60vh)]">
+          <Lottie animationData={wizardAnimation} loop />
+        </div>
+
         <div className="relative flex items-center gap-2">
           <label htmlFor="wizard-language-search" className="sr-only">
             {tCommon("search_language")}
@@ -230,7 +246,7 @@ export default function WarningWizardPage() {
             className="h-9 w-48 rounded-full border border-zinc-200 bg-white/90 px-3 text-sm font-medium text-zinc-700 outline-none transition placeholder:text-zinc-400 hover:bg-zinc-100 focus:border-zinc-400 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200 dark:placeholder:text-zinc-500 dark:hover:bg-zinc-800 dark:focus:border-zinc-500"
           />
           {isLanguageMenuOpen ? (
-            <div className="absolute bottom-full right-0 z-40 mb-2 w-72 overflow-hidden rounded-2xl border border-zinc-200 bg-white/95 shadow-xl backdrop-blur dark:border-zinc-800 dark:bg-zinc-950/95">
+            <div className="absolute top-full left-0 z-40 mt-2 w-72 overflow-hidden rounded-2xl border border-zinc-200 bg-white/95 shadow-xl backdrop-blur dark:border-zinc-800 dark:bg-zinc-950/95">
               <div className="max-h-72 overflow-auto p-2">
                 {filteredLanguageOptions.length > 0 ? (
                   filteredLanguageOptions.map((language) => (
@@ -264,23 +280,6 @@ export default function WarningWizardPage() {
               </div>
             </div>
           ) : null}
-        </div>
-      </div>
-      <section className="flex w-full max-w-4xl flex-col items-center justify-center gap-6">
-        <div
-          className={`relative rounded-3xl border border-white/10 bg-white/8 px-6 py-4 text-center shadow-2xl shadow-black/30 backdrop-blur-sm transition-all duration-700 ${
-            isSpeaking ? "opacity-100 translate-y-0" : "pointer-events-none opacity-0 -translate-y-2"
-          }`}
-          aria-live="polite"
-        >
-          <p className="max-w-[28rem] whitespace-pre-line text-lg font-medium leading-relaxed text-zinc-100 sm:text-xl">
-            {speechSteps[speechIndex].text}
-          </p>
-          <div className="absolute left-1/2 top-full h-0 w-0 -translate-x-1/2 border-x-10 border-t-10 border-x-transparent border-t-white/8" />
-        </div>
-
-        <div className="h-[60vh] w-[min(85vw,60vh)]">
-          <Lottie animationData={wizardAnimation} loop />
         </div>
       </section>
     </main>
