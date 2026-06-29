@@ -60,7 +60,7 @@ export default function Home() {
   const { isLoaded, isSignedIn } = useAuth();
   const { openSignIn } = useClerk();
   const [isPanelOpen, setIsPanelOpen] = useState(false);
-  const [showLostPetForm, setShowLostPetForm] = useState(false);
+  const [activePetForm, setActivePetForm] = useState<"lost" | "found" | null>(null);
   const [petLossId, setPetLossId] = useState<number | null>(null);
   const [lostPetDate, setLostPetDate] = useState("");
   const [lostPetName, setLostPetName] = useState("");
@@ -355,7 +355,23 @@ export default function Home() {
     setSaveSuccessMessage("");
     setSelectedLostPet(null);
     setHoveredLostPetPhoto(null);
-    setShowLostPetForm(true);
+    setActivePetForm("lost");
+  }, [isLoaded, isSignedIn, openSignIn]);
+
+  const handleFoundPetClick = useCallback(() => {
+    if (!isLoaded) {
+      return;
+    }
+
+    if (!isSignedIn) {
+      void openSignIn();
+      return;
+    }
+
+    setSaveSuccessMessage("");
+    setSelectedLostPet(null);
+    setHoveredLostPetPhoto(null);
+    setActivePetForm("found");
   }, [isLoaded, isSignedIn, openSignIn]);
 
   const lostPetNamePattern = /^(?!.*[ _\-°ñÑ]{2})[a-zA-Z0-9°_\-ñÑ ]+$/;
@@ -364,7 +380,7 @@ export default function Home() {
   const isSaveEnabled =
     uploadedThumbnailPreviews.length > 0 &&
     lostPetDate.trim().length > 0 &&
-    isLostPetNameValid;
+    (activePetForm === "found" ? true : isLostPetNameValid);
 
   const handleSaveClick = useCallback(() => {
     void (async () => {
@@ -401,7 +417,7 @@ export default function Home() {
           if (response.ok) {
             setUploadError("");
             setPhotoError("");
-            setShowLostPetForm(false);
+            setActivePetForm(null);
             setIsPanelOpen(false);
             setSelectedLostPet(null);
             setHoveredLostPetPhoto(null);
@@ -527,7 +543,7 @@ export default function Home() {
               className="text-blue-600 underline transition hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
               onClick={() => {
                 setIsPanelOpen(true);
-                setShowLostPetForm(false);
+                setActivePetForm(null);
                 setPetLossId(null);
                 setLostPetDate("");
                 setLostPetName("");
@@ -544,7 +560,8 @@ export default function Home() {
             >
               inicio
             </Link>
-            {showLostPetForm ? <span>&gt; mascota extraviada</span> : null}
+            {activePetForm === "lost" ? <span>&gt; mascota extraviada</span> : null}
+            {activePetForm === "found" ? <span>&gt; mascota encontrada</span> : null}
           </div>
           <button
             type="button"
@@ -580,7 +597,7 @@ export default function Home() {
 
         {isPanelOpen ? (
           <div className="h-[calc(100%-3.5rem)] overflow-auto px-4 pb-4">
-            {showLostPetForm ? (
+            {activePetForm !== null ? (
               <form className="flex w-full flex-col gap-4">
                 <div className="flex w-full flex-nowrap items-start gap-6">
                   <div className="w-[360px] flex-none">
@@ -590,7 +607,9 @@ export default function Home() {
                       htmlFor="lost-pet-date"
                       className="shrink-0 text-sm font-medium text-zinc-700 dark:text-zinc-200"
                     >
-                      Fecha en la que se perdió
+                      {activePetForm === "found"
+                        ? "Fecha que la encontré"
+                        : "Fecha en la que se perdió"}
                     </label>
                     <input
                       id="lost-pet-date"
@@ -606,13 +625,14 @@ export default function Home() {
                           htmlFor="lost-pet-name"
                           className="shrink-0 text-sm font-medium text-zinc-700 dark:text-zinc-200"
                         >
-                          Nombre al que responde
+                          {activePetForm === "found" ? "Nombre (opcional)" : "Nombre al que responde"}
                         </label>
                         <input
                           id="lost-pet-name"
                           type="text"
                           value={lostPetName}
                           onChange={(event) => setLostPetName(event.target.value)}
+                          placeholder={activePetForm === "found" ? "Nombre (opcional)" : undefined}
                           className="w-[150px] max-w-[150px] flex-none rounded-xl border border-zinc-200 bg-white px-2 py-2 text-zinc-900 outline-none transition focus:border-zinc-400 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:focus:border-zinc-600"
                         />
                       </div>
@@ -687,7 +707,7 @@ export default function Home() {
                   },
                   {
                     label: "Encontré una mascota",
-                    onClick: undefined,
+                    onClick: handleFoundPetClick,
                   },
                   {
                     label: "Regalo mascotas",
