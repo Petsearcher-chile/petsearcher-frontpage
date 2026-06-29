@@ -1,19 +1,23 @@
 "use client";
 
+import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import Map, {
   Marker,
   NavigationControl,
   GeolocateControl,
 } from "react-map-gl/mapbox";
-import type { MapRef } from "react-map-gl/mapbox";
+import type { GeolocateControlInstance, MapRef } from "react-map-gl/mapbox";
 import "mapbox-gl/dist/mapbox-gl.css";
 
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN ?? "";
 const GEOCODE_ENDPOINT = "https://api.mapbox.com/geocoding/v5/mapbox.places";
 const SELECT_ZOOM = 16;
+const DEFAULT_ZOOM = 12;
 const LOCATION_EVENT_NAME = "petsearcher:location-selected";
 const AUTOSELECT_REQUEST_EVENT_NAME = "petsearcher:location-autoselect-request";
+const LATITUDE_PARAM_NAME = "lat";
+const LONGITUDE_PARAM_NAME = "lng";
 
 type LocationSuggestion = {
   id: string;
@@ -36,6 +40,11 @@ type SelectedAddressDetail = {
   houseNumber: string | null;
 };
 
+type SelectedPoint = {
+  longitude: number;
+  latitude: number;
+};
+
 export type RegisteredPetMarker = {
   markerType: "lost" | "found";
   markerId: number;
@@ -54,6 +63,22 @@ const DEFAULT_CENTER = {
   latitude: -33.4489,
 };
 
+const parsePointFromSearchParams = (searchParams: URLSearchParams): SelectedPoint | null => {
+  const latitudeValue = Number(searchParams.get(LATITUDE_PARAM_NAME));
+  const longitudeValue = Number(searchParams.get(LONGITUDE_PARAM_NAME));
+  const hasInvalidNumber = Number.isNaN(latitudeValue) || Number.isNaN(longitudeValue);
+  const hasInvalidRange =
+    latitudeValue < -90 || latitudeValue > 90 || longitudeValue < -180 || longitudeValue > 180;
+  if (hasInvalidNumber || hasInvalidRange) {
+    return null;
+  }
+
+  return {
+    latitude: latitudeValue,
+    longitude: longitudeValue,
+  };
+};
+
 type MapViewProps = {
   onMarkerSelect?: (marker: RegisteredPetMarker) => void;
   selectedMarkerId?: number | null;
@@ -67,19 +92,81 @@ export default function MapView({
   selectedMarkerType,
   activePetForm,
 }: MapViewProps) {
+  const router = useRouter();
+  const pathname = usePathname();
   const mapRef = useRef<MapRef>(null);
+  const geolocateControlRef = useRef<GeolocateControlInstance | null>(null);
+  const geolocateTriggeredRef = useRef(false);
   const selectedQueryRef = useRef("");
   const [searchQuery, setSearchQuery] = useState("");
   const [searchError, setSearchError] = useState<string | null>(null);
   const [results, setResults] = useState<LocationSuggestion[]>([]);
-  const [selectedPoint, setSelectedPoint] = useState<{
-    longitude: number;
-    latitude: number;
-  } | null>(null);
+  const [selectedPoint, setSelectedPoint] = useState<SelectedPoint | null>(() => {
+    if (typeof window === "undefined") {
+      return null;
+    }
+
+    return parsePointFromSearchParams(new URLSearchParams(window.location.search));
+  });
   const [registeredMarkers, setRegisteredMarkers] = useState<RegisteredPetMarker[]>([]);
   const selectedPinColor = activePetForm === "found" ? "#3b82f6" : "#ef4444";
+  const initialMapCenter = selectedPoint ?? DEFAULT_CENTER;
 
   const hasToken = MAPBOX_TOKEN.length > 0;
+
+  const updatePointInUrl = useCallback(
+    (point: SelectedPoint | null) => {
+      const params = new URLSearchParams(window.location.search);
+      if (point) {
+        params.set(LATITUDE_PARAM_NAME, String(point.latitude));
+        params.set(LONGITUDE_PARAM_NAME, String(point.longitude));
+      } else {
+        params.delete(LATITUDE_PARAM_NAME);
+        params.delete(LONGITUDE_PARAM_NAME);
+      }
+
+      const nextQuery = params.toString();
+      router.replace(nextQuery ? `${pathname}?${nextQuery}` : pathname);
+    },
+    [pathname, router],
+  );
+
+  const centerMapOnPoint = useCallback((point: SelectedPoint) => {
+    const map = mapRef.current;
+    if (!map) {
+      return;
+    }
+
+    const currentZoom = map.getZoom();
+    map.jumpTo({
+      center: [point.longitude, point.latitude],
+      zoom: currentZoom > SELECT_ZOOM ? currentZoom : SELECT_ZOOM,
+    });
+  }, []);
+
+  const handleGeolocateResult = useCallback(
+    (event: { coords?: { longitude?: number; latitude?: number } }) => {
+      if (parsePointFromSearchParams(new URLSearchParams(window.location.search)) !== null) {
+        return;
+      }
+
+      const longitude = event.coords?.longitude;
+      const latitude = event.coords?.latitude;
+      if (typeof longitude !== "number" || typeof latitude !== "number") {
+        return;
+      }
+
+      if (!Number.isFinite(longitude) || !Number.isFinite(latitude)) {
+        return;
+      }
+
+      const userPoint = { longitude, latitude };
+      setSelectedPoint(userPoint);
+      updatePointInUrl(userPoint);
+      centerMapOnPoint(userPoint);
+    },
+    [centerMapOnPoint, updatePointInUrl],
+  );
 
   const fetchRegisteredMarkers = useCallback(async () => {
     const map = mapRef.current;
@@ -108,10 +195,16 @@ export default function MapView({
 
   const handleLoad = useCallback(() => {
     mapRef.current?.resize();
+    if (selectedPoint) {
+      centerMapOnPoint(selectedPoint);
+    } else if (!geolocateTriggeredRef.current) {
+      geolocateTriggeredRef.current = true;
+      geolocateControlRef.current?.trigger();
+    }
     void fetchRegisteredMarkers().catch(() => {
       setRegisteredMarkers([]);
     });
-  }, [fetchRegisteredMarkers]);
+  }, [centerMapOnPoint, fetchRegisteredMarkers, selectedPoint]);
 
   const getContextValue = useCallback(
     (context: LocationSuggestion["context"], prefix: string) =>
@@ -151,7 +244,8 @@ export default function MapView({
   const clearSelection = useCallback(() => {
     emitLocationSelected(false);
     setSelectedPoint(null);
-  }, [emitLocationSelected]);
+    updatePointInUrl(null);
+  }, [emitLocationSelected, updatePointInUrl]);
 
   const handleQueryChange = useCallback((value: string) => {
     if (value !== selectedQueryRef.current) {
@@ -235,18 +329,12 @@ export default function MapView({
     const longitude = result.center[0];
     const latitude = result.center[1];
 
-    setSelectedPoint({ longitude, latitude });
+    const point = { longitude, latitude };
+    setSelectedPoint(point);
+    updatePointInUrl(point);
     emitLocationSelected(true, mapSelectedAddress(result));
-    const map = mapRef.current;
-
-    if (map) {
-      const currentZoom = map.getZoom();
-      map.jumpTo({
-        center: [longitude, latitude],
-        zoom: currentZoom > SELECT_ZOOM ? currentZoom : SELECT_ZOOM,
-      });
-    }
-  }, [emitLocationSelected, mapSelectedAddress]);
+    centerMapOnPoint(point);
+  }, [centerMapOnPoint, emitLocationSelected, mapSelectedAddress, updatePointInUrl]);
 
   const searchAndSelect = useCallback(
     async (query: string) => {
@@ -379,8 +467,8 @@ export default function MapView({
       <Map
         ref={mapRef}
         initialViewState={{
-          ...DEFAULT_CENTER,
-          zoom: 12,
+          ...initialMapCenter,
+          zoom: selectedPoint ? SELECT_ZOOM : DEFAULT_ZOOM,
         }}
         mapboxAccessToken={MAPBOX_TOKEN}
         mapStyle="mapbox://styles/mapbox/streets-v12"
@@ -462,7 +550,12 @@ export default function MapView({
           </Marker>
         ) : null}
         <NavigationControl position="top-right" />
-        <GeolocateControl position="top-right" trackUserLocation />
+        <GeolocateControl
+          ref={geolocateControlRef}
+          position="top-right"
+          trackUserLocation={false}
+          onGeolocate={handleGeolocateResult}
+        />
       </Map>
     </div>
   );
