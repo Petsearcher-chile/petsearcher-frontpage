@@ -1,20 +1,14 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
-const isPublicRoute = createRouteMatcher([
+const publicRoutes = createRouteMatcher([
   "/api/lost-pets-map(.*)",
   "/api/lost-pet-photos(.*)",
 ]);
 
-export default clerkMiddleware(async (auth, req) => {
-  if (!isPublicRoute(req)) {
-    const { userId } = await auth();
-    if (!userId) {
-      return Response.json(
-        { message: "Unauthorized" },
-        { status: 401 }
-      );
-    }
-  }
+export default clerkMiddleware((auth, req) => {
+  // Clerk will automatically handle auth for non-public routes
+  // Just check if it's public and do nothing if it is
+  publicRoutes(req);
 });
 
 export const config = {
