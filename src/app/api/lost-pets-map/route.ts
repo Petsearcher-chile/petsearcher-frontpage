@@ -177,11 +177,8 @@ export async function GET(request: Request) {
     if (!file) {
       return null;
     }
-    if (file.url) {
-      return file.url;
-    }
     if (!file.bucket_name || !file.storage_key) {
-      return null;
+      return file.url;
     }
 
     const cacheKey = `${file.bucket_name}:${file.storage_key}`;
