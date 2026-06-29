@@ -493,6 +493,7 @@ export default function Home() {
       <MapView
         onMarkerSelect={handleMarkerSelect}
         selectedMarkerId={selectedLostPet?.petLossId ?? null}
+        activePetForm={activePetForm}
       />
 
       {selectedLostPet ? (

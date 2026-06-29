@@ -56,9 +56,10 @@ const DEFAULT_CENTER = {
 type MapViewProps = {
   onMarkerSelect?: (marker: RegisteredPetMarker) => void;
   selectedMarkerId?: number | null;
+  activePetForm?: "lost" | "found" | null;
 };
 
-export default function MapView({ onMarkerSelect, selectedMarkerId }: MapViewProps) {
+export default function MapView({ onMarkerSelect, selectedMarkerId, activePetForm }: MapViewProps) {
   const mapRef = useRef<MapRef>(null);
   const selectedQueryRef = useRef("");
   const [searchQuery, setSearchQuery] = useState("");
@@ -69,6 +70,7 @@ export default function MapView({ onMarkerSelect, selectedMarkerId }: MapViewPro
     latitude: number;
   } | null>(null);
   const [registeredMarkers, setRegisteredMarkers] = useState<RegisteredPetMarker[]>([]);
+  const selectedPinColor = activePetForm === "found" ? "#3b82f6" : "#ef4444";
 
   const hasToken = MAPBOX_TOKEN.length > 0;
 
@@ -440,10 +442,10 @@ export default function MapView({ onMarkerSelect, selectedMarkerId }: MapViewPro
             >
               <path
                 d="M24 2C12.4 2 3 11.4 3 23c0 15.4 21 39 21 39s21-23.6 21-39C45 11.4 35.6 2 24 2Z"
-                fill="#ef4444"
+                fill={selectedPinColor}
               />
               <circle cx="24" cy="23" r="10" fill="#ffffff" />
-              <circle cx="24" cy="23" r="5.5" fill="#ef4444" />
+              <circle cx="24" cy="23" r="5.5" fill={selectedPinColor} />
             </svg>
           </Marker>
         ) : null}
