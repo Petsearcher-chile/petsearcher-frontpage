@@ -382,6 +382,27 @@ export default function MapView({
     centerMapOnPoint(point);
   }, [centerMapOnPoint, emitLocationSelected, mapSelectedAddress, updatePointInUrl]);
 
+  const reverseGeocodePoint = useCallback(
+    async (point: SelectedPoint) => {
+      if (!hasToken) {
+        return null;
+      }
+
+      const response = await fetch(
+        `${GEOCODE_ENDPOINT}/${point.longitude},${point.latitude}.json?access_token=${MAPBOX_TOKEN}&limit=1&language=es&types=address,place,locality,region,postcode`,
+      );
+
+      if (!response.ok) {
+        throw new Error("No se pudo resolver la dirección.");
+      }
+
+      const data: { features?: LocationSuggestion[] } = await response.json();
+      const [result] = data.features ?? [];
+      return result ?? null;
+    },
+    [hasToken],
+  );
+
   const handleSelectedPointDragEnd = useCallback(
     (event: { lngLat: { lng: number; lat: number } }) => {
       const point = {
@@ -390,8 +411,24 @@ export default function MapView({
       };
       setSelectedPoint(point);
       updatePointInUrl(point);
+      setResults([]);
+      setSearchError(null);
+
+      void reverseGeocodePoint(point)
+        .then((result) => {
+          if (!result) {
+            return;
+          }
+
+          selectedQueryRef.current = result.place_name;
+          setSearchQuery(result.place_name);
+          emitLocationSelected(true, mapSelectedAddress(result));
+        })
+        .catch(() => {
+          setSearchError("No se pudo buscar la ubicación.");
+        });
     },
-    [updatePointInUrl],
+    [emitLocationSelected, mapSelectedAddress, reverseGeocodePoint, updatePointInUrl],
   );
 
   const searchAndSelect = useCallback(
