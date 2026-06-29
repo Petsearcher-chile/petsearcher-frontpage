@@ -2,7 +2,7 @@
 
 import { useAuth, useClerk } from "@clerk/nextjs";
 import dynamic from "next/dynamic";
-import Lottie from "lottie-react";
+import Lottie, { type LottieRefCurrentProps } from "lottie-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -40,6 +40,20 @@ type SelectedLostPetMarker = RegisteredPetMarker;
 
 const LOCATION_EVENT_NAME = "petsearcher:location-selected";
 const AUTOSELECT_REQUEST_EVENT_NAME = "petsearcher:location-autoselect-request";
+const INTRO_MONKEY_DIALOGUE_MESSAGES = [
+  "Hola!!",
+  "Espero que estés bien",
+  "Te vamos a ayudar a encontrar a tu mascota",
+  "Para eso necesito que busques en la barra de arriba la dirección en donde ocurrió",
+] as const;
+const MONKEY_INTRO_ENTRY_DELAY_MS = 3000;
+const MONKEY_INTRO_SECOND_MESSAGE_DELAY_MS = 3000;
+const MONKEY_INTRO_THIRD_MESSAGE_DELAY_MS = 4000;
+const MONKEY_INTRO_FOURTH_MESSAGE_DELAY_MS = 4000;
+const ADDRESS_CONFIRMATION_DIALOGUE = "Muy bien!!";
+const ADDRESS_NEXT_STEP_DIALOGUE = "ahora presiona el botón inicio que está debajo de mi";
+const INICIO_CONFIRMATION_DIALOGUE = "Bien, ya lo estás entendiendo!!";
+const INICIO_NEXT_STEP_DIALOGUE = "Ahora indica si la perdiste o si la encontraste y rellena el formulario";
 
 const formatLostPetDate = (value: string | null) => {
   if (!value) {
@@ -92,10 +106,16 @@ export default function Home() {
     isLoading: boolean;
   } | null>(null);
   const [isMonkeyVisible, setIsMonkeyVisible] = useState(false);
+  const [monkeyDialogue, setMonkeyDialogue] = useState<string>("");
+  const [isMonkeyAnimating, setIsMonkeyAnimating] = useState(true);
   const photoInputRef = useRef<HTMLInputElement>(null);
   const uploadResetTimerRef = useRef<number | null>(null);
   const thumbnailUrlsRef = useRef<string[]>([]);
   const lastSelectedAddressRef = useRef<SelectedAddressDetail | null>(null);
+  const monkeyLottieRef = useRef<LottieRefCurrentProps | null>(null);
+  const monkeyTimeoutsRef = useRef<number[]>([]);
+  const hasTriggeredAddressGuideRef = useRef(false);
+  const hasTriggeredInicioGuideRef = useRef(false);
 
   useEffect(() => {
     queueMicrotask(() => {
@@ -113,15 +133,89 @@ export default function Home() {
     });
   }, []);
 
+  const clearMonkeyTimeouts = useCallback(() => {
+    monkeyTimeoutsRef.current.forEach((timeoutId) => window.clearTimeout(timeoutId));
+    monkeyTimeoutsRef.current = [];
+  }, []);
+
+  const queueMonkeyTimeout = useCallback((callback: () => void, delayMs: number) => {
+    const timeoutId = window.setTimeout(callback, delayMs);
+    monkeyTimeoutsRef.current.push(timeoutId);
+  }, []);
+
+  const setMonkeyMotion = useCallback((isAnimating: boolean) => {
+    setIsMonkeyAnimating(isAnimating);
+    if (isAnimating) {
+      monkeyLottieRef.current?.play();
+      return;
+    }
+
+    monkeyLottieRef.current?.pause();
+  }, []);
+
+  const runAddressSelectedGuide = useCallback(() => {
+    clearMonkeyTimeouts();
+    setIsMonkeyVisible(true);
+    setMonkeyDialogue(ADDRESS_CONFIRMATION_DIALOGUE);
+    setMonkeyMotion(true);
+
+    queueMonkeyTimeout(() => {
+      setMonkeyDialogue(ADDRESS_NEXT_STEP_DIALOGUE);
+      setMonkeyMotion(true);
+    }, 4000);
+
+    queueMonkeyTimeout(() => {
+      setMonkeyMotion(false);
+    }, 6000);
+  }, [clearMonkeyTimeouts, queueMonkeyTimeout, setMonkeyMotion]);
+
+  const runInicioGuide = useCallback(() => {
+    clearMonkeyTimeouts();
+    setIsMonkeyVisible(true);
+    setMonkeyDialogue(INICIO_CONFIRMATION_DIALOGUE);
+    setMonkeyMotion(true);
+
+    queueMonkeyTimeout(() => {
+      setMonkeyDialogue(INICIO_NEXT_STEP_DIALOGUE);
+      setMonkeyMotion(true);
+    }, 3000);
+
+    queueMonkeyTimeout(() => {
+      setMonkeyMotion(false);
+      setMonkeyDialogue("");
+      setIsMonkeyVisible(false);
+    }, 8000);
+  }, [clearMonkeyTimeouts, queueMonkeyTimeout, setMonkeyMotion]);
+
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
       setIsMonkeyVisible(true);
-    }, 30);
+      setMonkeyDialogue(INTRO_MONKEY_DIALOGUE_MESSAGES[0]);
+      setMonkeyMotion(true);
+
+      const thirdMessageDelay =
+        MONKEY_INTRO_SECOND_MESSAGE_DELAY_MS + MONKEY_INTRO_THIRD_MESSAGE_DELAY_MS;
+      const fourthMessageDelay = thirdMessageDelay + MONKEY_INTRO_FOURTH_MESSAGE_DELAY_MS;
+
+      queueMonkeyTimeout(() => {
+        setMonkeyDialogue(INTRO_MONKEY_DIALOGUE_MESSAGES[1]);
+      }, MONKEY_INTRO_SECOND_MESSAGE_DELAY_MS);
+
+      queueMonkeyTimeout(() => {
+        setMonkeyDialogue(INTRO_MONKEY_DIALOGUE_MESSAGES[2]);
+      }, thirdMessageDelay);
+
+      queueMonkeyTimeout(() => {
+        setMonkeyDialogue(INTRO_MONKEY_DIALOGUE_MESSAGES[3]);
+        setMonkeyMotion(false);
+      }, fourthMessageDelay);
+    }, MONKEY_INTRO_ENTRY_DELAY_MS);
 
     return () => {
       window.clearTimeout(timeoutId);
+      clearMonkeyTimeouts();
     };
-  }, []);
+  }, [clearMonkeyTimeouts, queueMonkeyTimeout, setMonkeyMotion]);
 
   const updatePetFormSearchParam = useCallback(
     (form: "lost" | "found" | null) => {
@@ -163,6 +257,10 @@ export default function Home() {
         lastSelectedAddressRef.current = receivedAddress;
         setHasSelectedLocation(true);
         setSelectedAddressDetail(receivedAddress);
+        if (!hasTriggeredAddressGuideRef.current) {
+          hasTriggeredAddressGuideRef.current = true;
+          runAddressSelectedGuide();
+        }
         return;
       }
 
@@ -185,7 +283,7 @@ export default function Home() {
       }
       thumbnailUrlsRef.current.forEach((url) => URL.revokeObjectURL(url));
     };
-  }, []);
+  }, [runAddressSelectedGuide]);
 
   const requestAddressAutoselection = useCallback(() => {
     return new Promise<SelectedAddressDetail | null>((resolve) => {
@@ -633,7 +731,21 @@ export default function Home() {
             isMonkeyVisible ? "translate-x-0" : "-translate-x-full"
           }`}
         >
-          <Lottie animationData={dancingMonkeyAnimation} loop />
+          <Lottie
+            lottieRef={monkeyLottieRef}
+            animationData={dancingMonkeyAnimation}
+            loop={isMonkeyAnimating}
+          />
+        </div>
+        <div
+          aria-hidden="true"
+          className={`pointer-events-none absolute -top-32 left-28 z-30 max-w-[320px] rounded-2xl border border-zinc-200 bg-white/95 px-3 py-2 text-sm text-zinc-700 shadow-lg transition-[transform,opacity] duration-700 ease-out dark:border-zinc-700 dark:bg-zinc-900/95 dark:text-zinc-200 ${
+            isMonkeyVisible && monkeyDialogue
+              ? "translate-x-0 opacity-100"
+              : "-translate-x-full opacity-0"
+          }`}
+        >
+          {monkeyDialogue}
         </div>
         {uploadProgress !== null ? (
           <div className="absolute inset-x-0 top-0 h-1 bg-zinc-200 dark:bg-zinc-800">
@@ -667,6 +779,10 @@ export default function Home() {
                 setSaveSuccessMessage("");
                 clearThumbnailPreviews();
                 updatePetFormSearchParam(null);
+                if (hasTriggeredAddressGuideRef.current && !hasTriggeredInicioGuideRef.current) {
+                  hasTriggeredInicioGuideRef.current = true;
+                  runInicioGuide();
+                }
               }}
             >
               inicio
