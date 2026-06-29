@@ -44,7 +44,7 @@ export type RegisteredPetMarker = {
   petName: string | null;
   lostPetDate: string | null;
   thumbnailUrl: string | null;
-  photos: { originalUrl: string | null; thumbnailUrl: string }[];
+  photos: { originalUrl: string | null; thumbnailUrl: string; nanoUrl: string }[];
 };
 
 // Santiago, Chile

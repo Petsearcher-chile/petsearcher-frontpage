@@ -132,23 +132,23 @@ export async function GET(request: Request) {
   const photoRows = (petPhotos ?? []) as PetPhotoRow[];
   const filesByPet = new Map<number, { originalId: string; miniId: string }[]>();
   for (const row of photoRows) {
-    if (!row.id_file || !row.id_file_miniatura) {
-      continue;
-    }
-    const current = filesByPet.get(row.id_perdida) ?? [];
-    current.push({
-      originalId: row.id_file,
-      miniId: row.id_file_miniatura,
-    });
-    filesByPet.set(row.id_perdida, current);
+  if (!row.id_file || !row.id_file_miniatura) {
+    continue;
+  }
+  const current = filesByPet.get(row.id_perdida) ?? [];
+  current.push({
+    originalId: row.id_file,
+    miniId: row.id_file_miniatura,
+  });
+  filesByPet.set(row.id_perdida, current);
   }
 
   const fileIds = Array.from(
-    new Set(
-      Array.from(filesByPet.values()).flatMap((fileIdsByPet) =>
-        fileIdsByPet.flatMap((entry) => [entry.originalId, entry.miniId]),
-      ),
+  new Set(
+    Array.from(filesByPet.values()).flatMap((fileIdsByPet) =>
+      fileIdsByPet.flatMap((entry) => [entry.originalId, entry.miniId]),
     ),
+  ),
   );
   let fileById = new Map<string, FileRow>();
 
@@ -197,6 +197,29 @@ export async function GET(request: Request) {
     return data.signedUrl;
   };
 
+  const resolveStorageKeyUrl = async (bucketName: string | null, storageKey: string | null) => {
+    if (!bucketName || !storageKey) {
+      return null;
+    }
+
+    const cacheKey = `${bucketName}:${storageKey}`;
+    if (signedUrlCache.has(cacheKey)) {
+      return signedUrlCache.get(cacheKey) ?? null;
+    }
+
+    const { data, error } = await supabase.storage.from(bucketName).createSignedUrl(
+      storageKey,
+      SIGNED_URL_TTL_SECONDS,
+    );
+    if (error || !data?.signedUrl) {
+      signedUrlCache.set(cacheKey, null);
+      return null;
+    }
+
+    signedUrlCache.set(cacheKey, data.signedUrl);
+    return data.signedUrl;
+  };
+
   const markers = await Promise.all(
     petRows
       .filter((pet) => pet.id_address !== null)
@@ -224,19 +247,28 @@ export async function GET(request: Request) {
                 resolveFileUrl(fileIdsByPet.originalId),
                 resolveFileUrl(fileIdsByPet.miniId),
               ]);
+              const nanoUrl = await resolveStorageKeyUrl(
+                miniFile.bucket_name,
+                miniFile.storage_key?.replace(/^miniatura\//, "nano/") ?? null,
+              );
 
-              if (!thumbnailUrl) {
+              if (!thumbnailUrl || !nanoUrl) {
                 return null;
               }
 
               return {
                 originalUrl,
                 thumbnailUrl,
+                nanoUrl,
               };
             }),
           )
         ).filter(
-          (photo): photo is { originalUrl: string | null; thumbnailUrl: string } =>
+          (photo): photo is {
+            originalUrl: string | null;
+            thumbnailUrl: string;
+            nanoUrl: string;
+          } =>
             Boolean(photo),
         );
 
@@ -251,7 +283,7 @@ export async function GET(request: Request) {
           fullAddress: address.full_address,
           petName: pet.nombre_mascota,
           lostPetDate: pet.date_perdida,
-          thumbnailUrl: photos[0].thumbnailUrl,
+          thumbnailUrl: photos[0].nanoUrl,
           photos,
         };
       }),
