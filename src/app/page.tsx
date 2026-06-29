@@ -743,12 +743,9 @@ export default function Home() {
           className="pointer-events-none absolute -top-28 right-0 z-30 w-36"
           style={{
             opacity: isMonkeyVisible ? 1 : 0,
-            transform: isMonkeyVisible
-              ? "translateX(calc(-100vw - 9rem))"
-              : "translateX(0)",
-            transition: isMonkeyVisible
-              ? "transform 18s linear, opacity 300ms ease-out"
-              : "none",
+            transform: "translateX(9rem)",
+            animation: isMonkeyVisible ? "turtle-roundtrip 32s linear infinite" : "none",
+            transition: "opacity 300ms ease-out",
           }}
         >
           <Lottie animationData={turtleSkatingAnimation} loop />
@@ -1030,6 +1027,22 @@ export default function Home() {
           </button>
         </div>
       ) : null}
+      <style jsx global>{`
+        @keyframes turtle-roundtrip {
+          0% {
+            transform: translateX(9rem) scaleX(1);
+          }
+          49.999% {
+            transform: translateX(calc(-100vw - 9rem)) scaleX(1);
+          }
+          50% {
+            transform: translateX(calc(-100vw - 9rem)) scaleX(-1);
+          }
+          100% {
+            transform: translateX(9rem) scaleX(-1);
+          }
+        }
+      `}</style>
     </main>
   );
 }
