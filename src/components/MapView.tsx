@@ -97,7 +97,6 @@ export default function MapView({
   onMarkerSelect,
   selectedMarkerId,
   selectedMarkerType,
-  activePetForm,
 }: MapViewProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -118,7 +117,6 @@ export default function MapView({
     return parsePointFromSearchParams(new URLSearchParams(window.location.search));
   });
   const [registeredMarkers, setRegisteredMarkers] = useState<RegisteredPetMarker[]>([]);
-  const selectedPinColor = activePetForm === "found" ? "#3b82f6" : "#ef4444";
   const initialMapCenter = selectedPoint ?? DEFAULT_CENTER;
 
   const hasToken = MAPBOX_TOKEN.length > 0;
@@ -589,11 +587,12 @@ export default function MapView({
               className="h-16 w-12 drop-shadow-lg"
             >
               <path
-                d="M24 2C12.4 2 3 11.4 3 23c0 15.4 21 39 21 39s21-23.6 21-39C45 11.4 35.6 2 24 2Z"
-                fill={selectedPinColor}
+                d="M24 62L8 30h10V8h12v22h10L24 62Z"
+                fill="#111827"
+                stroke="#ffffff"
+                strokeWidth="2"
               />
-              <circle cx="24" cy="23" r="10" fill="#ffffff" />
-              <circle cx="24" cy="23" r="5.5" fill={selectedPinColor} />
+              <path d="M24 56L14 34h8V14h4v20h8L24 56Z" fill="#f59e0b" />
             </svg>
           </Marker>
         ) : null}
