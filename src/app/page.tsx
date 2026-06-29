@@ -40,6 +40,12 @@ type SelectedAddressDetail = {
 
 type SelectedLostPetMarker = RegisteredPetMarker;
 
+type LanguageOption = {
+  value: string;
+  label: string;
+  flag: string;
+};
+
 const LOCATION_EVENT_NAME = "petsearcher:location-selected";
 const AUTOSELECT_REQUEST_EVENT_NAME = "petsearcher:location-autoselect-request";
 const LOST_PET_FORM_SEARCH_PARAM = "pum";
@@ -59,6 +65,97 @@ const ADDRESS_NEXT_STEP_DIALOGUE = "ahora presiona el botón inicio que está de
 const INICIO_CONFIRMATION_DIALOGUE = "Bien, ya lo estás entendiendo!!";
 const INICIO_NEXT_STEP_DIALOGUE = "Ahora indica si la perdiste o si la encontraste y rellena el formulario";
 const LOST_PET_NAME_MAX_LENGTH = 30;
+const LANGUAGE_OPTIONS: LanguageOption[] = [
+  { value: "es", label: "Español", flag: "🇪🇸" },
+  { value: "en", label: "English", flag: "🇺🇸" },
+  { value: "en-gb", label: "English (UK)", flag: "🇬🇧" },
+  { value: "pt", label: "Português", flag: "🇵🇹" },
+  { value: "fr", label: "Français", flag: "🇫🇷" },
+  { value: "de", label: "Deutsch", flag: "🇩🇪" },
+  { value: "it", label: "Italiano", flag: "🇮🇹" },
+  { value: "nl", label: "Nederlands", flag: "🇳🇱" },
+  { value: "sv", label: "Svenska", flag: "🇸🇪" },
+  { value: "no", label: "Norsk", flag: "🇳🇴" },
+  { value: "da", label: "Dansk", flag: "🇩🇰" },
+  { value: "fi", label: "Suomi", flag: "🇫🇮" },
+  { value: "is", label: "Íslenska", flag: "🇮🇸" },
+  { value: "pl", label: "Polski", flag: "🇵🇱" },
+  { value: "cs", label: "Čeština", flag: "🇨🇿" },
+  { value: "sk", label: "Slovenčina", flag: "🇸🇰" },
+  { value: "sl", label: "Slovenščina", flag: "🇸🇮" },
+  { value: "hr", label: "Hrvatski", flag: "🇭🇷" },
+  { value: "sr", label: "Srpski", flag: "🇷🇸" },
+  { value: "bs", label: "Bosanski", flag: "🇧🇦" },
+  { value: "ro", label: "Română", flag: "🇷🇴" },
+  { value: "bg", label: "Български", flag: "🇧🇬" },
+  { value: "ru", label: "Русский", flag: "🇷🇺" },
+  { value: "uk", label: "Українська", flag: "🇺🇦" },
+  { value: "be", label: "Беларуская", flag: "🇧🇾" },
+  { value: "el", label: "Ελληνικά", flag: "🇬🇷" },
+  { value: "tr", label: "Türkçe", flag: "🇹🇷" },
+  { value: "he", label: "עברית", flag: "🇮🇱" },
+  { value: "ar", label: "العربية", flag: "🇸🇦" },
+  { value: "fa", label: "فارسی", flag: "🇮🇷" },
+  { value: "ur", label: "اردو", flag: "🇵🇰" },
+  { value: "hi", label: "हिन्दी", flag: "🇮🇳" },
+  { value: "bn", label: "বাংলা", flag: "🇧🇩" },
+  { value: "pa", label: "ਪੰਜਾਬੀ", flag: "🇮🇳" },
+  { value: "ta", label: "தமிழ்", flag: "🇮🇳" },
+  { value: "te", label: "తెలుగు", flag: "🇮🇳" },
+  { value: "ml", label: "മലയാളം", flag: "🇮🇳" },
+  { value: "mr", label: "मराठी", flag: "🇮🇳" },
+  { value: "gu", label: "ગુજરાતી", flag: "🇮🇳" },
+  { value: "kn", label: "ಕನ್ನಡ", flag: "🇮🇳" },
+  { value: "th", label: "ไทย", flag: "🇹🇭" },
+  { value: "vi", label: "Tiếng Việt", flag: "🇻🇳" },
+  { value: "id", label: "Bahasa Indonesia", flag: "🇮🇩" },
+  { value: "ms", label: "Bahasa Melayu", flag: "🇲🇾" },
+  { value: "fil", label: "Filipino", flag: "🇵🇭" },
+  { value: "ja", label: "日本語", flag: "🇯🇵" },
+  { value: "ko", label: "한국어", flag: "🇰🇷" },
+  { value: "zh", label: "中文", flag: "🇨🇳" },
+  { value: "yue", label: "粵語", flag: "🇭🇰" },
+  { value: "km", label: "ខ្មែរ", flag: "🇰🇭" },
+  { value: "lo", label: "ລາວ", flag: "🇱🇦" },
+  { value: "my", label: "မြန်မာဘာသာ", flag: "🇲🇲" },
+  { value: "sw", label: "Kiswahili", flag: "🇰🇪" },
+  { value: "am", label: "አማርኛ", flag: "🇪🇹" },
+  { value: "zu", label: "isiZulu", flag: "🇿🇦" },
+  { value: "af", label: "Afrikaans", flag: "🇿🇦" },
+  { value: "xh", label: "isiXhosa", flag: "🇿🇦" },
+  { value: "eo", label: "Esperanto", flag: "🏳️" },
+] as const;
+
+const normalizeLanguageValue = (value: string) =>
+  value.toLowerCase().replaceAll("_", "-").split("-")[0] ?? value.toLowerCase();
+
+const getBrowserLanguageOption = () => {
+  if (typeof navigator === "undefined") {
+    return LANGUAGE_OPTIONS[0];
+  }
+
+  const browserLanguages = [navigator.language, ...navigator.languages].filter(
+    (language): language is string => Boolean(language),
+  );
+
+  for (const browserLanguage of browserLanguages) {
+    const normalizedBrowserLanguage = normalizeLanguageValue(browserLanguage);
+    const exactMatch = LANGUAGE_OPTIONS.find(
+      (option) =>
+        option.value === browserLanguage.toLowerCase() ||
+        option.value === normalizedBrowserLanguage,
+    );
+    if (exactMatch) {
+      return exactMatch;
+    }
+  }
+
+  const browserPrimaryLanguage = normalizeLanguageValue(browserLanguages[0] ?? "");
+  return (
+    LANGUAGE_OPTIONS.find((option) => option.value === browserPrimaryLanguage) ??
+    LANGUAGE_OPTIONS[0]
+  );
+};
 
 const formatLostPetDate = (value: string | null) => {
   if (!value) {
@@ -83,6 +180,7 @@ export default function Home() {
   const { openSignIn } = useClerk();
   const router = useRouter();
   const pathname = usePathname();
+  const initialBrowserLanguage = getBrowserLanguageOption();
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [activePetForm, setActivePetForm] = useState<"lost" | "found" | null>(null);
   const [petLossId, setPetLossId] = useState<number | null>(null);
@@ -98,6 +196,10 @@ export default function Home() {
     useState<SelectedAddressDetail | null>(null);
   const [selectedLostPet, setSelectedLostPet] =
     useState<SelectedLostPetMarker | null>(null);
+  const [selectedLanguage, setSelectedLanguage] = useState(initialBrowserLanguage.value);
+  const [languageQuery, setLanguageQuery] = useState("");
+  const [isLanguageSearching, setIsLanguageSearching] = useState(false);
+  const [isLanguageMenuOpen, setIsLanguageMenuOpen] = useState(false);
   const [uploadedThumbnailPreviews, setUploadedThumbnailPreviews] = useState<
     { id: string; thumbnailUrl: string; originalUrl: string; name: string }[]
   >([]);
@@ -698,6 +800,25 @@ export default function Home() {
     setIsPanelOpen(false);
   }, []);
 
+  const filteredLanguageOptions = LANGUAGE_OPTIONS.filter((language) => {
+    const search = languageQuery.trim().toLowerCase();
+    if (!search) {
+      return true;
+    }
+
+    return (
+      language.label.toLowerCase().includes(search) ||
+      language.value.toLowerCase().includes(search) ||
+      language.flag.includes(search)
+    );
+  });
+  const selectedLanguageOption =
+    LANGUAGE_OPTIONS.find((language) => language.value === selectedLanguage) ??
+    initialBrowserLanguage;
+  const languageInputValue = isLanguageSearching
+    ? languageQuery
+    : `${selectedLanguageOption.flag} ${selectedLanguageOption.label}`;
+
   return (
     <main className="relative h-screen w-screen overflow-hidden">
       <MapView
@@ -921,36 +1042,98 @@ export default function Home() {
             {activePetForm === "lost" ? <span>&gt; mascota extraviada</span> : null}
             {activePetForm === "found" ? <span>&gt; mascota encontrada</span> : null}
           </div>
-          <button
-            type="button"
-            aria-label={isPanelOpen ? "Ocultar zona de componentes" : "Mostrar zona de componentes"}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-zinc-200 bg-white/90 text-zinc-700 transition hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:bg-zinc-800"
-            onClick={() => setIsPanelOpen((current) => !current)}
-          >
-            {isPanelOpen ? (
-              <svg aria-hidden="true" viewBox="0 0 20 20" className="h-5 w-5">
-                <path
-                  d="M5 12l5-5 5 5"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.8"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            ) : (
-              <svg aria-hidden="true" viewBox="0 0 20 20" className="h-5 w-5">
-                <path
-                  d="M5 8l5 5 5-5"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.8"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            )}
-          </button>
+          <div className="relative flex items-center gap-2">
+            <label htmlFor="language-search" className="sr-only">
+              Buscar idioma
+            </label>
+            <input
+              id="language-search"
+              type="text"
+              value={languageInputValue}
+              onFocus={() => {
+                setIsLanguageSearching(true);
+                setLanguageQuery("");
+                setIsLanguageMenuOpen(true);
+              }}
+              onChange={(event) => {
+                setLanguageQuery(event.target.value);
+                setIsLanguageMenuOpen(true);
+              }}
+              onBlur={() => {
+                window.setTimeout(() => {
+                  setIsLanguageMenuOpen(false);
+                  if (!languageQuery.trim()) {
+                    setIsLanguageSearching(false);
+                  }
+                }, 120);
+              }}
+              placeholder="Buscar idioma"
+              className="h-9 w-48 rounded-full border border-zinc-200 bg-white/90 px-3 text-sm font-medium text-zinc-700 outline-none transition placeholder:text-zinc-400 hover:bg-zinc-100 focus:border-zinc-400 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200 dark:placeholder:text-zinc-500 dark:hover:bg-zinc-800 dark:focus:border-zinc-500"
+            />
+            {isLanguageMenuOpen ? (
+              <div className="absolute bottom-full right-0 z-40 mb-2 w-72 overflow-hidden rounded-2xl border border-zinc-200 bg-white/95 shadow-xl backdrop-blur dark:border-zinc-800 dark:bg-zinc-950/95">
+                <div className="max-h-72 overflow-auto p-2">
+                  {filteredLanguageOptions.length > 0 ? (
+                    filteredLanguageOptions.map((language) => (
+                      <button
+                        key={language.value}
+                        type="button"
+                        className={`flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm transition hover:bg-zinc-100 dark:hover:bg-zinc-900 ${
+                          selectedLanguage === language.value
+                            ? "bg-zinc-100 text-zinc-900 dark:bg-zinc-900 dark:text-zinc-100"
+                            : "text-zinc-700 dark:text-zinc-200"
+                        }`}
+                        onMouseDown={(event) => {
+                          event.preventDefault();
+                          setSelectedLanguage(language.value);
+                          setLanguageQuery("");
+                          setIsLanguageSearching(false);
+                          setIsLanguageMenuOpen(false);
+                        }}
+                      >
+                        <span className="text-base">{language.flag}</span>
+                        <span className="truncate">{language.label}</span>
+                      </button>
+                    ))
+                  ) : (
+                    <p className="px-3 py-2 text-sm text-zinc-500 dark:text-zinc-400">
+                      No se encontraron idiomas.
+                    </p>
+                  )}
+                </div>
+              </div>
+            ) : null}
+            <button
+              type="button"
+              aria-label={isPanelOpen ? "Ocultar zona de componentes" : "Mostrar zona de componentes"}
+              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-zinc-200 bg-white/90 text-zinc-700 transition hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:bg-zinc-800"
+              onClick={() => setIsPanelOpen((current) => !current)}
+            >
+              {isPanelOpen ? (
+                <svg aria-hidden="true" viewBox="0 0 20 20" className="h-5 w-5">
+                  <path
+                    d="M5 12l5-5 5 5"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              ) : (
+                <svg aria-hidden="true" viewBox="0 0 20 20" className="h-5 w-5">
+                  <path
+                    d="M5 8l5 5 5-5"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              )}
+            </button>
+          </div>
         </div>
 
         {isPanelOpen ? (
