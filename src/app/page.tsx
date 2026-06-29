@@ -735,7 +735,7 @@ export default function Home() {
                     <button
                       type="button"
                       aria-label="Copiar correo"
-                      className="ml-auto shrink-0 rounded-md border border-zinc-200 p-1.5 text-zinc-700 transition hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-800"
+                      className="ml-auto shrink-0 text-zinc-700 transition hover:text-zinc-900 dark:text-zinc-200 dark:hover:text-zinc-100"
                       onClick={(event) => {
                         void handleCopyCreatorEmail(selectedLostPet.creatorEmail ?? "", event);
                       }}
@@ -761,7 +761,12 @@ export default function Home() {
                     </button>
                   </div>
                 ) : null}
-                <p>{selectedLostPet.fullAddress}</p>
+                <p>
+                  {selectedLostPet.markerType === "found"
+                    ? "Se encontró cerca de: "
+                    : "Se perdió cerca de: "}
+                  {selectedLostPet.fullAddress}
+                </p>
               </div>
             </div>
             <button
