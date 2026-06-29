@@ -1,5 +1,5 @@
 # Lo que se busca (parte 1)
-debes encontrar todos los textos que encuentres que salgan por pantalla o que que estén en las apis, y a partir de esos textos que encontraste, créame un archivo en src/messages/en.json o modifica el que existe con los nuevos valores bajo la siguiente estructura
+a partir de src/app/message/en.json se deben crear los otros idiomas, el el archivo en.json está estructurado de la siguiente manera:
 
 {
 "Index": {
@@ -16,9 +16,10 @@ debes encontrar todos los textos que encuentres que salgan por pantalla o que qu
 
 
 
-# Crea los otros (language-json)
+# Crea/Agrega los otros (language-json)
 - debes traducir del inglés ( src/messages/en.json ) a los siguientes idiomas:
   - es, en-gb, pt, fr, de, it, nl, sv, no, da, fi, is, pl, cs, sk, sl, hr, sr, bs, ro, bg, ru, uk, be, el, tr, he, ar, fa, ur, hi, bn, pa, ta, te, ml, mr, gu, kn, th, vi, id, ms, fil, ja, ko, zh, yue, km, lo, my, sw, am, zu, af, xh, eo
   - cada idioma debe tener su propio archivo en src/messages/
 - lo que debes traducir es el "texto original", y el texto traducido debe ir en el mismo lugar que el texto original
+- debes crear un archivo para cada idioma, o agregar lo faltante si ya existe el archivo
   
