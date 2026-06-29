@@ -66,5 +66,21 @@
     "first_time_here": "Vielleicht ist es das erste Mal, dass ich dich hier sehe.",
     "site_only_computer": "Ich muss Sie darüber informieren, dass diese Seite nur von einem Computer aus sichtbar ist.",
     "see_you_there": "Wir sehen uns dort!"
+  },
+  "SEO": {
+    "title": "PetSearcher | Verlorene und gefundene Haustiere",
+    "description": "PetSearcher hilft Ihnen, verlorene oder gefundene Haustiere überall zu veröffentlichen, zu suchen und zu finden.",
+    "keywords": [
+      "PetSearcher",
+      "verlorene Haustiere",
+      "Haustiere gefunden",
+      "Haustierfinder",
+      "verlorene und gefundene Haustiere",
+      "Haustiersuche",
+      "vermisste Haustiere",
+      "ein Haustier finden",
+      "verlorenes Haustier melden",
+      "Gefundenes Haustier melden"
+    ]
   }
 }

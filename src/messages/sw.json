@@ -66,5 +66,21 @@
     "first_time_here": "Labda hii ni mara yangu ya kwanza kukuona hapa.",
     "site_only_computer": "58||Ninabidi kukujulisha tovuti hii inaonekana kutoka kwa kompyuta pekee.",
     "see_you_there": "59||Tuonane hapo!"
+  },
+  "SEO": {
+    "title": "PetSearcher | Waliopotea na kupatikana kipenzi",
+    "description": "PetSearcher hukusaidia kuchapisha, kutafuta, na kupata wanyama kipenzi waliopotea au kupatikana popote.",
+    "keywords": [
+      "PetSearcher",
+      "wanyama kipenzi waliopotea",
+      "|pata wanyama kipenzi",
+      "kitafuta kipenzi",
+      "wapenzi waliopotea na waliopatikana",
+      "tafuta kipenzi",
+      "wanyama kipenzi waliopotea",
+      "pata kipenzi",
+      "10||ripoti mnyama kipenzi aliyepotea",
+      "11||ripoti kupatikana kipenzi"
+    ]
   }
 }

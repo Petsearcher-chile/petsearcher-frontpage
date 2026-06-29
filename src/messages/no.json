@@ -66,5 +66,21 @@
     "first_time_here": "Kanskje dette er første gang jeg har sett deg her.",
     "site_only_computer": "Jeg må fortelle deg at denne siden kun er synlig fra en datamaskin.",
     "see_you_there": "Vi sees der!"
+  },
+  "SEO": {
+    "title": "PetSearcher | Tapte og funnet kjæledyr",
+    "description": "PetSearcher hjelper deg med å publisere, søke og finne tapte eller funnet kjæledyr hvor som helst.",
+    "keywords": [
+      "PetSearcher",
+      "tapt kjæledyr",
+      "funnet kjæledyr",
+      "dyresøker",
+      "tapt og funnet kjæledyr",
+      "dyresøk",
+      "mangler kjæledyr",
+      "finn et kjæledyr",
+      "rapporter tapt kjæledyr",
+      "rapport funnet kjæledyr"
+    ]
   }
 }

@@ -66,5 +66,21 @@
     "first_time_here": "Misschien is dit de eerste keer dat ik je hier zie.",
     "site_only_computer": "Ik moet je laten weten dat deze site alleen zichtbaar is vanaf een computer.",
     "see_you_there": "Zie je daar!"
+  },
+  "SEO": {
+    "title": "Huisdierenzoeker | Verloren en gevonden huisdieren",
+    "description": "PetSearcher helpt u overal verloren of gevonden huisdieren te publiceren, zoeken en vinden.",
+    "keywords": [
+      "Huisdierenzoeker",
+      "verloren huisdieren",
+      "gevonden huisdieren",
+      "dierenzoeker",
+      "verloren en gevonden huisdieren",
+      "huisdieren zoeken",
+      "vermiste huisdieren",
+      "zoek een huisdier",
+      "verloren huisdier melden",
+      "melding gevonden huisdier"
+    ]
   }
 }

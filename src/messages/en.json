@@ -61,6 +61,22 @@
     "view_lost_pet": "View lost pet",
     "lost_pet_default_name": "Lost pet"
   },
+  "SEO": {
+    "title": "PetSearcher | Lost and found pets",
+    "description": "PetSearcher helps you publish, search, and find lost or found pets anywhere.",
+    "keywords": [
+      "PetSearcher",
+      "lost pets",
+      "found pets",
+      "pet finder",
+      "lost and found pets",
+      "pet search",
+      "missing pets",
+      "find a pet",
+      "report lost pet",
+      "report found pet"
+    ]
+  },
   "WarningWizard": {
     "hello": "Hello!",
     "first_time_here": "Maybe this is the first time I've seen you here.",

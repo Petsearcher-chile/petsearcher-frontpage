@@ -66,5 +66,21 @@
     "first_time_here": "Možno je to prvýkrát, čo ťa tu vidím.",
     "site_only_computer": "Musím vám oznámiť, že táto stránka je viditeľná iba z počítača.",
     "see_you_there": "Vidíme sa tam!"
+  },
+  "SEO": {
+    "title": "Vyhľadávač domácich zvierat | Stratené a nájdené domáce zvieratá",
+    "description": "PetSearcher vám pomôže publikovať, hľadať a nájsť stratené alebo nájdené domáce zvieratá kdekoľvek.",
+    "keywords": [
+      "Vyhľadávač domácich zvierat",
+      "stratené domáce zvieratá",
+      "našli domáce zvieratá",
+      "vyhľadávač domácich zvierat",
+      "stratené a nájdené domáce zvieratá",
+      "vyhľadávanie domácich zvierat",
+      "chýbajúce domáce zvieratá",
+      "nájdi domáce zvieratko",
+      "nahláste stratené zvieratko",
+      "nahlásiť nájdené zvieratko"
+    ]
   }
 }

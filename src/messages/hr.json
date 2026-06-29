@@ -66,5 +66,21 @@
     "first_time_here": "Možda je ovo prvi put da te vidim ovdje.",
     "site_only_computer": "Moram vas obavijestiti da je ova stranica vidljiva samo s računala.",
     "see_you_there": "Vidimo se tamo!"
+  },
+  "SEO": {
+    "title": "PetSearcher | Izgubljeni i nađeni kućni ljubimci",
+    "description": "PetSearcher vam pomaže objavljivati, pretraživati i pronaći izgubljene ili pronađene ljubimce bilo gdje.",
+    "keywords": [
+      "PetSearcher",
+      "izgubljeni kućni ljubimci",
+      "pronađeni kućni ljubimci",
+      "pronalazač kućnih ljubimaca",
+      "izgubljeni i pronađeni kućni ljubimci",
+      "potraga za kućnim ljubimcem",
+      "nestali kućni ljubimci",
+      "nađi kućnog ljubimca",
+      "prijavi izgubljenog ljubimca",
+      "prijavi pronađenog ljubimca"
+    ]
   }
 }

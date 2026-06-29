@@ -66,5 +66,21 @@
     "first_time_here": "Mungkin ini pertama kalinya aku melihatmu di sini.",
     "site_only_computer": "Saya harus memberi tahu Anda bahwa situs ini hanya dapat dilihat dari komputer.",
     "see_you_there": "Sampai jumpa di sana!"
+  },
+  "SEO": {
+    "title": "Pencari Hewan Peliharaan | Hewan peliharaan yang hilang dan ditemukan",
+    "description": "PetSearcher membantu Anda mempublikasikan, mencari, dan menemukan hewan peliharaan yang hilang atau ditemukan di mana saja.",
+    "keywords": [
+      "Pencari Hewan Peliharaan",
+      "hewan peliharaan yang hilang",
+      "menemukan hewan peliharaan",
+      "pencari hewan peliharaan",
+      "hewan peliharaan yang hilang dan ditemukan",
+      "pencarian hewan peliharaan",
+      "hewan peliharaan hilang",
+      "cari hewan peliharaan",
+      "laporkan hewan peliharaan yang hilang",
+      "laporkan hewan peliharaan ditemukan"
+    ]
   }
 }

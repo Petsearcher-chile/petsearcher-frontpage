@@ -66,5 +66,21 @@
     "first_time_here": "Možná je to poprvé, co tě tu vidím.",
     "site_only_computer": "Musím vám oznámit, že tato stránka je viditelná pouze z počítače.",
     "see_you_there": "Uvidíme se tam!"
+  },
+  "SEO": {
+    "title": "Hledač domácích mazlíčků | Ztráty a nálezy domácích mazlíčků",
+    "description": "PetSearcher vám pomůže publikovat, hledat a najít ztracená nebo nalezená zvířata kdekoli.",
+    "keywords": [
+      "Vyhledávač domácích mazlíčků",
+      "ztracená domácí zvířata",
+      "našel domácí mazlíčky",
+      "hledač domácích mazlíčků",
+      "ztracená a nalezená domácí zvířata",
+      "hledání domácích mazlíčků",
+      "chybějící domácí mazlíčci",
+      "najít domácího mazlíčka",
+      "nahlásit ztracené zvíře",
+      "nahlásit nalezeného mazlíčka"
+    ]
   }
 }

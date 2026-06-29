@@ -66,5 +66,21 @@
     "first_time_here": "Miskien is dit die eerste keer dat ek jou hier sien.",
     "site_only_computer": "Ek moet jou laat weet hierdie webwerf is slegs sigbaar vanaf 'n rekenaar.",
     "see_you_there": "Sien jou daar!"
+  },
+  "SEO": {
+    "title": "PetSearcher | Verlore en gevind troeteldiere",
+    "description": "PetSearcher help jou om verlore of gevind troeteldiere op enige plek te publiseer, te soek en te vind.",
+    "keywords": [
+      "PetSearcher",
+      "verlore troeteldiere",
+      "troeteldiere gevind",
+      "troeteldiersoeker",
+      "verlore en gevind troeteldiere",
+      "troeteldiersoektog",
+      "vermiste troeteldiere",
+      "vind 'n troeteldier",
+      "rapporteer verlore troeteldier",
+      "verslag gevind troeteldier"
+    ]
   }
 }

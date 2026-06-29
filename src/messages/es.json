@@ -66,5 +66,21 @@
     "first_time_here": "Tal vez sea la primera vez que te veo por acá.",
     "site_only_computer": "Lamento informarte que este sitio solo es visible desde un computador.",
     "see_you_there": "Nos vemos allá!"
+  },
+  "SEO": {
+    "title": "Buscador de mascotas | Mascotas perdidas y encontradas",
+    "description": "PetSearcher te ayuda a publicar, buscar y encontrar mascotas perdidas o encontradas en cualquier lugar.",
+    "keywords": [
+      "Buscador de mascotas",
+      "mascotas perdidas",
+      "mascotas encontradas",
+      "buscador de mascotas",
+      "mascotas perdidas y encontradas",
+      "búsqueda de mascotas",
+      "mascotas desaparecidas",
+      "encuentra una mascota",
+      "reportar mascota perdida",
+      "reportar mascota encontrada"
+    ]
   }
 }

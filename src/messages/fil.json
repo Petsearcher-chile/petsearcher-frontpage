@@ -66,5 +66,21 @@
     "first_time_here": "Baka ito ang unang beses na nakita kita dito.",
     "site_only_computer": "Kailangan kong ipaalam sa iyo na ang site na ito ay makikita lamang mula sa isang computer.",
     "see_you_there": "59||Magkita tayo doon!"
+  },
+  "SEO": {
+    "title": "PetSearcher | Nawala at natagpuan ang mga alagang hayop",
+    "description": "Tinutulungan ka ng PetSearcher na mag-publish, maghanap, at maghanap ng mga nawawala o natagpuang alagang hayop kahit saan.",
+    "keywords": [
+      "PetSearcher",
+      "nawalang alagang hayop",
+      "nakahanap ng mga alagang hayop",
+      "tagahanap ng alagang hayop",
+      "nawala at natagpuang mga alagang hayop",
+      "paghahanap ng alagang hayop",
+      "nawawalang mga alagang hayop",
+      "maghanap ng alagang hayop",
+      "iulat ang nawawalang alagang hayop",
+      "ulat na natagpuang alagang hayop"
+    ]
   }
 }

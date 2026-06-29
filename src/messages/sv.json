@@ -66,5 +66,21 @@
     "first_time_here": "Det här är kanske första gången jag ser dig här.",
     "site_only_computer": "Jag måste meddela dig att den här webbplatsen bara är synlig från en dator.",
     "see_you_there": "Vi ses där!"
+  },
+  "SEO": {
+    "title": "PetSearcher | Förlorade och hittade husdjur",
+    "description": "PetSearcher hjälper dig att publicera, söka och hitta borttappade eller hittade husdjur var som helst.",
+    "keywords": [
+      "PetSearcher",
+      "förlorade husdjur",
+      "hittade husdjur",
+      "husdjurssökare",
+      "förlorade och hittade husdjur",
+      "husdjurssökning",
+      "försvunna husdjur",
+      "hitta ett husdjur",
+      "rapportera förlorat husdjur",
+      "rapport hittat husdjur"
+    ]
   }
 }

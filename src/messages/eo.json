@@ -66,5 +66,21 @@
     "first_time_here": "Eble ĉi tio estas la unua fojo, kiam mi vidas vin ĉi tie.",
     "site_only_computer": "Mi devas sciigi vin, ke ĉi tiu retejo estas videbla nur de komputilo.",
     "see_you_there": "Ĝis revido tie!"
+  },
+  "SEO": {
+    "title": "PetSearcher | Perditaj kaj trovitaj dorlotbestoj",
+    "description": "PetSearcher helpas vin publikigi, serĉi kaj trovi perditajn aŭ trovitajn dorlotbestojn ie ajn.",
+    "keywords": [
+      "PetSearcher",
+      "perditaj dorlotbestoj",
+      "trovis dorlotbestojn",
+      "dorlotbesto trovilo",
+      "perditaj kaj trovitaj dorlotbestoj",
+      "bestoserĉo",
+      "mankas dorlotbestoj",
+      "trovu dorlotbeston",
+      "raporti perditan dorlotbeston",
+      "raporto trovita dorlotbesto"
+    ]
   }
 }

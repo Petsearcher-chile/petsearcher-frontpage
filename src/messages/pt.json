@@ -66,5 +66,21 @@
     "first_time_here": "Talvez seja a primeira vez que te vejo por aqui.",
     "site_only_computer": "Preciso informar que este site só é visível em um computador.",
     "see_you_there": "Vejo você lá!"
+  },
+  "SEO": {
+    "title": "PetSearcher | Animais de estimação perdidos e encontrados",
+    "description": "PetSearcher ajuda você a publicar, pesquisar e encontrar animais de estimação perdidos ou encontrados em qualquer lugar.",
+    "keywords": [
+      "PetSearcher",
+      "animais de estimação perdidos",
+      "animais de estimação encontrados",
+      "localizador de animais de estimação",
+      "animais de estimação perdidos e encontrados",
+      "pesquisa de animais de estimação",
+      "animais de estimação desaparecidos",
+      "encontre um animal de estimação",
+      "relatar animal de estimação perdido",
+      "relatar animal de estimação encontrado"
+    ]
   }
 }

@@ -66,5 +66,21 @@
     "first_time_here": "Mungkin ini kali pertama saya melihat awak di sini.",
     "site_only_computer": "Saya perlu memberitahu anda laman web ini hanya boleh dilihat dari komputer.",
     "see_you_there": "Jumpa anda di sana!"
+  },
+  "SEO": {
+    "title": "PetSearcher | Haiwan peliharaan yang hilang dan ditemui",
+    "description": "PetSearcher membantu anda menerbitkan, mencari dan mencari haiwan peliharaan yang hilang atau ditemui di mana-mana sahaja.",
+    "keywords": [
+      "PetSearcher",
+      "kehilangan haiwan peliharaan",
+      "menjumpai haiwan peliharaan",
+      "pencari haiwan peliharaan",
+      "hilang dan ditemui haiwan peliharaan",
+      "pencarian haiwan peliharaan",
+      "hilang haiwan peliharaan",
+      "cari haiwan peliharaan",
+      "laporkan kehilangan haiwan peliharaan",
+      "laporan ditemui haiwan peliharaan"
+    ]
   }
 }

@@ -66,5 +66,21 @@
     "first_time_here": "Måske er det første gang, jeg har set dig her.",
     "site_only_computer": "Jeg er nødt til at fortælle dig, at denne side kun er synlig fra en computer.",
     "see_you_there": "Vi ses der!"
+  },
+  "SEO": {
+    "title": "PetSearcher | Tabte og fundne kæledyr",
+    "description": "PetSearcher hjælper dig med at publicere, søge og finde tabte eller fundne kæledyr overalt.",
+    "keywords": [
+      "PetSearcher",
+      "tabte kæledyr",
+      "fundet kæledyr",
+      "kæledyrsfinder",
+      "tabte og fundne kæledyr",
+      "kæledyrssøgning",
+      "manglende kæledyr",
+      "find et kæledyr",
+      "rapporter mistet kæledyr",
+      "rapport fundet kæledyr"
+    ]
   }
 }

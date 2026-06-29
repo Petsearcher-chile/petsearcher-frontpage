@@ -66,5 +66,21 @@
     "first_time_here": "Poate că este prima dată când te văd aici.",
     "site_only_computer": "Trebuie să vă anunț că acest site este vizibil doar de pe computer.",
     "see_you_there": "Ne vedem acolo!"
+  },
+  "SEO": {
+    "title": "PetSearcher | Animale de companie pierdute și găsite",
+    "description": "PetSearcher vă ajută să publicați, să căutați și să găsiți animale de companie pierdute sau găsite oriunde.",
+    "keywords": [
+      "Căutare animale de companie",
+      "animale de companie pierdute",
+      "animale de companie găsite",
+      "găsește animale de companie",
+      "animale de companie pierdute și găsite",
+      "căutare animale de companie",
+      "animale de companie lipsă",
+      "găsește un animal de companie",
+      "raportează un animal de companie pierdut",
+      "raport găsit animal de companie"
+    ]
   }
 }

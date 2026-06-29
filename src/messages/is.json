@@ -66,5 +66,21 @@
     "first_time_here": "Kannski er þetta í fyrsta skipti sem ég sé þig hér.",
     "site_only_computer": "Ég verð að láta þig vita að þessi síða sé aðeins sýnileg úr tölvu.",
     "see_you_there": "Sjáumst þar!"
+  },
+  "SEO": {
+    "title": "PetSearcher | Týnd og fundin gæludýr",
+    "description": "PetSearcher hjálpar þér að birta, leita og finna týnd eða fundust gæludýr hvar sem er.",
+    "keywords": [
+      "PetSearcher",
+      "týnd gæludýr",
+      "fundið gæludýr",
+      "gæludýraleitari",
+      "týnd og fundin gæludýr",
+      "gæludýraleit",
+      "vantar gæludýr",
+      "finndu gæludýr",
+      "tilkynna glatað gæludýr",
+      "tilkynning um fundið gæludýr"
+    ]
   }
 }

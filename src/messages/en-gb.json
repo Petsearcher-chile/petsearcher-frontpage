@@ -66,5 +66,21 @@
     "first_time_here": "Maybe this is the first time I've seen you here.",
     "site_only_computer": "I have to let you know this site is only visible from a computer.",
     "see_you_there": "See you there!"
+  },
+  "SEO": {
+    "title": "PetSearcher | Lost and found pets",
+    "description": "PetSearcher helps you publish, search, and find lost or found pets anywhere.",
+    "keywords": [
+      "PetSearcher",
+      "lost pets",
+      "found pets",
+      "pet finder",
+      "lost and found pets",
+      "pet search",
+      "missing pets",
+      "find a pet",
+      "report lost pet",
+      "report found pet"
+    ]
   }
 }

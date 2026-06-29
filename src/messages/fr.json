@@ -66,5 +66,21 @@
     "first_time_here": "C'est peut-être la première fois que je vous vois ici.",
     "site_only_computer": "Je dois vous informer que ce site n'est visible que depuis un ordinateur.",
     "see_you_there": "À bientôt !"
+  },
+  "SEO": {
+    "title": "AnimalRecherche | Animaux perdus et trouvés",
+    "description": "PetSearcher vous aide à publier, rechercher et retrouver des animaux perdus ou trouvés n'importe où.",
+    "keywords": [
+      "Recherche d'animaux",
+      "animaux perdus",
+      "animaux trouvés",
+      "chercheur d'animaux",
+      "animaux perdus et trouvés",
+      "recherche d'animaux",
+      "animaux disparus",
+      "trouver un animal de compagnie",
+      "signaler un animal perdu",
+      "signaler un animal trouvé"
+    ]
   }
 }

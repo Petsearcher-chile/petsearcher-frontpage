@@ -66,5 +66,21 @@
     "first_time_here": "|Mhlawumbi ndiyaqala ukukubona apha.",
     "site_only_computer": "58||Kufuneka ndikuxelele ukuba le ndawo ibonakala kuphela kwikhompyuter.",
     "see_you_there": "59||Sabonana apho!"
+  },
+  "SEO": {
+    "title": "|PetSearcher | Ezilahlekileyo zafunyanwa izilwanyana zasekhaya",
+    "description": "PetSearcher ikunceda upapashe, ukhangele, kwaye ufumane izilwanyana zasekhaya ezilahlekileyo okanye ezifunyenweyo naphi na.",
+    "keywords": [
+      "PetSearcher",
+      "izilwanyana zasekhaya ezilahlekileyo",
+      "|fumana izilwanyana zasekhaya",
+      "umfumani wesilwanyana",
+      "ezilahlekileyo zaza zafunyanwa",
+      "ukukhangela izilwanyana",
+      "izilwanyana zasekhaya ezilahlekileyo",
+      "fumana isilo-qabane",
+      "xela isilo-qabane esilahlekileyo",
+      "ingxelo efunyenweyo"
+    ]
   }
 }

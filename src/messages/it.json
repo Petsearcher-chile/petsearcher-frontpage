@@ -66,5 +66,21 @@
     "first_time_here": "Forse questa è la prima volta che ti vedo qui.",
     "site_only_computer": "Devo informarti che questo sito è visibile solo da computer.",
     "see_you_there": "Ci vediamo lì!"
+  },
+  "SEO": {
+    "title": "Cercaanimali | Animali smarriti e ritrovati",
+    "description": "PetSearcher ti aiuta a pubblicare, cercare e ritrovare animali domestici smarriti o ritrovati ovunque.",
+    "keywords": [
+      "Cercaanimali",
+      "animali smarriti",
+      "trovati animali domestici",
+      "trovatore di animali domestici",
+      "animali smarriti e ritrovati",
+      "ricerca di animali domestici",
+      "animali scomparsi",
+      "trova un animale domestico",
+      "denunciare un animale domestico smarrito",
+      "segnala il ritrovamento di un animale domestico"
+    ]
   }
 }

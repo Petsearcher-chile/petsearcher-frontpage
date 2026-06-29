@@ -66,5 +66,21 @@
     "first_time_here": "Ehkä tämä on ensimmäinen kerta, kun näen sinut täällä.",
     "site_only_computer": "Minun on kerrottava, että tämä sivusto näkyy vain tietokoneelta.",
     "see_you_there": "Nähdään siellä!"
+  },
+  "SEO": {
+    "title": "PetSearcher | Kadonneita ja löydettyjä lemmikkejä",
+    "description": "PetSearcher auttaa julkaisemaan, etsimään ja löytämään kadonneita tai löydettyjä lemmikkejä missä tahansa.",
+    "keywords": [
+      "PetSearcher",
+      "kadonneita lemmikkejä",
+      "löytyi lemmikkejä",
+      "lemmikkieläinten etsijä",
+      "kadonneita ja löydettyjä lemmikkejä",
+      "lemmikkihaku",
+      "kadonneita lemmikkejä",
+      "löydä lemmikki",
+      "ilmoita kadonneesta lemmikistä",
+      "ilmoita löytynyt lemmikki"
+    ]
   }
 }

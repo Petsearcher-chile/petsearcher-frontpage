@@ -66,5 +66,21 @@
     "first_time_here": "Belki de seni burada ilk kez görüyorum.",
     "site_only_computer": "Bu sitenin yalnızca bilgisayardan görülebildiğini bilmenizi isterim.",
     "see_you_there": "Orada görüşürüz!"
+  },
+  "SEO": {
+    "title": "Evcil Hayvan Arayıcısı | Kayıp ve bulunan evcil hayvanlar",
+    "description": "PetSearcher, kaybolan veya bulunan evcil hayvanları her yerde yayınlamanıza, aramanıza ve bulmanıza yardımcı olur.",
+    "keywords": [
+      "Evcil Hayvan Arayıcısı",
+      "kayıp evcil hayvanlar",
+      "evcil hayvan buldum",
+      "evcil hayvan bulucu",
+      "kayıp ve bulunan evcil hayvanlar",
+      "evcil hayvan arama",
+      "kayıp evcil hayvanlar",
+      "evcil hayvan bul",
+      "kayıp evcil hayvanı bildirin",
+      "evcil hayvan bulunduğunu bildir"
+    ]
   }
 }

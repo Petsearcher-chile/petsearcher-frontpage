@@ -66,5 +66,21 @@
     "first_time_here": "Może pierwszy raz cię tu widzę.",
     "site_only_computer": "Muszę Cię poinformować, że ta strona jest widoczna tylko z komputera.",
     "see_you_there": "Do zobaczenia!"
+  },
+  "SEO": {
+    "title": "Wyszukiwarka zwierząt | Zagubione i znalezione zwierzęta",
+    "description": "PetSearcher pomaga publikować, wyszukiwać i znajdować zagubione lub znalezione zwierzęta w dowolnym miejscu.",
+    "keywords": [
+      "Wyszukiwarka zwierząt",
+      "zagubione zwierzaki",
+      "znalazłem zwierzaki",
+      "wyszukiwarka zwierząt",
+      "zagubione i znalezione zwierzęta",
+      "wyszukiwanie zwierząt",
+      "zaginione zwierzaki",
+      "znajdź zwierzaka",
+      "zgłoś zagubienie zwierzaka",
+      "zgłoś znalezione zwierzę"
+    ]
   }
 }
