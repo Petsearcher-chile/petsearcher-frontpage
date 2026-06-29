@@ -131,19 +131,23 @@ export async function POST(request: Request) {
           };
         }
 
-        const thumbnailBuffer = await sharp(bytes)
-          .rotate()
-          .resize(320, 320, {
-            fit: "contain",
-            background: { r: 243, g: 244, b: 246, alpha: 1 },
-          })
-          .jpeg({ quality: 85, mozjpeg: true })
-          .toBuffer();
-        const thumbnailPath = `${THUMBNAILS_FOLDER}/${baseName}.jpg`;
+        const sourceImage = sharp(bytes, { failOn: "none" }).rotate();
+        const metadata = await sourceImage.metadata();
+        const shouldPreserveAlpha = Boolean(metadata.hasAlpha) || metadata.format === "png";
+        const thumbnailPath = `${THUMBNAILS_FOLDER}/${baseName}.${shouldPreserveAlpha ? "png" : "jpg"}`;
+        const thumbnailBuffer = shouldPreserveAlpha
+          ? await sourceImage
+              .resize(320, 320, { fit: "inside", withoutEnlargement: true })
+              .png()
+              .toBuffer()
+          : await sourceImage
+              .resize(320, 320, { fit: "inside", withoutEnlargement: true })
+              .jpeg({ quality: 90, mozjpeg: true })
+              .toBuffer();
         const { error: thumbnailError } = await supabase.storage
           .from(BUCKET_NAME)
           .upload(thumbnailPath, thumbnailBuffer, {
-            contentType: "image/jpeg",
+            contentType: shouldPreserveAlpha ? "image/png" : "image/jpeg",
             upsert: false,
           });
 
