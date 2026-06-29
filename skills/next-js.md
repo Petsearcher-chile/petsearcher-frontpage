@@ -370,6 +370,7 @@ Cuando entregue una solución, preferir este orden:
 - Se debe respeta la accesibilidad y el rendimiento.
 - toda funcionalidad debe estar en /app/ y la carpeta que viene a continuación será indicada por el prompt
 - Si la funcionalidad en /app/<carpera> es muy compleja, o necesita una funcionalidad que pueda ser utilizada por otros proyectos, se debe crear un paquete npm privado para esa funcionalidad, y agregarlo como dependencia desde /componentes
+- está construido con next-intl, así que cada respuesta hacia el cliente o error debe ser descrito según esta definición, y poderlos en los archivos de lenguajes para que language en src/messages/*.json
 
 ### Referencias entre .tsx y .ts
 - Este proyecto referencia las rutas con `@/` indicando como inicio de ruta.
