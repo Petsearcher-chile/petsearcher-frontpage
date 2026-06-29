@@ -568,8 +568,10 @@ export default function Home() {
         return;
       }
 
-      if (activePetForm === "lost" && lostPetName.length > LOST_PET_NAME_MAX_LENGTH) {
-        setUploadError(`El nombre de la mascota debe tener máximo ${LOST_PET_NAME_MAX_LENGTH} caracteres.`);
+      if (lostPetName.length > LOST_PET_NAME_MAX_LENGTH) {
+        setUploadError(
+          `El nombre de la mascota debe tener máximo ${LOST_PET_NAME_MAX_LENGTH} caracteres.`,
+        );
         return;
       }
 
@@ -879,12 +881,10 @@ export default function Home() {
                           id="lost-pet-name"
                           type="text"
                           value={lostPetName}
-                          maxLength={activePetForm === "lost" ? LOST_PET_NAME_MAX_LENGTH : undefined}
+                          maxLength={LOST_PET_NAME_MAX_LENGTH}
                           onChange={(event) =>
                             setLostPetName(
-                              activePetForm === "lost"
-                                ? event.target.value.slice(0, LOST_PET_NAME_MAX_LENGTH)
-                                : event.target.value,
+                              event.target.value.slice(0, LOST_PET_NAME_MAX_LENGTH),
                             )
                           }
                           placeholder={activePetForm === "found" ? "Nombre (opcional)" : undefined}
