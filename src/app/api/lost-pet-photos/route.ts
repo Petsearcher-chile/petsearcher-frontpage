@@ -110,7 +110,7 @@ export async function POST(request: Request) {
 
     const uploadedImages = await Promise.all(
       uploadedFiles.map(async (file) => {
-        const bytes = new Uint8Array(await file.arrayBuffer());
+        const bytes = Buffer.from(await file.arrayBuffer());
         const extension =
           file.name.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") ??
           "jpg";
