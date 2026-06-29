@@ -133,8 +133,12 @@ export async function POST(request: Request) {
 
         const thumbnailBuffer = await sharp(bytes)
           .rotate()
-          .resize(200, 200, { fit: "inside", withoutEnlargement: true })
-          .jpeg({ quality: 80 })
+          .resize(320, 320, {
+            fit: "cover",
+            position: "attention",
+          })
+          .flatten({ background: "#ffffff" })
+          .jpeg({ quality: 85, mozjpeg: true })
           .toBuffer();
         const thumbnailPath = `${THUMBNAILS_FOLDER}/${baseName}.jpg`;
         const { error: thumbnailError } = await supabase.storage
