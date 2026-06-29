@@ -4,6 +4,9 @@ const publicRoutes = createRouteMatcher([
   "/",
   "/api/lost-pets-map(.*)",
   "/api/lost-pet-photos(.*)",
+  "/api/lost-pet-save(.*)",
+  "/api/found-pet-photos(.*)",
+  "/api/found-pet-save(.*)",
 ]);
 
 export default clerkMiddleware((auth, req) => {
