@@ -5,9 +5,15 @@ const isPublicRoute = createRouteMatcher([
   "/api/lost-pet-photos(.*)",
 ]);
 
-export default clerkMiddleware((auth, req) => {
+export default clerkMiddleware(async (auth, req) => {
   if (!isPublicRoute(req)) {
-    auth().protect?.();
+    const { userId } = await auth();
+    if (!userId) {
+      return Response.json(
+        { message: "Unauthorized" },
+        { status: 401 }
+      );
+    }
   }
 });
 
