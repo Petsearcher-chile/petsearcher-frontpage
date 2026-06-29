@@ -96,6 +96,8 @@ type MapViewProps = {
   activePetForm?: "lost" | "found" | null;
   searchPanelClassName?: string;
   searchInputClassName?: string;
+  mobileMode?: boolean;
+  onMapPointSelect?: (point: SelectedPoint) => void;
 };
 
 export default function MapView({
@@ -104,6 +106,8 @@ export default function MapView({
   selectedMarkerType,
   searchPanelClassName,
   searchInputClassName,
+  mobileMode,
+  onMapPointSelect,
 }: MapViewProps) {
   const tCommon = useTranslations("Common");
   const tMap = useTranslations("MapView");
@@ -440,6 +444,32 @@ export default function MapView({
     [emitLocationSelected, mapSelectedAddress, reverseGeocodePoint, tMap, updatePointInUrl],
   );
 
+  const handleMapClick = useCallback(
+    (event: { lngLat: { lng: number; lat: number } }) => {
+      if (!mobileMode) {
+        return;
+      }
+
+      const point = {
+        longitude: event.lngLat.lng,
+        latitude: event.lngLat.lat,
+      };
+      setSelectedPoint(point);
+      selectedQueryRef.current = "";
+      setSearchQuery("");
+      setResults([]);
+      setSearchError(null);
+      updatePointInUrl(point);
+      if (isMapLoadedRef.current) {
+        centerMapOnPoint(point);
+      } else {
+        pendingCenterPointRef.current = point;
+      }
+      onMapPointSelect?.(point);
+    },
+    [centerMapOnPoint, mobileMode, onMapPointSelect, updatePointInUrl],
+  );
+
   const searchAndSelect = useCallback(
     async (query: string) => {
       if (!hasToken) {
@@ -582,6 +612,7 @@ export default function MapView({
         mapStyle="mapbox://styles/mapbox/streets-v12"
         style={{ width: "100%", height: "100%" }}
         onLoad={handleLoad}
+        onClick={handleMapClick}
         onMoveEnd={() => {
           void fetchRegisteredMarkers().catch(() => {
             setRegisteredMarkers([]);
