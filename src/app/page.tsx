@@ -492,7 +492,7 @@ export default function Home() {
     <main className="relative h-screen w-screen overflow-hidden">
       <MapView
         onMarkerSelect={handleMarkerSelect}
-        selectedMarkerId={selectedLostPet?.petLossId ?? null}
+        selectedMarkerId={selectedLostPet?.markerId ?? null}
         activePetForm={activePetForm}
       />
 
@@ -523,7 +523,7 @@ export default function Home() {
             <div className="grid grid-cols-2 gap-3">
               {selectedLostPet.photos.map((photo, index) => (
                 <div
-                  key={`${selectedLostPet.petLossId}-${index}`}
+                  key={`${selectedLostPet.markerId}-${index}`}
                   className="overflow-hidden rounded-xl border border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900"
                 >
                   <img

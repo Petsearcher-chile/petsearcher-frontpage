@@ -1,7 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 
-const SUPABASE_URL =
-  process.env.SUPABASE_URL;
+const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const SIGNED_URL_TTL_SECONDS = 60 * 60;
 
@@ -22,10 +21,25 @@ type PetLossRow = {
   date_perdida: string | null;
 };
 
-type PetPhotoRow = {
+type PetFoundRow = {
+  id: number;
+  id_address: string | null;
+  supuesto_nombre: string | null;
+  date_encontre: string | null;
+};
+
+type PetLossPhotoRow = {
   id_perdida: number;
   id_file: string | null;
   id_file_miniatura: string | null;
+  id_file_nano: string | null;
+};
+
+type PetFoundPhotoRow = {
+  id_encontre: number;
+  id_file: string | null;
+  id_file_miniatura: string | null;
+  id_file_nano: string | null;
 };
 
 type FileRow = {
@@ -33,6 +47,24 @@ type FileRow = {
   storage_key: string | null;
   bucket_name: string | null;
   url: string | null;
+};
+
+type MarkerPhoto = {
+  originalUrl: string | null;
+  thumbnailUrl: string;
+  nanoUrl: string;
+};
+
+type MarkerResponse = {
+  markerType: "lost" | "found";
+  markerId: number;
+  longitude: number;
+  latitude: number;
+  fullAddress: string;
+  petName: string | null;
+  lostPetDate: string | null;
+  thumbnailUrl: string | null;
+  photos: MarkerPhoto[];
 };
 
 const parseNumber = (value: string | null) => {
@@ -63,10 +95,7 @@ export async function GET(request: Request) {
     minLatitude === null ||
     maxLatitude === null
   ) {
-    return Response.json(
-      { message: "Parámetros de límites inválidos." },
-      { status: 400 },
-    );
+    return Response.json({ message: "Parámetros de límites inválidos." }, { status: 400 });
   }
 
   const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
@@ -78,7 +107,7 @@ export async function GET(request: Request) {
     .lt("longitude", maxLongitude)
     .gt("latitude", minLatitude)
     .lt("latitude", maxLatitude)
-    .limit(300);
+    .limit(500);
 
   if (addressesError) {
     return Response.json(
@@ -95,63 +124,119 @@ export async function GET(request: Request) {
   const addressIds = addressRows.map((address) => address.id);
   const addressById = new Map(addressRows.map((address) => [address.id, address]));
 
-  const { data: petLosses, error: petLossesError } = await supabase
-    .from("pet_perdida")
-    .select("id, id_address, nombre_mascota, date_perdida")
-    .eq("estado", "registrada")
-    .in("id_address", addressIds)
-    .limit(300);
+  const [petLossesResult, petFoundResult] = await Promise.all([
+    supabase
+      .from("pet_perdida")
+      .select("id, id_address, nombre_mascota, date_perdida")
+      .eq("estado", "registrada")
+      .in("id_address", addressIds)
+      .limit(300),
+    supabase
+      .from("pet_encontre")
+      .select("id, id_address, supuesto_nombre, date_encontre")
+      .eq("estado", "encontrada")
+      .in("id_address", addressIds)
+      .limit(300),
+  ]);
 
-  if (petLossesError) {
-    console.error("Error fetching pet losses:", petLossesError);
+  if (petLossesResult.error) {
     return Response.json(
-      { message: "No se pudieron consultar pérdidas.", detail: petLossesError.message },
+      { message: "No se pudieron consultar pérdidas.", detail: petLossesResult.error.message },
       { status: 500 },
     );
   }
 
-  const petRows = (petLosses ?? []) as PetLossRow[];
-  if (petRows.length === 0) {
+  if (petFoundResult.error) {
+    return Response.json(
+      { message: "No se pudieron consultar hallazgos.", detail: petFoundResult.error.message },
+      { status: 500 },
+    );
+  }
+
+  const petLossRows = (petLossesResult.data ?? []) as PetLossRow[];
+  const petFoundRows = (petFoundResult.data ?? []) as PetFoundRow[];
+
+  if (petLossRows.length === 0 && petFoundRows.length === 0) {
     return Response.json({ markers: [] });
   }
 
-  const petLossIds = petRows.map((pet) => pet.id);
+  const petLossIds = petLossRows.map((pet) => pet.id);
+  const petFoundIds = petFoundRows.map((pet) => pet.id);
 
-  const { data: petPhotos, error: petPhotosError } = await supabase
-    .from("pet_perdida_fotos")
-    .select("id_perdida, id_file, id_file_miniatura")
-    .in("id_perdida", petLossIds);
+  const [petLossPhotosResult, petFoundPhotosResult] = await Promise.all([
+    petLossIds.length > 0
+      ? supabase
+          .from("pet_perdida_fotos")
+          .select("id_perdida, id_file, id_file_miniatura, id_file_nano")
+          .in("id_perdida", petLossIds)
+      : Promise.resolve({ data: [], error: null }),
+    petFoundIds.length > 0
+      ? supabase
+          .from("pet_encontre_fotos")
+          .select("id_encontre, id_file, id_file_miniatura, id_file_nano")
+          .in("id_encontre", petFoundIds)
+      : Promise.resolve({ data: [], error: null }),
+  ]);
 
-  if (petPhotosError) {
+  if (petLossPhotosResult.error) {
     return Response.json(
-      { message: "No se pudieron consultar fotos.", detail: petPhotosError.message },
+      { message: "No se pudieron consultar fotos de pérdidas.", detail: petLossPhotosResult.error.message },
       { status: 500 },
     );
   }
 
-  const photoRows = (petPhotos ?? []) as PetPhotoRow[];
-  const filesByPet = new Map<number, { originalId: string; miniId: string }[]>();
-  for (const row of photoRows) {
-  if (!row.id_file || !row.id_file_miniatura) {
-    continue;
+  if (petFoundPhotosResult.error) {
+    return Response.json(
+      { message: "No se pudieron consultar fotos de hallazgos.", detail: petFoundPhotosResult.error.message },
+      { status: 500 },
+    );
   }
-  const current = filesByPet.get(row.id_perdida) ?? [];
-  current.push({
-    originalId: row.id_file,
-    miniId: row.id_file_miniatura,
-  });
-  filesByPet.set(row.id_perdida, current);
+
+  const lossPhotoRows = (petLossPhotosResult.data ?? []) as PetLossPhotoRow[];
+  const foundPhotoRows = (petFoundPhotosResult.data ?? []) as PetFoundPhotoRow[];
+
+  const lossFilesByPet = new Map<number, { originalId: string; miniId: string; nanoId?: string }[]>();
+  for (const row of lossPhotoRows) {
+    if (!row.id_file || !row.id_file_miniatura) {
+      continue;
+    }
+    const current = lossFilesByPet.get(row.id_perdida) ?? [];
+    current.push({
+      originalId: row.id_file,
+      miniId: row.id_file_miniatura,
+      nanoId: row.id_file_nano ?? undefined,
+    });
+    lossFilesByPet.set(row.id_perdida, current);
+  }
+
+  const foundFilesByPet = new Map<number, { originalId: string; miniId: string; nanoId: string }[]>();
+  for (const row of foundPhotoRows) {
+    if (!row.id_file || !row.id_file_miniatura || !row.id_file_nano) {
+      continue;
+    }
+    const current = foundFilesByPet.get(row.id_encontre) ?? [];
+    current.push({
+      originalId: row.id_file,
+      miniId: row.id_file_miniatura,
+      nanoId: row.id_file_nano,
+    });
+    foundFilesByPet.set(row.id_encontre, current);
   }
 
   const fileIds = Array.from(
-  new Set(
-    Array.from(filesByPet.values()).flatMap((fileIdsByPet) =>
-      fileIdsByPet.flatMap((entry) => [entry.originalId, entry.miniId]),
+    new Set(
+      [
+        ...Array.from(lossFilesByPet.values()).flatMap((entries) =>
+          entries.flatMap((entry) => [entry.originalId, entry.miniId, entry.nanoId].filter(Boolean) as string[]),
+        ),
+        ...Array.from(foundFilesByPet.values()).flatMap((entries) =>
+          entries.flatMap((entry) => [entry.originalId, entry.miniId, entry.nanoId]),
+        ),
+      ].flat(),
     ),
-  ),
   );
-  let fileById = new Map<string, FileRow>();
 
+  let fileById = new Map<string, FileRow>();
   if (fileIds.length > 0) {
     const { data: files, error: filesError } = await supabase
       .from("files")
@@ -169,33 +254,6 @@ export async function GET(request: Request) {
   }
 
   const signedUrlCache = new Map<string, string | null>();
-  const resolveFileUrl = async (fileId: string | undefined) => {
-    if (!fileId) {
-      return null;
-    }
-    const file = fileById.get(fileId);
-    if (!file) {
-      return null;
-    }
-    if (!file.bucket_name || !file.storage_key) {
-      return file.url;
-    }
-
-    const cacheKey = `${file.bucket_name}:${file.storage_key}`;
-    if (signedUrlCache.has(cacheKey)) {
-      return signedUrlCache.get(cacheKey) ?? null;
-    }
-
-    const { data, error } = await supabase.storage
-      .from(file.bucket_name)
-      .createSignedUrl(file.storage_key, SIGNED_URL_TTL_SECONDS);
-    if (error || !data?.signedUrl) {
-      signedUrlCache.set(cacheKey, null);
-      return null;
-    }
-    signedUrlCache.set(cacheKey, data.signedUrl);
-    return data.signedUrl;
-  };
 
   const resolveStorageKeyUrl = async (bucketName: string | null, storageKey: string | null) => {
     if (!bucketName || !storageKey) {
@@ -207,10 +265,10 @@ export async function GET(request: Request) {
       return signedUrlCache.get(cacheKey) ?? null;
     }
 
-    const { data, error } = await supabase.storage.from(bucketName).createSignedUrl(
-      storageKey,
-      SIGNED_URL_TTL_SECONDS,
-    );
+    const { data, error } = await supabase.storage
+      .from(bucketName)
+      .createSignedUrl(storageKey, SIGNED_URL_TTL_SECONDS);
+
     if (error || !data?.signedUrl) {
       signedUrlCache.set(cacheKey, null);
       return null;
@@ -220,8 +278,25 @@ export async function GET(request: Request) {
     return data.signedUrl;
   };
 
-  const markers = await Promise.all(
-    petRows
+  const resolveFileUrl = async (fileId: string | undefined) => {
+    if (!fileId) {
+      return null;
+    }
+
+    const file = fileById.get(fileId);
+    if (!file) {
+      return null;
+    }
+
+    if (!file.bucket_name || !file.storage_key) {
+      return file.url;
+    }
+
+    return resolveStorageKeyUrl(file.bucket_name, file.storage_key);
+  };
+
+  const lossMarkers = await Promise.all(
+    petLossRows
       .filter((pet) => pet.id_address !== null)
       .map(async (pet) => {
         const address = addressById.get(pet.id_address as string);
@@ -229,7 +304,7 @@ export async function GET(request: Request) {
           return null;
         }
 
-        const petFiles = filesByPet.get(pet.id);
+        const petFiles = lossFilesByPet.get(pet.id);
         if (!petFiles || petFiles.length === 0) {
           return null;
         }
@@ -237,20 +312,17 @@ export async function GET(request: Request) {
         const photos = (
           await Promise.all(
             petFiles.map(async (fileIdsByPet) => {
-              const originalFile = fileById.get(fileIdsByPet.originalId);
               const miniFile = fileById.get(fileIdsByPet.miniId);
-              if (!originalFile || !miniFile) {
-                return null;
-              }
-
               const [originalUrl, thumbnailUrl] = await Promise.all([
                 resolveFileUrl(fileIdsByPet.originalId),
                 resolveFileUrl(fileIdsByPet.miniId),
               ]);
-              const nanoUrl = await resolveStorageKeyUrl(
-                miniFile.bucket_name,
-                miniFile.storage_key?.replace(/^miniatura\//, "nano/") ?? null,
+              const directNanoUrl = await resolveFileUrl(fileIdsByPet.nanoId);
+              const fallbackNanoUrl = await resolveStorageKeyUrl(
+                miniFile?.bucket_name ?? null,
+                miniFile?.storage_key?.replace(/^miniatura\//, "nano/") ?? null,
               );
+              const nanoUrl = directNanoUrl ?? fallbackNanoUrl;
 
               if (!thumbnailUrl || !nanoUrl) {
                 return null;
@@ -263,21 +335,15 @@ export async function GET(request: Request) {
               };
             }),
           )
-        ).filter(
-          (photo): photo is {
-            originalUrl: string | null;
-            thumbnailUrl: string;
-            nanoUrl: string;
-          } =>
-            Boolean(photo),
-        );
+        ).filter((photo): photo is MarkerPhoto => Boolean(photo));
 
         if (photos.length === 0) {
           return null;
         }
 
-        return {
-          petLossId: pet.id,
+        const marker: MarkerResponse = {
+          markerType: "lost",
+          markerId: pet.id,
           longitude: address.longitude,
           latitude: address.latitude,
           fullAddress: address.full_address,
@@ -286,15 +352,73 @@ export async function GET(request: Request) {
           thumbnailUrl: photos[0].nanoUrl,
           photos,
         };
+
+        return marker;
       }),
   );
 
-  const filteredMarkers = markers.filter((marker): marker is NonNullable<typeof marker> =>
-    Boolean(marker),
+  const foundMarkers = await Promise.all(
+    petFoundRows
+      .filter((pet) => pet.id_address !== null)
+      .map(async (pet) => {
+        const address = addressById.get(pet.id_address as string);
+        if (!address) {
+          return null;
+        }
+
+        const petFiles = foundFilesByPet.get(pet.id);
+        if (!petFiles || petFiles.length === 0) {
+          return null;
+        }
+
+        const photos = (
+          await Promise.all(
+            petFiles.map(async (fileIdsByPet) => {
+              const [originalUrl, thumbnailUrl, nanoUrl] = await Promise.all([
+                resolveFileUrl(fileIdsByPet.originalId),
+                resolveFileUrl(fileIdsByPet.miniId),
+                resolveFileUrl(fileIdsByPet.nanoId),
+              ]);
+
+              if (!thumbnailUrl || !nanoUrl) {
+                return null;
+              }
+
+              return {
+                originalUrl,
+                thumbnailUrl,
+                nanoUrl,
+              };
+            }),
+          )
+        ).filter((photo): photo is MarkerPhoto => Boolean(photo));
+
+        if (photos.length === 0) {
+          return null;
+        }
+
+        const marker: MarkerResponse = {
+          markerType: "found",
+          markerId: pet.id,
+          longitude: address.longitude,
+          latitude: address.latitude,
+          fullAddress: address.full_address,
+          petName: pet.supuesto_nombre,
+          lostPetDate: pet.date_encontre,
+          thumbnailUrl: photos[0].nanoUrl,
+          photos,
+        };
+
+        return marker;
+      }),
+  );
+
+  const markers = [...lossMarkers, ...foundMarkers].filter(
+    (marker): marker is NonNullable<typeof marker> => Boolean(marker),
   );
 
   return Response.json(
-    { markers: filteredMarkers },
+    { markers },
     {
       headers: {
         "Cache-Control": "no-store, max-age=0",

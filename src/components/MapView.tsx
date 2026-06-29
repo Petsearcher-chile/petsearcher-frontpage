@@ -37,7 +37,8 @@ type SelectedAddressDetail = {
 };
 
 export type RegisteredPetMarker = {
-  petLossId: number;
+  markerType: "lost" | "found";
+  markerId: number;
   longitude: number;
   latitude: number;
   fullAddress: string;
@@ -388,21 +389,25 @@ export default function MapView({ onMarkerSelect, selectedMarkerId, activePetFor
       >
         {registeredMarkers.map((marker) => (
           <Marker
-            key={`${marker.petLossId}-${marker.longitude}-${marker.latitude}`}
+            key={`${marker.markerType}-${marker.markerId}-${marker.longitude}-${marker.latitude}`}
             longitude={marker.longitude}
             latitude={marker.latitude}
             anchor="bottom"
           >
             <button
               type="button"
-              aria-label={`Ver fotos de ${marker.petName ?? "mascota perdida"}`}
+              aria-label={`Ver ${marker.markerType === "found" ? "mascota encontrada" : "mascota perdida"}`}
               className="pointer-events-auto flex flex-col items-center bg-transparent p-0"
-              onClick={() => onMarkerSelect?.(marker)}
+              onClick={() => {
+                if (marker.markerType === "lost") {
+                  onMarkerSelect?.(marker);
+                }
+              }}
             >
               {marker.thumbnailUrl ? (
                 <div
                   className={`mb-1 overflow-hidden rounded-md border-2 bg-white shadow-lg ${
-                    selectedMarkerId === marker.petLossId
+                    selectedMarkerId === marker.markerId && marker.markerType === "lost"
                       ? "h-14 w-14 border-blue-500 ring-2 ring-blue-300"
                       : "h-12 w-12 border-white"
                   }`}
@@ -421,10 +426,15 @@ export default function MapView({ onMarkerSelect, selectedMarkerId, activePetFor
               >
                 <path
                   d="M24 2C12.4 2 3 11.4 3 23c0 15.4 21 39 21 39s21-23.6 21-39C45 11.4 35.6 2 24 2Z"
-                  fill="#ef4444"
+                  fill={marker.markerType === "found" ? "#3b82f6" : "#ef4444"}
                 />
                 <circle cx="24" cy="23" r="10" fill="#ffffff" />
-                <circle cx="24" cy="23" r="5.5" fill="#ef4444" />
+                <circle
+                  cx="24"
+                  cy="23"
+                  r="5.5"
+                  fill={marker.markerType === "found" ? "#3b82f6" : "#ef4444"}
+                />
               </svg>
             </button>
           </Marker>
