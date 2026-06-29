@@ -1,3 +1,21 @@
+# Lo que se busca (parte 1)
+debes encontrar todos los textos que encuentres que salgan por pantalla o que que estén en las apis, y a partir de esos textos que encontraste, créame un archivo en src/messages/en.json o modifica el que existe con los nuevos valores bajo la siguiente estructura
+
+{
+"Index": {
+"title": "Hola mundo",
+.....
+},
+....
+}
+
+### donde
+- Index: es el nombre de la sección o página donde encontraste el texto
+- title: <a este texto le llamaremos "texto llave"> ,es el texto que encontraste , pero en minúsculas, y en ingles, los espacios deben ser reemplazados con _ , las vocales con acento deben ser reemplazadas por vocales sin acento, y todo lo adicional que no sea a-z debe ser eliminado
+- Hola mundo: es el texto que encontraste <que llamaremos "texto original">
+
+
+
 # Crea los otros (language-json)
 - debes traducir del inglés ( src/messages/en.json ) a los siguientes idiomas:
   - es, en-gb, pt, fr, de, it, nl, sv, no, da, fi, is, pl, cs, sk, sl, hr, sr, bs, ro, bg, ru, uk, be, el, tr, he, ar, fa, ur, hi, bn, pa, ta, te, ml, mr, gu, kn, th, vi, id, ms, fil, ja, ko, zh, yue, km, lo, my, sw, am, zu, af, xh, eo
