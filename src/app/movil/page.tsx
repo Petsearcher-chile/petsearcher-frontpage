@@ -134,6 +134,7 @@ export default function MobileMapPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dragStartYRef = useRef<number | null>(null);
   const dragOffsetRef = useRef(0);
+  const ignoreNextMapClickRef = useRef(false);
 
   const openSheet = useCallback(() => {
     setIsSheetOpen(true);
@@ -224,6 +225,11 @@ export default function MobileMapPage() {
 
   const handlePointSelect = useCallback(
     (point: SelectedPoint) => {
+      if (ignoreNextMapClickRef.current) {
+        ignoreNextMapClickRef.current = false;
+        return;
+      }
+
       setSelectedPoint(point);
       setSelectedMarker(null);
       setSheetMode("menu");
@@ -233,6 +239,7 @@ export default function MobileMapPage() {
   );
 
   const handleMarkerSelect = useCallback((marker: RegisteredPetMarker) => {
+    ignoreNextMapClickRef.current = true;
     setSelectedMarker(marker);
     setSelectedPoint(null);
     setSheetMode("detail");
@@ -618,6 +625,23 @@ export default function MobileMapPage() {
                     </span>{" "}
                     {selectedMarker.fullAddress}
                   </p>
+                </div>
+
+                <div className="flex items-center gap-2 overflow-x-auto rounded-2xl border border-white/10 bg-white/5 p-2">
+                  {selectedMarker.photos.length > 0 ? (
+                    selectedMarker.photos.map((photo, index) => (
+                      <img
+                        key={`${selectedMarker.markerType}-${selectedMarker.markerId}-${index}`}
+                        src={photo.thumbnailUrl}
+                        alt={selectedMarker.petName ?? tCommon("not_available")}
+                        className="h-16 w-16 flex-none rounded-xl border border-white/15 object-cover"
+                      />
+                    ))
+                  ) : (
+                    <p className="px-2 py-3 text-sm text-white/65">
+                      {tCommon("not_available")}
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
