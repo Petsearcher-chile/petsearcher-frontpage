@@ -517,12 +517,6 @@ export default function MobileMapPage() {
     };
   }, []);
 
-  const selectedLabel = selectedAddress?.fullAddress ?? (
-    selectedPoint
-      ? `${selectedPoint.latitude.toFixed(5)}, ${selectedPoint.longitude.toFixed(5)}`
-      : ""
-  );
-
   return (
     <main className="relative h-screen w-screen overflow-hidden bg-zinc-950">
       <MapView
@@ -661,9 +655,6 @@ export default function MobileMapPage() {
               >
                 {tIndex("found_pet_button")}
               </button>
-              {selectedLabel ? (
-                <p className="mt-4 text-sm text-white/75">{selectedLabel}</p>
-              ) : null}
             </div>
           ) : (
             <div className="flex-1 overflow-auto px-4 pb-5 pt-4">
