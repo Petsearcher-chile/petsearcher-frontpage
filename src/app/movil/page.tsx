@@ -1,5 +1,6 @@
 "use client";
 
+import { useAuth, useClerk } from "@clerk/nextjs";
 import { useTranslations } from "next-intl";
 import { useLocale } from "next-intl";
 import {
@@ -108,6 +109,8 @@ const toPreviewImages = (value: unknown): PreviewImage[] => {
 };
 
 export default function MobileMapPage() {
+  const { isLoaded, isSignedIn } = useAuth();
+  const { openSignIn } = useClerk();
   const tCommon = useTranslations("Common");
   const tIndex = useTranslations("Index");
   const tApi = useTranslations("Api");
@@ -226,16 +229,34 @@ export default function MobileMapPage() {
   );
 
   const handleLostButton = useCallback(() => {
+    if (!isLoaded) {
+      return;
+    }
+
+    if (!isSignedIn) {
+      void openSignIn();
+      return;
+    }
+
     resetPetForm();
     setSheetMode("lost");
     openSheet();
-  }, [openSheet, resetPetForm]);
+  }, [isLoaded, isSignedIn, openSignIn, openSheet, resetPetForm]);
 
   const handleFoundButton = useCallback(() => {
+    if (!isLoaded) {
+      return;
+    }
+
+    if (!isSignedIn) {
+      void openSignIn();
+      return;
+    }
+
     resetPetForm();
     setSheetMode("found");
     openSheet();
-  }, [openSheet, resetPetForm]);
+  }, [isLoaded, isSignedIn, openSignIn, openSheet, resetPetForm]);
 
   const handleFileChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
