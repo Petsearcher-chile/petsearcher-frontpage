@@ -150,6 +150,19 @@ export default function MobileMapPage() {
     setPopup({ type, message });
   }, []);
 
+  const resetLostForm = useCallback(() => {
+    setLostPetDate("");
+    setLostPetName("");
+    setPreviewImages([]);
+    setPetLossId(null);
+    setPopup(null);
+    setIsUploading(false);
+    setIsSaving(false);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  }, []);
+
   const compressImage = useCallback(async (file: File) => {
     const objectUrl = URL.createObjectURL(file);
 
@@ -209,9 +222,10 @@ export default function MobileMapPage() {
   );
 
   const handleLostButton = useCallback(() => {
+    resetLostForm();
     setSheetMode("lost");
     openSheet();
-  }, [openSheet]);
+  }, [openSheet, resetLostForm]);
 
   const handleFoundButton = useCallback(() => {
     setSheetMode("menu");
