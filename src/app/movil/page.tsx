@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { useLocale } from "next-intl";
 import {
   useCallback,
   useEffect,
@@ -45,10 +46,11 @@ type ApiResponse = {
   message?: string;
   detail?: string;
   petLossId?: number;
+  petFoundId?: number;
   previewImages?: unknown;
 };
 
-type SheetMode = "menu" | "lost";
+type SheetMode = "menu" | "lost" | "found";
 
 const LOST_PET_NAME_MAX_LENGTH = 30;
 const MAX_PHOTOS = 10;
@@ -108,6 +110,8 @@ const toPreviewImages = (value: unknown): PreviewImage[] => {
 export default function MobileMapPage() {
   const tCommon = useTranslations("Common");
   const tIndex = useTranslations("Index");
+  const tApi = useTranslations("Api");
+  const locale = useLocale();
 
   const [selectedPoint, setSelectedPoint] = useState<SelectedPoint | null>(null);
   const [selectedAddress, setSelectedAddress] = useState<SelectedAddressDetail | null>(null);
@@ -150,7 +154,7 @@ export default function MobileMapPage() {
     setPopup({ type, message });
   }, []);
 
-  const resetLostForm = useCallback(() => {
+  const resetPetForm = useCallback(() => {
     setLostPetDate("");
     setLostPetName("");
     setPreviewImages([]);
@@ -222,15 +226,16 @@ export default function MobileMapPage() {
   );
 
   const handleLostButton = useCallback(() => {
-    resetLostForm();
+    resetPetForm();
     setSheetMode("lost");
     openSheet();
-  }, [openSheet, resetLostForm]);
+  }, [openSheet, resetPetForm]);
 
   const handleFoundButton = useCallback(() => {
-    setSheetMode("menu");
+    resetPetForm();
+    setSheetMode("found");
     openSheet();
-  }, [openSheet]);
+  }, [openSheet, resetPetForm]);
 
   const handleFileChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
@@ -258,26 +263,34 @@ export default function MobileMapPage() {
           const compressedFiles = await Promise.all(files.map((file) => compressImage(file)));
           const formData = new FormData();
 
+          const isFoundMode = sheetMode === "found";
+
           if (petLossId !== null) {
-            formData.append("petLossId", String(petLossId));
+            formData.append(isFoundMode ? "petFoundId" : "petLossId", String(petLossId));
           }
 
           if (lostPetDate.trim().length > 0) {
-            formData.append("lostPetDate", lostPetDate.trim());
+            formData.append(isFoundMode ? "foundPetDate" : "lostPetDate", lostPetDate.trim());
           }
 
           if (lostPetName.trim().length > 0) {
-            formData.append("lostPetName", lostPetName.trim());
+            formData.append(isFoundMode ? "foundPetName" : "lostPetName", lostPetName.trim());
           }
 
           compressedFiles.forEach((file) => {
             formData.append("photos", file);
           });
 
-          const response = await fetch("/api/lost-pet-photos", {
-            method: "POST",
-            body: formData,
-          });
+          const response = await fetch(
+            isFoundMode ? "/api/found-pet-photos" : "/api/lost-pet-photos",
+            {
+              method: "POST",
+              headers: {
+                "x-locale": locale,
+              },
+              body: formData,
+            },
+          );
 
           const payload = (await response.json().catch(() => null)) as ApiResponse | null;
 
@@ -305,6 +318,8 @@ export default function MobileMapPage() {
       petLossId,
       previewImages.length,
       showPopup,
+      locale,
+      sheetMode,
       tIndex,
     ],
   );
@@ -317,55 +332,91 @@ export default function MobileMapPage() {
       }
 
       if (selectedAddress === null) {
-        showPopup("error", tIndex("select_lost_location_error"));
+        showPopup(
+          "error",
+          sheetMode === "found"
+            ? tIndex("select_found_location_error")
+            : tIndex("select_lost_location_error"),
+        );
         return;
       }
 
-      if (lostPetName.trim().length === 0 || lostPetDate.trim().length === 0) {
+      if (lostPetDate.trim().length === 0) {
         return;
       }
 
-      if (lostPetName.trim().length > LOST_PET_NAME_MAX_LENGTH) {
+      if (
+        sheetMode === "lost" &&
+        (lostPetName.trim().length === 0 || lostPetName.trim().length > LOST_PET_NAME_MAX_LENGTH)
+      ) {
         showPopup("error", tIndex("name_max_length_error", { max: LOST_PET_NAME_MAX_LENGTH }));
         return;
       }
 
       if (petLossId === null) {
-        showPopup("error", tIndex("must_upload_photo"));
+        showPopup(
+          "error",
+          sheetMode === "found"
+            ? tApi("no_se_pudo_identificar_el_hallazgo_para_guardar")
+            : tApi("no_se_pudo_identificar_la_perdida_para_guardar"),
+        );
         return;
       }
 
       setIsSaving(true);
 
       try {
-        const response = await fetch("/api/lost-pet-save", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
+        const response = await fetch(
+          sheetMode === "found" ? "/api/found-pet-save" : "/api/lost-pet-save",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "x-locale": locale,
+            },
+            body: JSON.stringify({
+              ...(sheetMode === "found"
+                ? {
+                    petFoundId: petLossId,
+                    foundPetDate: lostPetDate.trim(),
+                    foundPetName: lostPetName.trim(),
+                  }
+                : {
+                    petLossId,
+                    lostPetDate: lostPetDate.trim(),
+                    lostPetName: lostPetName.trim(),
+                  }),
+              mapboxAddress: selectedAddress,
+            }),
           },
-          body: JSON.stringify({
-            petLossId,
-            lostPetDate: lostPetDate.trim(),
-            lostPetName: lostPetName.trim(),
-            mapboxAddress: selectedAddress,
-          }),
-        });
+        );
 
         const payload = (await response.json().catch(() => null)) as ApiResponse | null;
 
         if (!response.ok) {
-          showPopup("error", formatApiMessage(payload, tIndex("save_lost_error")));
+          showPopup(
+            "error",
+            sheetMode === "found"
+              ? formatApiMessage(payload, tIndex("save_found_error"))
+              : formatApiMessage(payload, tIndex("save_lost_error")),
+          );
           return;
         }
 
         if (typeof payload?.petLossId === "number") {
           setPetLossId(payload.petLossId);
         }
+        if (typeof payload?.petFoundId === "number") {
+          setPetLossId(payload.petFoundId);
+        }
 
         closeSheet();
-        showPopup("success", tIndex("save_success_lost"));
+        showPopup(
+          "success",
+          sheetMode === "found" ? tIndex("save_success_found") : tIndex("save_success_lost"),
+        );
       } catch {
-        showPopup("error", tIndex("save_lost_error"));
+        showPopup("error", sheetMode === "found" ? tIndex("save_found_error") : tIndex("save_lost_error"));
       } finally {
         setIsSaving(false);
       }
@@ -377,7 +428,10 @@ export default function MobileMapPage() {
     previewImages.length,
     selectedAddress,
     closeSheet,
+    locale,
+    sheetMode,
     showPopup,
+    tApi,
     tIndex,
   ]);
 
@@ -491,7 +545,7 @@ export default function MobileMapPage() {
               <div className="space-y-4">
                 <label className="block">
                   <span className="mb-2 block text-sm font-medium text-white">
-                    {tCommon("date_lost")}
+                    {sheetMode === "found" ? tCommon("date_found") : tCommon("date_lost")}
                   </span>
                   <input
                     type="date"
@@ -556,7 +610,7 @@ export default function MobileMapPage() {
                     isUploading ||
                     previewImages.length === 0 ||
                     lostPetDate.trim().length === 0 ||
-                    lostPetName.trim().length === 0
+                    (sheetMode === "found" ? false : lostPetName.trim().length === 0)
                   }
                   onClick={handleSaveLostPet}
                 >
