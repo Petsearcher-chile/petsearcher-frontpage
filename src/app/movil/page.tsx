@@ -299,7 +299,9 @@ export default function MobileMapPage() {
             return;
           }
 
-          if (typeof payload?.petLossId === "number") {
+          if (typeof payload?.petFoundId === "number") {
+            setPetLossId(payload.petFoundId);
+          } else if (typeof payload?.petLossId === "number") {
             setPetLossId(payload.petLossId);
           }
 
