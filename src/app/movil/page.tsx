@@ -1,7 +1,13 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useCallback, useRef, useState, type ChangeEvent } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type ChangeEvent,
+} from "react";
 import MapView from "@/components/MapView";
 
 type SelectedPoint = {
@@ -9,15 +15,47 @@ type SelectedPoint = {
   latitude: number;
 };
 
-type SheetMode = "menu" | "lost";
-
-type UploadedFile = {
-  id: string;
-  file: File;
+type SelectedAddressDetail = {
+  fullAddress: string;
+  longitude: number;
+  latitude: number;
+  country: string | null;
+  region: string | null;
+  city: string | null;
+  postcode: string | null;
+  street: string | null;
+  houseNumber: string | null;
 };
+
+type PreviewImage = {
+  id: string;
+  thumbnailUrl: string;
+  originalUrl: string;
+  name: string;
+};
+
+type PopupState =
+  | {
+      type: "error" | "success";
+      message: string;
+    }
+  | null;
+
+type ApiResponse = {
+  message?: string;
+  detail?: string;
+  petLossId?: number;
+  previewImages?: unknown;
+};
+
+type SheetMode = "menu" | "lost";
 
 const LOST_PET_NAME_MAX_LENGTH = 30;
 const MAX_PHOTOS = 10;
+const MAX_IMAGE_DIMENSION = 2048;
+const JPEG_QUALITY = 0.72;
+const LOCATION_EVENT_NAME = "petsearcher:location-selected";
+
 const ALLOWED_IMAGE_MIME_TYPES = new Set([
   "image/png",
   "image/jpeg",
@@ -26,20 +64,64 @@ const ALLOWED_IMAGE_MIME_TYPES = new Set([
   "image/gif",
 ]);
 
+const loadImage = (src: string) =>
+  new Promise<HTMLImageElement>((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => resolve(image);
+    image.onerror = () => reject(new Error("image-load-failed"));
+    image.src = src;
+  });
+
+const formatApiMessage = (payload: ApiResponse | null, fallback: string) => {
+  const message = typeof payload?.message === "string" && payload.message.trim().length > 0
+    ? payload.message.trim()
+    : fallback;
+  const detail = typeof payload?.detail === "string" && payload.detail.trim().length > 0
+    ? payload.detail.trim()
+    : "";
+
+  return detail ? `${message} ${detail}` : message;
+};
+
+const toPreviewImages = (value: unknown): PreviewImage[] => {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value.filter(
+    (item: unknown): item is PreviewImage =>
+      Boolean(
+        item &&
+          typeof item === "object" &&
+          "id" in item &&
+          typeof item.id === "string" &&
+          "thumbnailUrl" in item &&
+          typeof item.thumbnailUrl === "string" &&
+          "originalUrl" in item &&
+          typeof item.originalUrl === "string" &&
+          "name" in item &&
+          typeof item.name === "string",
+      ),
+  );
+};
+
 export default function MobileMapPage() {
   const tCommon = useTranslations("Common");
   const tIndex = useTranslations("Index");
+
   const [selectedPoint, setSelectedPoint] = useState<SelectedPoint | null>(null);
+  const [selectedAddress, setSelectedAddress] = useState<SelectedAddressDetail | null>(null);
   const [sheetMode, setSheetMode] = useState<SheetMode>("menu");
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [dragOffset, setDragOffset] = useState(0);
   const [lostPetDate, setLostPetDate] = useState("");
   const [lostPetName, setLostPetName] = useState("");
-  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
-  const [uploadError, setUploadError] = useState("");
-  const [saveSuccessMessage, setSaveSuccessMessage] = useState("");
+  const [previewImages, setPreviewImages] = useState<PreviewImage[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [petLossId, setPetLossId] = useState<number | null>(null);
+  const [popup, setPopup] = useState<PopupState>(null);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dragStartYRef = useRef<number | null>(null);
   const dragOffsetRef = useRef(0);
@@ -64,6 +146,59 @@ export default function MobileMapPage() {
     setDragOffset(0);
   }, []);
 
+  const showPopup = useCallback((type: "error" | "success", message: string) => {
+    setPopup({ type, message });
+  }, []);
+
+  const compressImage = useCallback(async (file: File) => {
+    const objectUrl = URL.createObjectURL(file);
+
+    try {
+      const image = await loadImage(objectUrl);
+      const largestSide = Math.max(image.naturalWidth, image.naturalHeight);
+      const scale = Math.min(1, MAX_IMAGE_DIMENSION / largestSide);
+      const width = Math.max(1, Math.round(image.naturalWidth * scale));
+      const height = Math.max(1, Math.round(image.naturalHeight * scale));
+      const canvas = document.createElement("canvas");
+      const context = canvas.getContext("2d");
+
+      if (!context) {
+        throw new Error("canvas-unavailable");
+      }
+
+      canvas.width = width;
+      canvas.height = height;
+      context.imageSmoothingEnabled = true;
+      context.imageSmoothingQuality = "high";
+      context.fillStyle = "#ffffff";
+      context.fillRect(0, 0, width, height);
+      context.drawImage(image, 0, 0, width, height);
+
+      const blob = await new Promise<Blob>((resolve, reject) => {
+        canvas.toBlob(
+          (output) => {
+            if (!output) {
+              reject(new Error("compression-failed"));
+              return;
+            }
+
+            resolve(output);
+          },
+          "image/jpeg",
+          JPEG_QUALITY,
+        );
+      });
+
+      const normalizedName = file.name.replace(/\.[^.]+$/, "") || "photo";
+      return new File([blob], `${normalizedName}.jpg`, {
+        type: "image/jpeg",
+        lastModified: file.lastModified,
+      });
+    } finally {
+      URL.revokeObjectURL(objectUrl);
+    }
+  }, []);
+
   const handlePointSelect = useCallback(
     (point: SelectedPoint) => {
       setSelectedPoint(point);
@@ -75,8 +210,11 @@ export default function MobileMapPage() {
 
   const handleLostButton = useCallback(() => {
     setSheetMode("lost");
-    setUploadError("");
-    setSaveSuccessMessage("");
+    openSheet();
+  }, [openSheet]);
+
+  const handleFoundButton = useCallback(() => {
+    setSheetMode("menu");
     openSheet();
   }, [openSheet]);
 
@@ -89,75 +227,172 @@ export default function MobileMapPage() {
         return;
       }
 
-      if (files.length + uploadedFiles.length > MAX_PHOTOS) {
-        setUploadError(tIndex("max_photos_error"));
+      if (previewImages.length + files.length > MAX_PHOTOS) {
+        showPopup("error", tIndex("max_photos_error"));
         return;
       }
 
       if (files.some((file) => !ALLOWED_IMAGE_MIME_TYPES.has(file.type.toLowerCase()))) {
-        setUploadError(tIndex("image_only_error"));
+        showPopup("error", tIndex("image_only_error"));
         return;
       }
 
-      setUploadError("");
-      setSaveSuccessMessage("");
-      setUploadedFiles((current) => [
-        ...current,
-        ...files.map((file) => ({ id: crypto.randomUUID(), file })),
-      ]);
+      void (async () => {
+        setIsUploading(true);
+
+        try {
+          const compressedFiles = await Promise.all(files.map((file) => compressImage(file)));
+          const formData = new FormData();
+
+          if (petLossId !== null) {
+            formData.append("petLossId", String(petLossId));
+          }
+
+          if (lostPetDate.trim().length > 0) {
+            formData.append("lostPetDate", lostPetDate.trim());
+          }
+
+          if (lostPetName.trim().length > 0) {
+            formData.append("lostPetName", lostPetName.trim());
+          }
+
+          compressedFiles.forEach((file) => {
+            formData.append("photos", file);
+          });
+
+          const response = await fetch("/api/lost-pet-photos", {
+            method: "POST",
+            body: formData,
+          });
+
+          const payload = (await response.json().catch(() => null)) as ApiResponse | null;
+
+          if (!response.ok) {
+            showPopup("error", formatApiMessage(payload, tIndex("upload_photos_error")));
+            return;
+          }
+
+          if (typeof payload?.petLossId === "number") {
+            setPetLossId(payload.petLossId);
+          }
+
+          setPreviewImages((current) => [...current, ...toPreviewImages(payload?.previewImages)]);
+        } catch {
+          showPopup("error", tIndex("upload_photos_error"));
+        } finally {
+          setIsUploading(false);
+        }
+      })();
     },
-    [tIndex, uploadedFiles.length],
+    [
+      compressImage,
+      lostPetDate,
+      lostPetName,
+      petLossId,
+      previewImages.length,
+      showPopup,
+      tIndex,
+    ],
   );
 
   const handleSaveLostPet = useCallback(() => {
     void (async () => {
-      if (lostPetName.trim().length > LOST_PET_NAME_MAX_LENGTH) {
-        setUploadError(tIndex("name_max_length_error", { max: LOST_PET_NAME_MAX_LENGTH }));
+      if (previewImages.length === 0) {
+        showPopup("error", tIndex("must_upload_photo"));
         return;
       }
 
-      if (uploadedFiles.length === 0) {
-        setUploadError(tIndex("must_upload_photo"));
+      if (selectedAddress === null) {
+        showPopup("error", tIndex("select_lost_location_error"));
+        return;
+      }
+
+      if (lostPetName.trim().length === 0 || lostPetDate.trim().length === 0) {
+        return;
+      }
+
+      if (lostPetName.trim().length > LOST_PET_NAME_MAX_LENGTH) {
+        showPopup("error", tIndex("name_max_length_error", { max: LOST_PET_NAME_MAX_LENGTH }));
+        return;
+      }
+
+      if (petLossId === null) {
+        showPopup("error", tIndex("must_upload_photo"));
         return;
       }
 
       setIsSaving(true);
-      setUploadError("");
-
-      const formData = new FormData();
-      if (petLossId !== null) {
-        formData.append("petLossId", String(petLossId));
-      }
-      formData.append("lostPetDate", lostPetDate);
-      formData.append("lostPetName", lostPetName.trim());
-      uploadedFiles.forEach(({ file }) => {
-        formData.append("photos", file);
-      });
 
       try {
-        const response = await fetch("/api/lost-pet-photos", {
+        const response = await fetch("/api/lost-pet-save", {
           method: "POST",
-          body: formData,
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            petLossId,
+            lostPetDate: lostPetDate.trim(),
+            lostPetName: lostPetName.trim(),
+            mapboxAddress: selectedAddress,
+          }),
         });
 
+        const payload = (await response.json().catch(() => null)) as ApiResponse | null;
+
         if (!response.ok) {
-          const payload = (await response.json()) as { message?: string; detail?: string };
-          setUploadError(payload.detail ? `${payload.message ?? ""} ${payload.detail}`.trim() : payload.message ?? tIndex("upload_photos_error"));
+          showPopup("error", formatApiMessage(payload, tIndex("save_lost_error")));
           return;
         }
 
-        const payload = (await response.json()) as { petLossId?: number };
-        if (typeof payload.petLossId === "number") {
+        if (typeof payload?.petLossId === "number") {
           setPetLossId(payload.petLossId);
         }
-        setSaveSuccessMessage(tIndex("save_success_lost"));
+
+        closeSheet();
+        showPopup("success", tIndex("save_success_lost"));
       } catch {
-        setUploadError(tIndex("upload_photos_error"));
+        showPopup("error", tIndex("save_lost_error"));
       } finally {
         setIsSaving(false);
       }
     })();
-  }, [lostPetDate, lostPetName, petLossId, tIndex, uploadedFiles]);
+  }, [
+    lostPetDate,
+    lostPetName,
+    petLossId,
+    previewImages.length,
+    selectedAddress,
+    closeSheet,
+    showPopup,
+    tIndex,
+  ]);
+
+  useEffect(() => {
+    const handleLocationSelected = (event: Event) => {
+      const customEvent = event as CustomEvent<{
+        selected: boolean;
+        address?: SelectedAddressDetail;
+      }>;
+
+      if (!customEvent.detail.selected || !customEvent.detail.address) {
+        setSelectedAddress(null);
+        return;
+      }
+
+      setSelectedAddress(customEvent.detail.address);
+    };
+
+    window.addEventListener(LOCATION_EVENT_NAME, handleLocationSelected as EventListener);
+    return () => {
+      window.removeEventListener(LOCATION_EVENT_NAME, handleLocationSelected as EventListener);
+    };
+  }, []);
+
+  const selectedLabel = selectedAddress?.fullAddress ?? (
+    selectedPoint
+      ? `${selectedPoint.latitude.toFixed(5)}, ${selectedPoint.longitude.toFixed(5)}`
+      : ""
+  );
 
   return (
     <main className="relative h-screen w-screen overflow-hidden bg-zinc-950">
@@ -198,6 +433,7 @@ export default function MobileMapPage() {
             onPointerUp={(event) => {
               event.preventDefault();
               event.stopPropagation();
+
               if (dragOffsetRef.current > 120) {
                 closeSheet();
                 return;
@@ -228,14 +464,12 @@ export default function MobileMapPage() {
               <button
                 type="button"
                 className="mt-3 w-full rounded-2xl bg-white/20 px-4 py-4 text-left text-base font-semibold text-white transition hover:bg-white/30"
-                onClick={() => setSheetMode("menu")}
+                onClick={handleFoundButton}
               >
                 {tIndex("found_pet_button")}
               </button>
-              {selectedPoint ? (
-                <p className="mt-4 text-sm text-white/75">
-                  {selectedPoint.latitude.toFixed(5)}, {selectedPoint.longitude.toFixed(5)}
-                </p>
+              {selectedLabel ? (
+                <p className="mt-4 text-sm text-white/75">{selectedLabel}</p>
               ) : null}
             </div>
           ) : (
@@ -278,31 +512,38 @@ export default function MobileMapPage() {
 
                 <button
                   type="button"
-                  className="w-full rounded-2xl border border-white/20 bg-white/20 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/30"
+                  className="w-full rounded-2xl border border-white/20 bg-white/20 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/30 disabled:opacity-60"
                   onClick={() => fileInputRef.current?.click()}
+                  disabled={isUploading || isSaving}
                 >
                   {tCommon("upload")}
                 </button>
 
-                {uploadedFiles.length > 0 ? (
-                  <div className="max-h-24 space-y-2 overflow-auto rounded-2xl border border-white/10 bg-black/10 p-3 text-sm text-white/80">
-                    {uploadedFiles.map((item) => (
-                      <p key={item.id} className="truncate">
-                        {item.file.name}
-                      </p>
-                    ))}
-                  </div>
-                ) : null}
-
-                {uploadError ? <p className="text-sm text-red-200">{uploadError}</p> : null}
-                {saveSuccessMessage ? (
-                  <p className="text-sm text-emerald-200">{saveSuccessMessage}</p>
-                ) : null}
+                <div className="flex items-center gap-2 overflow-x-auto rounded-2xl border border-white/10 bg-black/10 p-3">
+                  {previewImages.length > 0 ? (
+                    previewImages.map((preview) => (
+                      <img
+                        key={preview.id}
+                        src={preview.thumbnailUrl}
+                        alt={preview.name}
+                        className="h-16 w-16 flex-none rounded-xl border border-white/20 object-cover"
+                      />
+                    ))
+                  ) : (
+                    <p className="text-sm text-white/65">{tIndex("photos_label")}</p>
+                  )}
+                </div>
 
                 <button
                   type="button"
-                  disabled={isSaving}
                   className="w-full rounded-2xl bg-white px-4 py-3 text-sm font-semibold text-zinc-950 transition disabled:opacity-60"
+                  disabled={
+                    isSaving ||
+                    isUploading ||
+                    previewImages.length === 0 ||
+                    lostPetDate.trim().length === 0 ||
+                    lostPetName.trim().length === 0
+                  }
                   onClick={handleSaveLostPet}
                 >
                   {isSaving ? tCommon("saving") : tCommon("save")}
@@ -312,6 +553,33 @@ export default function MobileMapPage() {
           )}
         </div>
       </section>
+
+      {popup ? (
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/35 px-4 pb-4">
+          <div
+            className={`w-full max-w-md rounded-2xl border p-4 shadow-2xl ${
+              popup.type === "error"
+                ? "border-red-300 bg-red-50 text-red-900"
+                : "border-emerald-300 bg-emerald-50 text-emerald-900"
+            }`}
+            role="alertdialog"
+            aria-modal="true"
+          >
+            <p className="text-sm font-medium">{popup.message}</p>
+            <button
+              type="button"
+              className={`mt-3 rounded-md px-3 py-1.5 text-sm font-medium transition ${
+                popup.type === "error"
+                  ? "bg-red-200 text-red-900 hover:bg-red-300"
+                  : "bg-emerald-200 text-emerald-900 hover:bg-emerald-300"
+              }`}
+              onClick={() => setPopup(null)}
+            >
+              {tCommon("close")}
+            </button>
+          </div>
+        </div>
+      ) : null}
     </main>
   );
 }
