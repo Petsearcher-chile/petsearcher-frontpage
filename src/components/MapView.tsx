@@ -648,7 +648,15 @@ export default function MapView({
                   : tMap("view_lost_pet")
               }
               className="pointer-events-auto flex flex-col items-center bg-transparent p-0"
-              onClick={() => onMarkerSelect?.(marker)}
+              onPointerDown={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
+              }}
+              onClick={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                onMarkerSelect?.(marker);
+              }}
             >
               {marker.thumbnailUrl ? (
                 <div

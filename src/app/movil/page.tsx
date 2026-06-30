@@ -11,6 +11,7 @@ import {
   type ChangeEvent,
 } from "react";
 import MapView from "@/components/MapView";
+import type { RegisteredPetMarker } from "@/components/MapView";
 
 type SelectedPoint = {
   longitude: number;
@@ -51,7 +52,7 @@ type ApiResponse = {
   previewImages?: unknown;
 };
 
-type SheetMode = "menu" | "lost" | "found";
+type SheetMode = "menu" | "lost" | "found" | "detail";
 
 const LOST_PET_NAME_MAX_LENGTH = 30;
 const MAX_PHOTOS = 10;
@@ -118,6 +119,7 @@ export default function MobileMapPage() {
 
   const [selectedPoint, setSelectedPoint] = useState<SelectedPoint | null>(null);
   const [selectedAddress, setSelectedAddress] = useState<SelectedAddressDetail | null>(null);
+  const [selectedMarker, setSelectedMarker] = useState<RegisteredPetMarker | null>(null);
   const [sheetMode, setSheetMode] = useState<SheetMode>("menu");
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [dragOffset, setDragOffset] = useState(0);
@@ -162,6 +164,7 @@ export default function MobileMapPage() {
     setLostPetName("");
     setPreviewImages([]);
     setPetLossId(null);
+    setSelectedMarker(null);
     setPopup(null);
     setIsUploading(false);
     setIsSaving(false);
@@ -222,11 +225,19 @@ export default function MobileMapPage() {
   const handlePointSelect = useCallback(
     (point: SelectedPoint) => {
       setSelectedPoint(point);
+      setSelectedMarker(null);
       setSheetMode("menu");
       openSheet();
     },
     [openSheet],
   );
+
+  const handleMarkerSelect = useCallback((marker: RegisteredPetMarker) => {
+    setSelectedMarker(marker);
+    setSelectedPoint(null);
+    setSheetMode("detail");
+    openSheet();
+  }, [openSheet]);
 
   const handleLostButton = useCallback(() => {
     if (!isLoaded) {
@@ -257,6 +268,26 @@ export default function MobileMapPage() {
     setSheetMode("found");
     openSheet();
   }, [isLoaded, isSignedIn, openSignIn, openSheet, resetPetForm]);
+
+  const formatMarkerDate = useCallback(
+    (value: string | null) => {
+      if (!value) {
+        return tCommon("not_available");
+      }
+
+      const parsedDate = new Date(value);
+      if (Number.isNaN(parsedDate.getTime())) {
+        return value;
+      }
+
+      return new Intl.DateTimeFormat(locale, {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      }).format(parsedDate);
+    },
+    [locale, tCommon],
+  );
 
   const handleFileChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
@@ -490,6 +521,9 @@ export default function MobileMapPage() {
       <MapView
         mobileMode
         onMapPointSelect={handlePointSelect}
+        onMarkerSelect={handleMarkerSelect}
+        selectedMarkerId={selectedMarker?.markerId ?? null}
+        selectedMarkerType={selectedMarker?.markerType ?? null}
         searchPanelClassName="w-[min(94vw,40rem)] rounded-3xl border-white/20 bg-white/20 p-3 shadow-none backdrop-blur-2xl dark:border-white/10 dark:bg-zinc-950/30"
         searchInputClassName="border-white/20 bg-white/30 text-zinc-950 placeholder:text-zinc-700 focus:border-white/40 dark:border-white/10 dark:bg-zinc-900/40 dark:text-zinc-50 dark:placeholder:text-zinc-400"
       />
@@ -543,7 +577,51 @@ export default function MobileMapPage() {
             <div className="h-1.5 w-16 rounded-full bg-white/60" />
           </div>
 
-          {sheetMode === "menu" ? (
+          {sheetMode === "detail" && selectedMarker ? (
+            <div className="flex-1 overflow-auto px-4 pb-5 pt-4">
+              <div className="space-y-3 rounded-3xl border border-white/15 bg-black/10 p-4 text-white">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-lg font-semibold">
+                      {selectedMarker.petName ?? tCommon("not_available")}
+                    </p>
+                    <p className="mt-1 text-sm text-white/75">
+                      {selectedMarker.markerType === "found"
+                        ? tCommon("date_found")
+                        : tCommon("date_lost")}
+                      : {formatMarkerDate(selectedMarker.lostPetDate)}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    className="rounded-xl bg-white/20 px-3 py-2 text-sm font-semibold text-white transition hover:bg-white/30"
+                    onClick={closeSheet}
+                  >
+                    {tCommon("close")}
+                  </button>
+                </div>
+
+                <div className="space-y-2 text-sm text-white/85">
+                  <p>
+                    <span className="font-semibold">{tCommon("published_by")}</span>{" "}
+                    {selectedMarker.creatorName ?? tCommon("not_available")}
+                  </p>
+                  <p>
+                    <span className="font-semibold">{tCommon("email")}</span>{" "}
+                    {selectedMarker.creatorEmail ?? tCommon("not_available")}
+                  </p>
+                  <p>
+                    <span className="font-semibold">
+                      {selectedMarker.markerType === "found"
+                        ? tCommon("se_found_near")
+                        : tCommon("se_lost_near")}
+                    </span>{" "}
+                    {selectedMarker.fullAddress}
+                  </p>
+                </div>
+              </div>
+            </div>
+          ) : sheetMode === "menu" ? (
             <div className="flex-1 px-4 pb-5 pt-4">
               <button
                 type="button"
